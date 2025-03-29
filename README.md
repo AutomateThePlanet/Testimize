@@ -7,7 +7,7 @@
 
 ---
 <p align="center">
-  <img src="https://raw.githubusercontent.com/your-org/testimize/main/testimize_logo_github.png" width="140" alt="Testimize logo" />
+  <img src="https://raw.githubusercontent.com/AutomateThePlanet/Testimize/85d45a39841b841edce0b51d9a998a92672fe719/testimize_logo_github.png" width="140" alt="Testimize logo" />
 </p>
 
 ## ✨ Why Testimize?
