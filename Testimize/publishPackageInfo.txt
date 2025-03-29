@@ -1,7 +1,7 @@
-﻿dotnet nuget push "bin\Release\Testimize.1.1.4.nupkg" --api-key %NuGetKey%  --source https://api.nuget.org/v3/index.json
+﻿dotnet nuget push "bin\Release\Testimize.1.1.7.nupkg" --api-key %NuGetKey%  --source https://api.nuget.org/v3/index.json
 
 or via automatic GitHub Actions:
-Only runs when a version tag is pushed, like v1.1.4
+Only runs when a version tag is pushed, like v1.1.7
 
-git tag v1.1.4
-git push origin v1.1.4
+git tag v1.1.7
+git push origin v1.1.7
