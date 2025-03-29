@@ -6,6 +6,9 @@
 [![License](https://img.shields.io/github/license/testimize/testimize)](LICENSE)
 
 ---
+<p align="center">
+  <img src="https://raw.githubusercontent.com/your-org/testimize/main/testimize_logo_github.png" width="140" alt="Testimize logo" />
+</p>
 
 ## ✨ Why Testimize?
 
