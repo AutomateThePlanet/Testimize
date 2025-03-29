@@ -1,9 +1,9 @@
-name: Publish NuGet Package
+name: 📦 Publish NuGet Package
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Only runs when a version tag is pushed, like v1.1.4
+      - 'v*.*.*'  # Triggers on version tags like v1.1.6
 
 permissions:
   contents: read
@@ -11,9 +11,9 @@ permissions:
 
 jobs:
   publish:
+    name: Publish to NuGet.org
     runs-on: ubuntu-latest
-
-    environment: production # matches the environment where you set NuGetKey
+    environment: production
 
     steps:
       - name: Checkout Code
@@ -27,11 +27,11 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore ./Testimize/Testimize.csproj
 
-      - name: Build Solution
+      - name: Build Project
         run: dotnet build ./Testimize/Testimize.csproj --configuration Release --no-restore
 
       - name: Pack NuGet Package
         run: dotnet pack ./Testimize/Testimize.csproj --configuration Release --no-build --output ./nupkg
 
-      - name: Publish to NuGet.org
-        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source "https://api.nuget.org/v3/index.json"
+      - name: Push to NuGet.org
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source https://api.nuget.org/v3/index.json

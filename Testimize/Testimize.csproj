@@ -12,12 +12,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.1.5.0</Version>
+    <Version>1.1.6.0</Version>
     <Authors>Anton Angelov</Authors>
     <Company>Automate The Planet Ltd.</Company>
     <Product>Testimize – Test and Data Generation Library</Product>
-    <AssemblyVersion>1.1.5.0</AssemblyVersion>
-    <FileVersion>1.1.5.0</FileVersion>
+    <AssemblyVersion>1.1.6.0</AssemblyVersion>
+    <FileVersion>1.1.6.0</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Copyright>Copyright © Automate The Planet Ltd. 2025</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -58,9 +58,10 @@
     <!-- JSON settings config file -->
     <Content Include="samples\testimizeSettings.json">
       <Pack>true</Pack>
-      <PackagePath>contentFiles\any\any\testimizeSettings.json</PackagePath>
+      <PackagePath>contentFiles\cs\any</PackagePath>
       <CopyToOutput>true</CopyToOutput>
       <BuildAction>None</BuildAction>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
     <!-- Sample test files -->
