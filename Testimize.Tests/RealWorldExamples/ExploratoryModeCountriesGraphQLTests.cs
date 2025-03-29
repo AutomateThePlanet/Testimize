@@ -10,7 +10,7 @@ namespace Testimize.Tests.RealWorld;
 public class ExploratoryModeCountriesGraphQLTests
 {
     public static List<IInputParameter> ABCGeneratedTestParameters() =>
-    TestInputBuilder
+    TestimizeInputBuilder
         .Start()
         .AddSingleSelect(s => s
             .Valid("US")

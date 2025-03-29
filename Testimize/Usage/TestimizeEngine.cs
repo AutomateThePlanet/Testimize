@@ -1,12 +1,12 @@
 ﻿using Testimize.Contracts;
 
 namespace Testimize.Usage;
-public partial class PreciseTestEngine
+public partial class TestimizeEngine
 {
     private readonly List<IInputParameter> _parameters;
     private readonly PreciseTestEngineSettings _config;
 
-    private PreciseTestEngine(List<IInputParameter> parameters, PreciseTestEngineSettings config)
+    private TestimizeEngine(List<IInputParameter> parameters, PreciseTestEngineSettings config)
     {
         _parameters = parameters;
         _config = config;

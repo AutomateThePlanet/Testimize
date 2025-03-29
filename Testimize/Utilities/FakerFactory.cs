@@ -18,8 +18,8 @@ public static class FakerFactory
     {
         lock (_lock)
         {
-            _locale = locale ?? Settings.GetSection<TestValueGenerationSettings>().Locale;
-            _seed = seed ?? Settings.GetSection<TestValueGenerationSettings>().Seed;
+            _locale = locale ?? Settings.GetSection<TestimizeSettings>().Locale;
+            _seed = seed ?? Settings.GetSection<TestimizeSettings>().Seed;
 
             if (_seed.HasValue)
             {
@@ -52,8 +52,8 @@ public static class FakerFactory
        
         if (_seed.HasValue)
         {
-            _locale = locale ?? Settings.GetSection<TestValueGenerationSettings>().Locale;
-            _seed = seed ?? Settings.GetSection<TestValueGenerationSettings>().Seed;
+            _locale = locale ?? Settings.GetSection<TestimizeSettings>().Locale;
+            _seed = seed ?? Settings.GetSection<TestimizeSettings>().Seed;
             Randomizer.Seed = new Random(_seed.Value);
         }
 

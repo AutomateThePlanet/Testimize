@@ -1,5 +1,5 @@
 ﻿namespace Testimize.Configuration;
-public class TestValueGenerationSettings
+public class TestimizeSettings
 {
     public ABCGenerationSettings ABCGenerationConfig { get; set; }
     /// <summary>

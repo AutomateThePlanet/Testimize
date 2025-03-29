@@ -24,7 +24,7 @@ public class JsonPlaceholderPostTests
     //    };
     //}
     public static List<IInputParameter> ABCGeneratedTestParameters() =>
-    TestInputBuilder
+    TestimizeInputBuilder
         .Start()
         .AddText(5, 100)                        // title
         .AddText(20, 500)                       // body

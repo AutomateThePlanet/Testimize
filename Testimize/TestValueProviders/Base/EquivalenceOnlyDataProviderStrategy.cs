@@ -4,11 +4,11 @@ using Testimize.Contracts;
 namespace Testimize.TestValueProviders.Base;
 public abstract class EquivalenceOnlyDataProviderStrategy : IDataProviderStrategy
 {
-    protected readonly TestValueGenerationSettings Config;
+    protected readonly TestimizeSettings Config;
 
     protected EquivalenceOnlyDataProviderStrategy()
     {
-        Config = Settings.GetSection<TestValueGenerationSettings>();
+        Config = Settings.GetSection<TestimizeSettings>();
     }
 
     public virtual List<TestValue> GenerateTestValues(

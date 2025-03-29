@@ -5,7 +5,7 @@ namespace Testimize.Usage;
 
 public class TestInputSetBuilder
 {
-    private readonly TestInputBuilder _composer = TestInputBuilder.Start();
+    private readonly TestimizeInputBuilder _composer = TestimizeInputBuilder.Start();
 
     public TestInputSetBuilder AddText(Func<ParameterBuilder<TextDataParameter>, ParameterBuilder<TextDataParameter>> configure)
     {
