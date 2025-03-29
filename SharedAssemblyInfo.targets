@@ -1,0 +1,42 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>11.0</LangVersion>
+    <Configurations>DEBUG;STAGE;QA;LOCAL</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Version>1.1.0.0</Version>
+    <Authors>Anton Angelov</Authors>
+    <Company>Automate The Planet Ltd.</Company>
+    <Product>Testimize Test and Data Generation Library</Product>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>Automate The Planet Ltd. 2025</Copyright>
+    <PackageReleaseNotes>
+      - Added DevExtreme Components v1.2.0
+      - Fixed parallel execution
+      - Added Excel Service
+      - Fixed formatting
+      - Added qTestId plugin
+      - Added Advanced CkEditor component
+      - Added DevExtreme Components v.1.0
+      - .NET 8 Support
+      - Selenium Manager Support
+      - Upgrade All NuGet Packages
+      - Chrome Headless uses the new headless mode now
+      - Fixed grid execution driver additional options to Selenium 4
+      - Added SetModelColumns method to grid extensions
+      - Upgraded Azure KeyVault Identity
+      - Upgraded WebDriver Manager Version
+      - upgrade all 3rd-party NuGet packages
+      - fix all known bugs
+    </PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://Testimize.solutions</PackageProjectUrl>
+    <PackageTags>
+      test-data-generation, testing-library, automation-testing, dotnet, csharp, bva, pairwise-testing, metaheuristics, tdd
+    </PackageTags>
+    <Description>Smart and scalable test data generation engine for automated testing in .NET.</Description>
+  </PropertyGroup>
+</Project>

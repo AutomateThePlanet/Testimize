@@ -1,0 +1,29 @@
+﻿using Testimize.TestValueProviders.Base;
+using System.Globalization;
+
+namespace Testimize.TestValueProviders;
+
+public class PercentageDataProviderStrategy : BoundaryCapableDataProviderStrategy<decimal>
+{
+    public PercentageDataProviderStrategy(decimal? minBoundary = null, decimal? maxBoundary = null)
+        : base(minBoundary, maxBoundary)
+    {
+    }
+
+    protected override string GetInputTypeName() => "Percentage";
+
+    protected override Type GetExpectedType() => typeof(decimal);
+
+    protected override TestValue CreateBoundaryTestValue(decimal boundaryInput, TestValueCategory category)
+    {
+        return new TestValue(boundaryInput, category);
+    }
+
+    protected override decimal OffsetValue(decimal value, BoundaryOffsetDirection direction)
+    {
+        var parsed = decimal.TryParse(PrecisionStep, NumberStyles.Float, CultureInfo.InvariantCulture, out var step);
+        var offset = parsed ? step : 0.01m;
+
+        return direction == BoundaryOffsetDirection.Before ? value - offset : value + offset;
+    }
+}
