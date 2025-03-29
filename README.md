@@ -3,7 +3,8 @@
 > 🚀 Smart and scalable test data generation engine for .NET automated testing.
 
 [![NuGet](https://img.shields.io/nuget/v/Testimize.svg)](https://www.nuget.org/packages/Testimize)
-[![License](https://img.shields.io/github/license/testimize/testimize)](LICENSE)
+[![GitHub license](https://img.shields.io/github/license/AutomateThePlanet/Testimize?style=flat)](https://github.com/AutomateThePlanet/Testimize/blob/main/LICENSE)
+
 
 ---
 <p align="center">
