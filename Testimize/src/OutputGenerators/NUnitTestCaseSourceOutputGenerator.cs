@@ -1,0 +1,43 @@
+﻿using System.Diagnostics;
+using System.Text;
+using Testimize.Parameters.Core;
+using TextCopy;
+
+namespace Testimize.OutputGenerators;
+
+public class NUnitTestCaseSourceOutputGenerator : TestCaseOutputGenerator
+{
+    public override void GenerateOutput(string methodName, IEnumerable<TestCase> testCases, TestCaseCategory testCaseCategory = TestCaseCategory.All)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("\n🔹 **Generated NUnit TestCaseSource Method:**\n");
+        sb.AppendLine($"public static IEnumerable<object[]> {methodName}()");
+        sb.AppendLine("{");
+        sb.AppendLine("    return new List<object[]");
+        sb.AppendLine("    {");
+
+        foreach (var testCase in FilterTestCasesByCategory(testCases, testCaseCategory))
+        {
+            var values = testCase.Values.Select(x => $"\"{x.Value}\"").ToList();
+            var message = testCase.Values.FirstOrDefault(v => !string.IsNullOrEmpty(v.ExpectedInvalidMessage))?.ExpectedInvalidMessage;
+            if (!string.IsNullOrEmpty(message))
+            {
+                values.Add($"\"{message}\"");
+            }
+
+            sb.AppendLine($"        new object[] {{ {string.Join(", ", values)} }},");
+        }
+
+        sb.AppendLine("    };");
+        sb.AppendLine("}");
+
+        var output = sb.ToString();
+
+        Console.WriteLine(output);
+        Debug.WriteLine(output);
+
+        ClipboardService.SetText(output);
+        Console.WriteLine("✅ Method copied to clipboard.");
+    }
+}

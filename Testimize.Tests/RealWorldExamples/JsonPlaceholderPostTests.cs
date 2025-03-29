@@ -1,9 +1,10 @@
 ﻿using Testimize.Parameters;
 using RestSharp;
 using System.Collections.Generic;
+using System;
 using Testimize.Contracts;
 using Testimize.OutputGenerators;
-using System;
+using Testimize.Parameters.Core;
 
 namespace Testimize.Tests.RealWorld;
 

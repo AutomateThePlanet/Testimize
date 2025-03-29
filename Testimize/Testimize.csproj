@@ -4,10 +4,46 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateProgramFile>false</GenerateProgramFile>
-    <IsTestProject>true</IsTestProject>
+    <!--<IsTestProject>true</IsTestProject>-->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Testimize</PackageId>
+    <Configurations>Debug;Release</Configurations>
+    <LangVersion>11.0</LangVersion>
   </PropertyGroup>
 
-  <Import Project="..\SharedAssemblyInfo.targets" />
+  <PropertyGroup>
+    <Version>1.1.3.0</Version>
+    <Authors>Anton Angelov</Authors>
+    <Company>Automate The Planet Ltd.</Company>
+    <Product>Testimize – Test and Data Generation Library</Product>
+    <AssemblyVersion>1.1.3.0</AssemblyVersion>
+    <FileVersion>1.1.3.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>Copyright © Automate The Planet Ltd. 2025</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/AutomateThePlanet/Testimize</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AutomateThePlanet/Testimize</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>testimize_nuget_icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>
+      testimize; test-data-generation; tdd; test-automation; boundary-value-analysis; abc-algorithm; pairwise; csharp; dotnet; nunit
+    </PackageTags>
+
+    <Description>Testimize is a smart and scalable test data generation engine for .NET. It supports boundary value analysis, pairwise testing, and heuristic optimization via the Artificial Bee Colony (ABC) algorithm. Designed for CI/CD, exploratory testing, and validation scenarios.</Description>
+
+    <PackageReleaseNotes>
+      - Introduced Precise Mode for full test input control
+      - Added Pairwise Mode for lightweight coverage
+      - Added ABC Heuristic Generator for exploratory testing
+      - Integrated NUnit output generators (TestCase, TestCaseSource)
+      - Config-driven generation via JSON
+      - Faker-based localized values support
+      - 20+ supported input types
+      - Optimized for TDD and CI pipelines
+      - .NET 8 Support
+    </PackageReleaseNotes>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.2" />
@@ -17,4 +53,27 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
     <PackageReference Include="NUnit" Version="4.3.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- JSON settings config file -->
+    <Content Include="samples\testimizeSettings.json" Pack="true" PackagePath="contentFiles\any\any" CopyToOutput="true" CopyToPublishDirectory="PreserveNewest" />
+
+    <!-- Sample test files -->
+    <Content Include="samples\PreciseModeCountriesGraphQLTests.cs" Pack="true" PackagePath="contentFiles\cs\any" />
+
+    <Content Include="samples\ExploratoryModeCountriesGraphQLTests.cs" Pack="true" PackagePath="contentFiles\cs\any" />
+
+    <Content Include="samples\JsonPlaceholderPostTests.cs" Pack="true" PackagePath="contentFiles\cs\any" />
+
+    <Content Include="samples\ReqresRegistrationTests.cs" Pack="true" PackagePath="contentFiles\cs\any" />
+
+    <Content Include="samples\SampleTests.cs" Pack="true" PackagePath="contentFiles\cs\any" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\testimize_nuget_icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
 </Project>

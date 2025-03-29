@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Testimize.Parameters;
 using Testimize.Contracts;
+using Testimize.Parameters.Core;
 using Testimize.TestCaseGenerators;
 
 namespace Testimize.Tests.UnitTests;
@@ -75,6 +76,7 @@ public class ABCTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void CompareEfficiencyOfABCAndPairwiseReduction()
     {
         Console.WriteLine("================ TEST CASE REDUCTION ANALYSIS ================");
@@ -90,6 +92,7 @@ public class ABCTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void AllBoundaryValuesAreTestedAtLeastOnce()
     {
         var allBoundaryValues = _parameters
@@ -108,6 +111,7 @@ public class ABCTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void EachParameterIsUsedAtLeastOnce()
     {
         var uncoveredParameters = new List<string>();
@@ -136,6 +140,7 @@ public class ABCTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void NoTestCaseHasMoreThanOneInvalidInput()
     {
         foreach (var testCase in _abcTestCases)
@@ -149,6 +154,7 @@ public class ABCTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void GeneratedTestCasesAreUnique()
     {
         var distinctTestCases = _abcTestCases

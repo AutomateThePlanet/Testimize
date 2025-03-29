@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using Testimize.Parameters;
-using Testimize.Contracts;
 using Testimize.TestCaseGenerators;
+using Testimize.Contracts;
+using Testimize.Parameters.Core;
 
 namespace Testimize.Tests.Experiments;
 
@@ -27,6 +28,7 @@ public class ABCOptimizationBenchmarkTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void RunOptimizationBenchmark()
     {
         Console.WriteLine("\n========== Running ABC Parameter Optimization Benchmark ==========");

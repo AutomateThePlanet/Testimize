@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Testimize.Parameters;
+using System.Diagnostics;
 using Testimize.Contracts;
 using Testimize.OutputGenerators;
-using System.Diagnostics;
 
 namespace Testimize.Tests.RealWorldExamples;
 
@@ -23,6 +23,7 @@ public class SampleTests
 
     // ✅ Test method using ABC-driven test cases
     [Test, ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [Category(Categories.CI)]
     public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
     {
         Debug.WriteLine($"Running test with: {textValue}, {email}, {phone}, {anotherText}");

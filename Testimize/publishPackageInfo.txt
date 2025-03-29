@@ -1,0 +1,1 @@
+﻿dotnet nuget push "bin\Release\Testimize.1.1.2.nupkg" --api-key %NuGetKey%  --source https://api.nuget.org/v3/index.json

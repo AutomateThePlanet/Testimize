@@ -1,8 +1,9 @@
-﻿using Testimize.Contracts;
-using Testimize.TestCaseGenerators;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Testimize.Contracts;
+using Testimize.Parameters.Core;
+using Testimize.TestCaseGenerators;
 
 namespace Testimize.Tests.UnitTests;
 
@@ -22,6 +23,7 @@ public class PairwiseTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void GeneratesValidPairwiseCombinations()
     {
         var parameters = new List<IInputParameter>
@@ -72,6 +74,7 @@ public class PairwiseTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void GeneratesMinimalNumberOfTestCases()
     {
         var parameters = new List<IInputParameter>
@@ -86,6 +89,7 @@ public class PairwiseTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void HandlesSingleParameterCase()
     {
         var parameters = new List<IInputParameter>
@@ -98,6 +102,7 @@ public class PairwiseTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void HandlesEmptyParameterList()
     {
         var ex = Assert.Throws<ArgumentException>(() => PairwiseTestCaseGenerator.GenerateTestCases(new List<IInputParameter>()));
@@ -105,6 +110,7 @@ public class PairwiseTestCaseGeneratorTests
     }
 
     [Test]
+    [Category(Categories.CI)]
     public void ValidatesNoDuplicateTestCases()
     {
         var parameters = new List<IInputParameter>
