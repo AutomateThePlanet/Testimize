@@ -1,0 +1,37 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Only runs when a version tag is pushed, like v1.1.4
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    environment: production # matches the environment where you set NuGetKey
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore ./Testimize/Testimize.csproj
+
+      - name: Build Solution
+        run: dotnet build ./Testimize/Testimize.csproj --configuration Release --no-restore
+
+      - name: Pack NuGet Package
+        run: dotnet pack ./Testimize/Testimize.csproj --configuration Release --no-build --output ./nupkg
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source https://api.nuget.org/v3/index.json

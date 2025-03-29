@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: 🧪 Build and Run CI Tests
+    name: Build and Run CI Tests
     runs-on: ubuntu-latest
 
     env:
@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -35,10 +35,19 @@ jobs:
           --configuration Release \
           --no-build \
           --logger "trx;LogFileName=TestResults.trx" \
-          --filter "TestCategory=CI"
+          --filter "TestCategory=CI" \
+          --results-directory ./TestResults
 
-    - name: Publish Test Results
+    - name: Upload Test Results as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: TestResults
-        path: "**/TestResults/*.trx"
+        path: ./TestResults/TestResults.trx
+
+    - name: Visualize Test Results (dorny/test-reporter)
+      uses: dorny/test-reporter@v1
+      if: always() # ensures this runs even if tests fail
+      with:
+        name: NUnit CI Test Report
+        path: ./TestResults/TestResults.trx
+        reporter: dotnet-trx

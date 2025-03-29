@@ -5,6 +5,8 @@
 [![NuGet](https://img.shields.io/nuget/v/Testimize.svg)](https://www.nuget.org/packages/Testimize)
 [![GitHub license](https://img.shields.io/github/license/AutomateThePlanet/Testimize?style=flat)](https://github.com/AutomateThePlanet/Testimize/blob/main/LICENSE)
 [![CI](https://github.com/AutomateThePlanet/Testimize/actions/workflows/ci.yml/badge.svg)](https://github.com/AutomateThePlanet/Testimize/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/Testimize.svg)](https://www.nuget.org/packages/Testimize/)
+
 
 ---
 <p align="center">
