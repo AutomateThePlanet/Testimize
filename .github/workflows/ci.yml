@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: 🧪 Build and Run CI Tests
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_VERSION: '8.0.x'
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    - name: Build All Projects
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Run NUnit CI Tests Only
+      run: |
+        dotnet test ./Testimize.Tests/Testimize.Tests.csproj \
+          --configuration Release \
+          --no-build \
+          --logger "trx;LogFileName=TestResults.trx" \
+          --filter "TestCategory=CI"
+
+    - name: Publish Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: TestResults
+        path: "**/TestResults/*.trx"
