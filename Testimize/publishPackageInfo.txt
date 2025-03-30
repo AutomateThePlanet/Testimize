@@ -5,3 +5,5 @@ Only runs when a version tag is pushed, like v1.1.7
 
 git tag v1.1.7
 git push origin v1.1.7
+
+https://www.nuget.org/packages/Testimize/
