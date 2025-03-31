@@ -1,16 +1,16 @@
-﻿// // <copyright file="TestInputSetBuilder.cs" company="Automate The Planet Ltd.">
-// // Copyright 2025 Automate The Planet Ltd.
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // You may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-// // Unless required by applicable law or agreed to in writing,
-// // software distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
-// // </copyright>
-// // <author>Anton Angelov</author>
-// // <site>https://automatetheplanet.com/</site>
+﻿// <copyright file="TestInputSetBuilder.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 
 using Testimize.Contracts;
 using Testimize.Parameters;
@@ -43,6 +43,13 @@ public class TestInputSetBuilder
     public TestInputSetBuilder AddBoolean()
     {
         _composer.AddBoolean();
+        return this;
+    }
+
+    public TestInputSetBuilder AddBoolean(Func<ParameterBuilder<BooleanDataParameter>, ParameterBuilder<BooleanDataParameter>> configure)
+    {
+        var builder = new ParameterBuilder<BooleanDataParameter>();
+        _composer.AddBoolean(configure);
         return this;
     }
 
@@ -100,9 +107,16 @@ public class TestInputSetBuilder
         return this;
     }
 
-    public TestInputSetBuilder AddSelect(Func<ParameterBuilder<SingleSelectDataParameter>, ParameterBuilder<SingleSelectDataParameter>> configure)
+    public TestInputSetBuilder AddSingleSelect(Func<ParameterBuilder<SingleSelectDataParameter>, ParameterBuilder<SingleSelectDataParameter>> configure)
     {
         _composer.AddSingleSelect(configure);
+        return this;
+    }
+
+    public TestInputSetBuilder AddMultiSelect(Func<ParameterBuilder<MultiSelectDataParameter>, ParameterBuilder<MultiSelectDataParameter>> configure)
+    {
+        var builder = new ParameterBuilder<MultiSelectDataParameter>();
+        _composer.AddMultiSelect(configure);
         return this;
     }
 

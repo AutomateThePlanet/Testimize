@@ -1,16 +1,16 @@
-﻿// // <copyright file="HybridArtificialBeeColonyTestCaseGenerator.cs" company="Automate The Planet Ltd.">
-// // Copyright 2025 Automate The Planet Ltd.
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // You may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-// // Unless required by applicable law or agreed to in writing,
-// // software distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
-// // </copyright>
-// // <author>Anton Angelov</author>
-// // <site>https://automatetheplanet.com/</site>
+﻿// <copyright file="HybridArtificialBeeColonyTestCaseGenerator.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 
 using System.Diagnostics;
 using Testimize.Contracts;
@@ -148,7 +148,9 @@ public class HybridArtificialBeeColonyTestCaseGenerator
         {
             var mutatedTestCase = ApplyMutation(originalTestCase, parameters, iteration);
 
-            if (!mutatedTestCase.Equals(originalTestCase) && !evaluatedPopulation.Contains(mutatedTestCase))
+            if (!originalTestCase.Equals(mutatedTestCase) &&
+                !evaluatedPopulation.Contains(mutatedTestCase) &&
+                !mutatedCases.Contains(mutatedTestCase))
             {
                 var originalScore = _testCaseEvaluator.Evaluate(originalTestCase, evaluatedPopulation);
                 var mutatedScore = _testCaseEvaluator.Evaluate(mutatedTestCase, evaluatedPopulation);
@@ -172,6 +174,7 @@ public class HybridArtificialBeeColonyTestCaseGenerator
                 {
                     evaluatedPopulation.RemoveWhere(tc => tc.Equals(originalTestCase));
                     evaluatedPopulation.Add(mutatedTestCase);
+                    mutatedCases.Add(mutatedTestCase); // Prevent duplicates during this loop
                 }
             }
         }
@@ -185,7 +188,7 @@ public class HybridArtificialBeeColonyTestCaseGenerator
         }
 
         // Create a deep copy of the test case before mutating
-        var mutatedTestCase = new TestCase { Values = originalTestCase.Values.Select(v => new TestValue(v.Value, v.Category, v.ExpectedInvalidMessage)).ToList() };
+        var mutatedTestCase = (TestCase)originalTestCase.Clone();
 
         // Select a mutation index and change the value
         var index = _random.Next(mutatedTestCase.Values.Count);

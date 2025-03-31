@@ -1,16 +1,16 @@
-﻿// // <copyright file="PreciseModeFullExample.cs" company="Automate The Planet Ltd.">
-// // Copyright 2025 Automate The Planet Ltd.
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // You may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-// // Unless required by applicable law or agreed to in writing,
-// // software distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
-// // </copyright>
-// // <author>Anton Angelov</author>
-// // <site>https://automatetheplanet.com/</site>
+﻿// <copyright file="PreciseModeFullExample.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 
 using NUnit.Framework;
 using Testimize.OutputGenerators;
@@ -28,7 +28,7 @@ public class PreciseModeFullExample
         TestimizeEngine
             .Configure(
                 parameters => parameters
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("user@example.com")
                         .Valid("contact@domain.net")
                         .Invalid("invalid-email").WithExpectedMessage("Invalid Email value: 'invalid-email'")
@@ -38,7 +38,7 @@ public class PreciseModeFullExample
                         .Invalid("user@.com").WithExpectedMessage("Invalid Email value: 'user@.com'")
                         .Invalid("user@domain..com").WithExpectedMessage("Invalid Email value: 'user@domain..com'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("+11234567890")
                         .Valid("+442071838750")
                         .Invalid("12345").WithExpectedMessage("Invalid Phone value: '12345'")
@@ -49,7 +49,7 @@ public class PreciseModeFullExample
                         .Invalid("+359888BADNUM").WithExpectedMessage("Invalid Phone value: '+359888BADNUM'")
                         .Invalid("(123) 456-7890-ext").WithExpectedMessage("Invalid Phone value: '(123) 456-7890-ext'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("Hello World")
                         .Valid("Sample Input")
                         .Invalid("").WithExpectedMessage("Invalid Text value: ''")
@@ -61,7 +61,7 @@ public class PreciseModeFullExample
                         .Invalid("<script>alert('XSS')</script>").WithExpectedMessage("Invalid Text value: '<script>alert('XSS')</script>'")
                         .Invalid("' OR 1=1 --").WithExpectedMessage("Invalid Text value: '' OR 1=1 --'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("StrongP@ssw0rd1")
                         .Valid("Another1#Valid")
                         .Invalid("12345").WithExpectedMessage("Invalid Password value: '12345'")
@@ -69,7 +69,7 @@ public class PreciseModeFullExample
                         .Invalid("abc").WithExpectedMessage("Invalid Password value: 'abc'")
                         .Invalid(" ").WithExpectedMessage("Invalid Password value: ' '"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("true")
                         .Valid("false"))
                     // Optional: Add commented invalids
@@ -78,7 +78,7 @@ public class PreciseModeFullExample
                     //.Invalid("1")
                     //.Invalid("maybe")
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("0")
                         .Valid("42")
                         .Valid("-100")
@@ -88,7 +88,7 @@ public class PreciseModeFullExample
                         .Invalid("999999999999999999999").WithExpectedMessage("Invalid Integer value: '999999999999999999999'")
                         .Invalid("-999999999999999999999").WithExpectedMessage("Invalid Integer value: '-999999999999999999999'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("10.5")
                         .Valid("-100.75")
                         .Valid("0.00")
@@ -99,7 +99,7 @@ public class PreciseModeFullExample
                         .Invalid("").WithExpectedMessage("Invalid Decimal value: ''")
                         .Invalid("null").WithExpectedMessage("Invalid Decimal value: 'null'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("0.0")
                         .Valid("50.5")
                         .Valid("99.99")
@@ -109,7 +109,7 @@ public class PreciseModeFullExample
                         .Invalid("text").WithExpectedMessage("Invalid Percentage value: 'text'")
                         .Invalid("").WithExpectedMessage("Invalid Percentage value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("0.0")
                         .Valid("19.99")
                         .Valid("100.00")
@@ -119,7 +119,7 @@ public class PreciseModeFullExample
                         .Invalid("text").WithExpectedMessage("Invalid Currency value: 'text'")
                         .Invalid("").WithExpectedMessage("Invalid Currency value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("2024-01-01")
                         .Valid("1990-12-31")
                         .Valid("2025-03-26")
@@ -127,7 +127,7 @@ public class PreciseModeFullExample
                         .Invalid("13/32/2020").WithExpectedMessage("Invalid Date value: '13/32/2020'")
                         .Invalid("").WithExpectedMessage("Invalid Date value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("00:00")
                         .Valid("12:30")
                         .Valid("23:59")
@@ -136,7 +136,7 @@ public class PreciseModeFullExample
                         .Invalid("noon").WithExpectedMessage("Invalid Time value: 'noon'")
                         .Invalid("").WithExpectedMessage("Invalid Time value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("2024-10-01T10:30:00")
                         .Valid("1999-12-31T23:59:59")
                         .Valid("2025-03-26T00:00:00")
@@ -146,7 +146,7 @@ public class PreciseModeFullExample
                         .Invalid("").WithExpectedMessage("Invalid DateTime value: ''")
                         .Invalid("null").WithExpectedMessage("Invalid DateTime value: 'null'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("2025-W01")
                         .Valid("2024-W52")
                         .Valid("2023-W12")
@@ -155,7 +155,7 @@ public class PreciseModeFullExample
                         .Invalid("not-a-week").WithExpectedMessage("Invalid Week value: 'not-a-week'")
                         .Invalid("").WithExpectedMessage("Invalid Week value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("2025-01")
                         .Valid("2024-12")
                         .Valid("1999-07")
@@ -164,14 +164,14 @@ public class PreciseModeFullExample
                         .Invalid("March 2025").WithExpectedMessage("Invalid Month value: 'March 2025'")
                         .Invalid("").WithExpectedMessage("Invalid Month value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("123 Main St, Springfield, IL 62704")
                         .Valid("456 Elm St, Apt 5B, New York, NY 10001")
                         .Invalid("").WithExpectedMessage("Invalid Address value: ''")
                         .Invalid("No Address").WithExpectedMessage("Invalid Address value: 'No Address'")
                         .Invalid("ZZZ").WithExpectedMessage("Invalid Address value: 'ZZZ'"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("42.6975,23.3242")
                         .Valid("48.8566,2.3522")
                         .Valid("-33.8688,151.2093")
@@ -182,7 +182,7 @@ public class PreciseModeFullExample
                         .Invalid("42.6975,").WithExpectedMessage("Invalid GeoCoordinate value: '42.6975,'")
                         .Invalid("").WithExpectedMessage("Invalid GeoCoordinate value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("john_doe")
                         .Valid("user123")
                         .Valid("qa_tester")
@@ -192,7 +192,7 @@ public class PreciseModeFullExample
                         .Invalid("root$").WithExpectedMessage("Invalid Username value: 'root$'")
                         .Invalid("").WithExpectedMessage("Invalid Username value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("https://www.google.com")
                         .Valid("http://example.org")
                         .Valid("https://sub.domain.co.uk")
@@ -202,7 +202,7 @@ public class PreciseModeFullExample
                         .Invalid("://missing.scheme.com").WithExpectedMessage("Invalid URL value: '://missing.scheme.com'")
                         .Invalid("").WithExpectedMessage("Invalid URL value: ''"))
 
-                    .AddSelect(s => s
+                    .AddSingleSelect(s => s
                         .Valid("#FF0000")
                         .Valid("#00FF00")
                         .Valid("#0000FF")

@@ -1,16 +1,16 @@
-﻿// // <copyright file="NUnitTestCaseAttributeOutputGenerator.cs" company="Automate The Planet Ltd.">
-// // Copyright 2025 Automate The Planet Ltd.
-// // Licensed under the Apache License, Version 2.0 (the "License");
-// // You may not use this file except in compliance with the License.
-// // You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-// // Unless required by applicable law or agreed to in writing,
-// // software distributed under the License is distributed on an "AS IS" BASIS,
-// // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// // See the License for the specific language governing permissions and
-// // limitations under the License.
-// // </copyright>
-// // <author>Anton Angelov</author>
-// // <site>https://automatetheplanet.com/</site>
+﻿// <copyright file="NUnitTestCaseAttributeOutputGenerator.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 
 using System.Diagnostics;
 using System.Text;
@@ -26,7 +26,15 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
+        var multiInvalidCount = testCases.Count(
+            tc => tc.Values.Count(v =>
+                v.Category is TestValueCategory.Invalid or TestValueCategory.BoundaryInvalid) > 1);
+
+        Debug.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
+        Console.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
+
+        Console.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
+        Debug.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
 
         foreach (var testCase in FilterTestCasesByCategory(testCases, testCaseCategory))
         {
@@ -35,14 +43,9 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
             var expectedMessage = testCase.Values.FirstOrDefault(v =>
                 !string.IsNullOrWhiteSpace(v.ExpectedInvalidMessage))?.ExpectedInvalidMessage;
 
-            if (!string.IsNullOrEmpty(expectedMessage))
-            {
-                sb.AppendLine($"[TestCase({string.Join(", ", values)}, ExpectedResult = {ToLiteral(expectedMessage)})]");
-            }
-            else
-            {
-                sb.AppendLine($"[TestCase({string.Join(", ", values)})]");
-            }
+            values.Add(ToLiteral(expectedMessage ?? string.Empty));
+
+            sb.AppendLine($"[TestCase({string.Join(", ", values)})]");
         }
 
         var output = sb.ToString();
@@ -52,6 +55,7 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
 
         ClipboardService.SetText(output);
         Console.WriteLine("✅ Attributes copied to clipboard.");
+        Debug.WriteLine("✅ Attributes copied to clipboard.");
     }
 
     private static string ToLiteral(object value)
@@ -59,11 +63,16 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
         return value switch
         {
             null => "null",
-            string s => $"\"{s.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"",
+            string s => $"\"{EscapeString(s)}\"",
             bool b => b.ToString().ToLowerInvariant(),
+            DateTime dt => $"\"{dt:dd-MM-yyyy}\"", // ISO format
+            string[] arr => $"new[] {{ {string.Join(", ", arr.Select(a => $"\"{EscapeString(a)}\""))} }}",
             _ => value.ToString()
         };
     }
+
+    private static string EscapeString(string input) =>
+        input.Replace("\\", "\\\\").Replace("\"", "\\\"");
 }
 
 //Example Output
