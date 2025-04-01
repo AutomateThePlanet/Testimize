@@ -16,17 +16,8 @@ using Testimize.Contracts;
 using Testimize.Parameters.Core;
 
 namespace Testimize.Usage;
-public partial class TestimizeEngine
+public class TestimizeEngine
 {
-    private readonly List<IInputParameter> _parameters;
-    private readonly PreciseTestEngineSettings _config;
-
-    private TestimizeEngine(List<IInputParameter> parameters, PreciseTestEngineSettings config)
-    {
-        _parameters = parameters;
-        _config = config;
-    }
-
     public static TestSuiteBuilder Configure(
         Action<TestimizeInputBuilder> parametersConfig,
         Action<PreciseTestEngineSettings> configOverrides = null)

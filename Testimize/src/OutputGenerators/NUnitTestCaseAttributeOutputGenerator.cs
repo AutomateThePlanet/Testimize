@@ -29,6 +29,9 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
         var multiInvalidCount = testCases.Count(
             tc => tc.Values.Count(v =>
                 v.Category is TestValueCategory.Invalid or TestValueCategory.BoundaryInvalid) > 1);
+        var testCasesToBeGenerated = FilterTestCasesByCategory(testCases, testCaseCategory);
+        Debug.WriteLine($"🧪 Total test cases to be generated: {testCasesToBeGenerated.Count()}");
+        Console.WriteLine($"\U0001f9ea Total test cases to be generated: {testCasesToBeGenerated.Count()}");
 
         Debug.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
         Console.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
@@ -36,7 +39,7 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
         Debug.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
 
-        foreach (var testCase in FilterTestCasesByCategory(testCases, testCaseCategory))
+        foreach (var testCase in testCasesToBeGenerated)
         {
             var values = testCase.Values.Select(x => ToLiteral(x.Value)).ToList();
 

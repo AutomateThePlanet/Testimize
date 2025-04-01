@@ -15,7 +15,7 @@
 namespace Testimize;
 public class TestimizeSettings
 {
-    public ABCGenerationSettings ABCGenerationConfig { get; set; }
+    public ABCGenerationSettings ABCGenerationSettings { get; set; }
     /// <summary>
     /// Supported locale codes for Bogus:
     /// 
@@ -72,7 +72,7 @@ public class TestimizeSettings
     /// </summary>
     public string Locale { get; set; } = "en";
     public int Seed { get; set; } = 12345;
-    public bool IncludeBoundaryValues { get; set; } = true;
+    public bool AllowBoundaryValues { get; set; } = true;
     public bool AllowValidEquivalenceClasses { get; set; } = false;
     public bool AllowInvalidEquivalenceClasses { get; set; } = false;
     public Dictionary<string, InputTypeSettings> InputTypeSettings { get; set; } = new();

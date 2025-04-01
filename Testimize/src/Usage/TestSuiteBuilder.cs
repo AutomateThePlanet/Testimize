@@ -19,36 +19,25 @@ using Testimize.TestCaseGenerators;
 
 namespace Testimize.Usage;
 public class TestSuiteBuilder
+{
+    private readonly List<IInputParameter> _parameters;
+    private readonly PreciseTestEngineSettings _settings;
+
+    internal TestSuiteBuilder(List<IInputParameter> parameters, PreciseTestEngineSettings config)
     {
-        private readonly List<IInputParameter> _parameters;
-        private readonly PreciseTestEngineSettings _settings;
+        _parameters = parameters;
+        _settings = config;
+    }
 
-        internal TestSuiteBuilder(List<IInputParameter> parameters, PreciseTestEngineSettings config)
+    public List<TestCase> Generate()
+    {
+        return _settings.Mode switch
         {
-            _parameters = parameters;
-            _settings = config;
-        }
-
-        public List<TestCase> Generate()
-        {
-            return _settings.Mode switch
-            {
-                TestGenerationMode.HybridArtificialBeeColony => GenerateUsingABC(_settings.MethodName, _settings.TestCaseCategory),
-                TestGenerationMode.Pairwise => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory),
-                _ => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory)
-            };
-        }
-
-        public List<TestCase> Build()
-        {
-            _settings.OutputGenerator = null;
-            return _settings.Mode switch
-            {
-                TestGenerationMode.HybridArtificialBeeColony => GenerateUsingABC(_settings.MethodName, _settings.TestCaseCategory),
-                TestGenerationMode.Pairwise => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory),
-                _ => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory)
-            };
-        }
+            TestGenerationMode.HybridArtificialBeeColony => GenerateUsingABC(_settings.MethodName, _settings.TestCaseCategory),
+            TestGenerationMode.Pairwise => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory),
+            _ => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory)
+        };
+    }
 
     private List<TestCase> GenerateUsingPairwise(string methodName, TestCaseCategory category)
     {

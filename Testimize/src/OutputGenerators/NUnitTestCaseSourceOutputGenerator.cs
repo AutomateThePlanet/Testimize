@@ -23,6 +23,19 @@ public class NUnitTestCaseSourceOutputGenerator : TestCaseOutputGenerator
 {
     public override void GenerateOutput(string methodName, IEnumerable<TestCase> testCases, TestCaseCategory testCaseCategory = TestCaseCategory.All)
     {
+        var multiInvalidCount = testCases.Count(
+            tc => tc.Values.Count(v =>
+                v.Category is TestValueCategory.Invalid or TestValueCategory.BoundaryInvalid) > 1);
+        var testCasesToBeGenerated = FilterTestCasesByCategory(testCases, testCaseCategory);
+        Debug.WriteLine($"🧪 Total test cases to be generated: {testCasesToBeGenerated.Count()}");
+        Console.WriteLine($"\U0001f9ea Total test cases to be generated: {testCasesToBeGenerated.Count()}");
+
+        Debug.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
+        Console.WriteLine($"🧪 Total test cases with more than one invalid input: {multiInvalidCount}");
+
+        Console.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
+        Debug.WriteLine("🔹 **Generated NUnit [TestCase(...)] Attributes:**\n");
+
         var sb = new StringBuilder();
 
         sb.AppendLine("\n🔹 **Generated NUnit TestCaseSource Method:**\n");

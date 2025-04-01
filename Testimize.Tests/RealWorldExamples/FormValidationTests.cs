@@ -190,7 +190,7 @@ public class FormValidationTests
                     StagnationThresholdPercentage = 0.75,
                     CoolingRate = 0.95,
                     AllowMultipleInvalidInputs = false,
-                    OutputGenerator = new NUnitTestCaseAttributeOutputGenerator()
+                    OutputGenerator = new NUnitTestCaseSourceOutputGenerator()
                 };
             })
         .Generate();
@@ -368,7 +368,7 @@ public class FormValidationTests
     [TestCase("Ann", "a@e.io", "+3598888", "Aa1@abcd", 100, "31-12-2020", "https://example.com", true, "France", new[] { "English", "French" }, "")]
     [TestCase("Ann", "a@e.io", "+3598888", "Secure1!", 25, "01-01-1920", "https://very-long-url.com/with/path", true, "Germany", new[] { "German" }, "")]
     [TestCase("AAAAAAAAAAAAAAAAAAAA", "a@e.io", "+359888888888", "Aa1@abcd", 18, "01-01-1990", "https://very-long-url.com/with/path", true, "United States", new[] { "German" }, "")]
-    [Ignore]
+    [Ignore("")]
     public void SuccessMessageDisplayed_WhenSubmitFormWithValidParameters(
    string fullName, string email, string phone, string password, int age,
    string birthdate, string website, bool? terms, string country, string[] languages, string expectedError)

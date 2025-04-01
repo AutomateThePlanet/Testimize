@@ -2,7 +2,7 @@
   "testimizeSettings": {
     "seed": 12345, // used for random data generation
     "locale": "en", // open TestValueGenerationSettings.cs to see all supported localizations like "en", "fr", "de", "bg", "pl"
-    "includeBoundaryValues": true,
+    "allowBoundaryValues": true,
     "allowValidEquivalenceClasses": true,
     "allowInvalidEquivalenceClasses": true,
     "abcGenerationSettings": {

@@ -30,7 +30,7 @@ public class DataParameter<TDataStrategy> : IInputParameter
         DataProviderStrategy = dataProviderStrategy;
 
         TestValues = DataProviderStrategy.GenerateTestValues(
-         includeBoundaryValues: preciseMode ? false : includeBoundaryValues, // Disable boundary calculations in manual mode
+         allowBoundaryValues: preciseMode ? false : includeBoundaryValues, // Disable boundary calculations in manual mode
          allowValidEquivalenceClasses: preciseMode ? false : allowValidEquivalenceClasses,
          allowInvalidEquivalenceClasses: preciseMode ? false : allowInvalidEquivalenceClasses,
          preciseTestValues);

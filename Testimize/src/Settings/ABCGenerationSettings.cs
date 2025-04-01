@@ -17,19 +17,19 @@ using Testimize.OutputGenerators;
 namespace Testimize;
 public class ABCGenerationSettings
 {
-    public int TotalPopulationGenerations { get; set; } = 20;
+    public int TotalPopulationGenerations { get; set; } = 50;
     public double MutationRate { get; set; } = 0.3;
     public double FinalPopulationSelectionRatio { get; set; } = 0.5;
     public double EliteSelectionRatio { get; set; } = 0.5;
     public double OnlookerSelectionRatio { get; set; } = 0.1;
     public double ScoutSelectionRatio { get; set; } = 0.3;
     public bool EnableOnlookerSelection { get; set; } = true;
-    public bool EnableScoutPhase { get; set; } = false;
+    public bool EnableScoutPhase { get; set; } = true;
     public bool EnforceMutationUniqueness { get; set; } = true;
     public double StagnationThresholdPercentage { get; set; } = 0.75;
     public double CoolingRate { get; set; } = 0.95;
     public bool AllowMultipleInvalidInputs { get; set; } = false;
-    public ITestCaseOutputGenerator OutputGenerator { get; set; } = new NUnitTestCaseSourceOutputGenerator();
+    public ITestCaseOutputGenerator OutputGenerator { get; set; } = new NUnitTestCaseAttributeOutputGenerator();
 
     public override int GetHashCode()
     {

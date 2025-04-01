@@ -31,7 +31,7 @@ public class PreciseModeCountriesGraphQLTests
                     .Valid("BG")
                     .Valid("FR")
                     .Invalid("XX").WithExpectedMessage("Country code is invalid")
-                    .Invalid("U1").WithExpectedMessage("Country code must contain only letters")
+                    .Invalid("U1").WithExpectedMessage("Country code must contain only letteABCTestCaseGeneratorTestsrs")
                     .Invalid("").WithExpectedMessage("Country code is required"))
                 .AddSingleSelect(s => s
                     .Valid("en")

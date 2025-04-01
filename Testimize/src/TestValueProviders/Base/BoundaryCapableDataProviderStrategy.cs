@@ -46,18 +46,18 @@ public abstract class BoundaryCapableDataProviderStrategy<T> : EquivalenceOnlyDa
     }
 
     public override List<TestValue> GenerateTestValues(
-        bool? includeBoundaryValues = null,
+        bool? allowBoundaryValues = null,
         bool? allowValidEquivalenceClasses = null,
         bool? allowInvalidEquivalenceClasses = null,
         params TestValue[] preciseTestValues)
     {
         var testValues = base.GenerateTestValues(
-            includeBoundaryValues: false, // Let us handle boundary addition here
+            allowBoundaryValues: false, // Let us handle boundary addition here
             allowValidEquivalenceClasses,
             allowInvalidEquivalenceClasses,
             preciseTestValues);
-
-        if ((includeBoundaryValues ?? true) && MinBoundary != null && MaxBoundary != null)
+        var allowBoundaryValuesAnalysis = allowBoundaryValues ?? Config.AllowBoundaryValues;
+        if (allowBoundaryValuesAnalysis && MinBoundary != null && MaxBoundary != null)
         {
             testValues.Add(CreateBoundaryTestValue(OffsetValue(MinBoundary.Value, BoundaryOffsetDirection.Before), TestValueCategory.BoundaryInvalid));
             testValues.Add(CreateBoundaryTestValue(MinBoundary.Value, TestValueCategory.BoundaryValid));

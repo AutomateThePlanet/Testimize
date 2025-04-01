@@ -23,5 +23,5 @@ public class PreciseTestEngineSettings
     public string MethodName { get; set; } = "TestMethodName";
     public ITestCaseOutputGenerator OutputGenerator { get; set; } = new NUnitTestCaseSourceOutputGenerator();
 
-    public ABCGenerationSettings ABCSettings { get; set; }
+    public ABCGenerationSettings ABCSettings { get; set; } = Settings.GetSection<TestimizeSettings>().ABCGenerationSettings;
 }

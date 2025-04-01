@@ -26,7 +26,7 @@ public abstract class EquivalenceOnlyDataProviderStrategy : IDataProviderStrateg
     }
 
     public virtual List<TestValue> GenerateTestValues(
-        bool? includeBoundaryValues = null, // Ignored
+        bool? allowBoundaryValues = null, // Ignored
         bool? allowValidEquivalenceClasses = null,
         bool? allowInvalidEquivalenceClasses = null,
         params TestValue[] preciseTestValues)
