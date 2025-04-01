@@ -15,7 +15,7 @@
 using Testimize.OutputGenerators;
 using Testimize.Usage;
 
-namespace Testimize.Tests.RealWorld;
+namespace Testimize.Tests.RealWorldExamples;
 
 [TestFixture]
 public class PreciseModeCountriesGraphQLTests

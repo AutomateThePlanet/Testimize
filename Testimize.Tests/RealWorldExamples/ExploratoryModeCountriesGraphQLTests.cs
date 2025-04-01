@@ -13,46 +13,50 @@
 // <site>https://automatetheplanet.com/</site>
 
 using RestSharp;
-using System.Collections.Generic;
 using System;
-using Testimize.Contracts;
-using Testimize.OutputGenerators;
+using System.Collections.Generic;
 using Testimize.Parameters.Core;
+using Testimize.OutputGenerators;
+using Testimize.Usage;
 
 namespace Testimize.Tests.RealWorld;
 
 [TestFixture]
 public class ExploratoryModeCountriesGraphQLTests
 {
-    public static List<IInputParameter> ABCGeneratedTestParameters() =>
-    TestimizeInputBuilder
-        .Start()
-        .AddSingleSelect(s => s
-            .Valid("US")
-            .Valid("BG")
-            .Valid("FR")
-            .Invalid("XX").WithoutMessage()
-            .Invalid("U1").WithoutMessage()
-            .Invalid("").WithoutMessage())
-        .AddSingleSelect(s => s
-            .Valid("en")
-            .Valid("fr")
-            .Valid("de")
-            .Invalid("zz").WithoutMessage()
-            .Invalid("123").WithoutMessage())
-        .AddSingleSelect(s => s
-            .Valid("EU")
-            .Valid("AF")
-            .Valid("AS")
-            .Invalid("999").WithoutMessage()
-            .Invalid("X").WithoutMessage()
-            .Invalid("").WithoutMessage())
-        .Build();
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddSingleSelect(s => s
+                    .Valid("US")
+                    .Valid("BG")
+                    .Valid("FR")
+                    .Invalid("XX").WithoutMessage()
+                    .Invalid("U1").WithoutMessage()
+                    .Invalid("").WithoutMessage())
+                .AddSingleSelect(s => s
+                    .Valid("en")
+                    .Valid("fr")
+                    .Valid("de")
+                    .Invalid("zz").WithoutMessage()
+                    .Invalid("123").WithoutMessage())
+                .AddSingleSelect(s => s
+                    .Valid("EU")
+                    .Valid("AF")
+                    .Valid("AS")
+                    .Invalid("999").WithoutMessage()
+                    .Invalid("X").WithoutMessage()
+                    .Invalid("").WithoutMessage()),
+            settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+            }).Generate();
 
     [Test]
-    [ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [ABCTestCaseSource2(nameof(ConfigureEngine))]
     public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
-     string countryCode, string languageCode, string continentCode)
+        string countryCode, string languageCode, string continentCode)
     {
         var client = new RestClient("https://countries.trevorblades.com/");
         var request = new RestRequest("", Method.Post);

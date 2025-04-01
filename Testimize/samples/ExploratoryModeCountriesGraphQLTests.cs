@@ -12,75 +12,105 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
 using Testimize.Contracts;
 using Testimize.OutputGenerators;
 using Testimize.Parameters.Core;
-using NUnit.Framework;
+using Testimize.Usage;
 
 namespace Testimize.Tests.RealWorld;
 
 [TestFixture]
 public class ExploratoryModeCountriesGraphQLTests
 {
-    public static List<IInputParameter> ABCGeneratedTestParameters() =>
-    TestimizeInputBuilder
-        .Start()
-        .AddSingleSelect(s => s
-            .Valid("US")
-            .Valid("BG")
-            .Valid("FR")
-            .Invalid("XX").WithoutMessage()
-            .Invalid("U1").WithoutMessage()
-            .Invalid("").WithoutMessage())
-        .AddSingleSelect(s => s
-            .Valid("en")
-            .Valid("fr")
-            .Valid("de")
-            .Invalid("zz").WithoutMessage()
-            .Invalid("123").WithoutMessage())
-        .AddSingleSelect(s => s
-            .Valid("EU")
-            .Valid("AF")
-            .Valid("AS")
-            .Invalid("999").WithoutMessage()
-            .Invalid("X").WithoutMessage()
-            .Invalid("").WithoutMessage())
-        .Build();
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddSingleSelect(s => s
+                    .Valid("US")
+                    .Valid("BG")
+                    .Valid("FR")
+                    .Invalid("XX").WithoutMessage()
+                    .Invalid("U1").WithoutMessage()
+                    .Invalid("").WithoutMessage())
+                .AddSingleSelect(s => s
+                    .Valid("en")
+                    .Valid("fr")
+                    .Valid("de")
+                    .Invalid("zz").WithoutMessage()
+                    .Invalid("123").WithoutMessage())
+                .AddSingleSelect(s => s
+                    .Valid("EU")
+                    .Valid("AF")
+                    .Valid("AS")
+                    .Invalid("999").WithoutMessage()
+                    .Invalid("X").WithoutMessage()
+                    .Invalid("").WithoutMessage()),
+            settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+                settings.ABCSettings = new ABCGenerationSettings
+                {
+                    TotalPopulationGenerations = 50,
+                    MutationRate = 0.4,
+                    FinalPopulationSelectionRatio = 0.5,
+                    EliteSelectionRatio = 0.3,
+                    OnlookerSelectionRatio = 0.1,
+                    ScoutSelectionRatio = 0.3,
+                    EnableOnlookerSelection = true,
+                    EnableScoutPhase = true,
+                    EnforceMutationUniqueness = true,
+                    StagnationThresholdPercentage = 0.75,
+                    CoolingRate = 0.95,
+                    AllowMultipleInvalidInputs = false,
+                    OutputGenerator = new NUnitTestCaseAttributeOutputGenerator()
+                };
+            }).Generate();
 
     [Test]
-    [ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [ABCTestCaseSource2(nameof(ConfigureEngine))]
     public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
-     string countryCode, string languageCode, string continentCode)
+        string countryCode, string languageCode, string continentCode)
     {
-        //var client = new RestClient("https://countries.trevorblades.com/");
-        //var request = new RestRequest("", Method.Post);
-        //request.AddHeader("Content-Type", "application/json");
+        // Uncomment this block to run live GraphQL query to https://countries.trevorblades.com
 
-        //var graphql = new
-        //{
-        //    query = @"
-        //            query FilteredQuery($code: ID!, $lang: String!, $cont: String!) {
-        //                country(code: $code) {
-        //                    name
-        //                    capital
-        //                    languages { code name }
-        //                    continent { code name }
-        //                }
-        //            }",
-        //    variables = new
-        //    {
-        //        code = countryCode.ToUpperInvariant(),
-        //        lang = languageCode.ToLowerInvariant(),
-        //        cont = continentCode.ToUpperInvariant()
-        //    }
-        //};
+        /*
+        var client = new RestClient("https://countries.trevorblades.com/");
+        var request = new RestRequest("", Method.Post);
+        request.AddHeader("Content-Type", "application/json");
 
-        //request.AddJsonBody(graphql);
-        //var response = client.Execute(request);
+        var graphql = new
+        {
+            query = @"
+                query FilteredQuery($code: ID!, $lang: String!, $cont: String!) {
+                    country(code: $code) {
+                        name
+                        capital
+                        languages { code name }
+                        continent { code name }
+                    }
+                }",
+            variables = new
+            {
+                code = countryCode.ToUpperInvariant(),
+                lang = languageCode.ToLowerInvariant(),
+                cont = continentCode.ToUpperInvariant()
+            }
+        };
 
-        //Console.WriteLine($"→ Querying {countryCode}, Language: {languageCode}, Continent: {continentCode}");
-        //Console.WriteLine($"← Response: {response.StatusCode}, Body: {response.Content}");
+        request.AddJsonBody(graphql);
+        var response = client.Execute(request);
 
-        //Assert.That((int)response.StatusCode, Is.EqualTo(200));
+        Console.WriteLine($"→ Querying {countryCode}, Language: {languageCode}, Continent: {continentCode}");
+        Console.WriteLine($"← Response: {response.StatusCode}, Body: {response.Content}");
+
+        Assert.That((int)response.StatusCode, Is.EqualTo(200));
+        */
+
+        // Placeholder assertion for when API call is disabled
+        //Assert.Pass($"Simulated query with: {countryCode}, {languageCode}, {continentCode}");
     }
 }

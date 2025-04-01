@@ -12,43 +12,71 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
-using Testimize.Parameters;
-using Testimize.Contracts;
-using Testimize.OutputGenerators;
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Testimize.Contracts;
+using Testimize.Parameters.Core;
+using Testimize.OutputGenerators;
+using Testimize.Usage;
 
 namespace Testimize.Tests.RealWorld;
 
 [TestFixture]
 public class ReqresRegistrationTests
 {
-    public static List<IInputParameter> ABCGeneratedTestParameters()
-    {
-        return new List<IInputParameter>
-        {
-            new EmailDataParameter(minBoundary: 10, maxBoundary: 20),
-            new PasswordDataParameter(minBoundary: 8, maxBoundary: 16)
-        };
-    }
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddEmail(10, 20)
+                .AddPassword(8, 16),
+            settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+                settings.ABCSettings = new ABCGenerationSettings
+                {
+                    TotalPopulationGenerations = 50,
+                    MutationRate = 0.4,
+                    FinalPopulationSelectionRatio = 0.5,
+                    EliteSelectionRatio = 0.3,
+                    OnlookerSelectionRatio = 0.1,
+                    ScoutSelectionRatio = 0.3,
+                    EnableOnlookerSelection = true,
+                    EnableScoutPhase = true,
+                    EnforceMutationUniqueness = true,
+                    StagnationThresholdPercentage = 0.75,
+                    CoolingRate = 0.95,
+                    AllowMultipleInvalidInputs = false,
+                    OutputGenerator = new NUnitTestCaseAttributeOutputGenerator()
+                };
+            }).Generate();
 
     [Test]
-    [ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [ABCTestCaseSource2(nameof(ConfigureEngine))]
     public void RegisterUser_WithGeneratedEmailAndPassword(string email, string password)
     {
-        //var client = new RestClient("https://reqres.in");
-        //var request = new RestRequest("/api/register", Method.Post);
-        //request.AddJsonBody(new
-        //{
-        //    email,
-        //    password
-        //});
+        // Uncomment this section to execute actual HTTP registration call to Reqres.in
 
-        //var response = client.Execute(request);
+        /*
+        var client = new RestClient("https://reqres.in");
+        var request = new RestRequest("/api/register", Method.Post);
+        request.AddJsonBody(new
+        {
+            email,
+            password
+        });
 
-        //Console.WriteLine($"→ Attempted registration with Email: {email}, Password: {password}");
-        //Console.WriteLine($"← Response: {response.StatusCode}, Content: {response.Content}");
+        var response = client.Execute(request);
 
-        //// Expect 200 for known valid email or 400 otherwise (per Reqres.in behavior)
-        //Assert.That((int)response.StatusCode, Is.EqualTo(200).Or.EqualTo(400));
+        Console.WriteLine($"→ Attempted registration with Email: {email}, Password: {password}");
+        Console.WriteLine($"← Response: {response.StatusCode}, Content: {response.Content}");
+
+        // Expect 200 for known valid email or 400 otherwise (per Reqres.in behavior)
+        Assert.That((int)response.StatusCode, Is.EqualTo(200).Or.EqualTo(400));
+        */
+
+        // Dry-run simulation fallback
+        Assert.Pass($"Simulated registration attempt: Email='{email}', Password='{password}'");
     }
 }

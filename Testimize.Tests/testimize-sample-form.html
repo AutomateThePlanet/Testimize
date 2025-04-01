@@ -20,9 +20,9 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
 
-        .alert {
+  /*      .alert {
             display: none;
-        }
+        }*/
     </style>
 </head>
 <body>
@@ -32,7 +32,7 @@
 
         <form id="testimizeForm" novalidate>
             <div id="globalError" class="alert alert-danger d-none mt-2" role="alert"></div>
-            <div id="successMsg" class="alert alert-success">Form submitted successfully!</div>
+            <div id="successMsg" class="alert alert-success d-none">Form submitted successfully!</div>
 
             <div class="mb-3">
                 <label for="fullName" class="form-label">Full Name</label>
@@ -182,9 +182,13 @@
             if (!value) return "Password is required.";
             if (value.length < 8 || value.length > 20)
                 return "Password must be 8–20 characters with uppercase, number, and symbol.";
-            const strongRegex = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9-]+\.)+(com|net|org|bg|de|fr)$/;
+
+            // Require at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character
+            const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,20}$/;
+
             if (!strongRegex.test(value))
                 return "Password must be 8–20 characters with uppercase, number, and symbol.";
+
             return "";
         }
 
@@ -221,8 +225,13 @@
         }
 
         function getLanguagesValidation() {
-            const checkboxes = document.querySelectorAll('input[name="languages"]:checked');
-            if (checkboxes.length === 0) return "Select at least one language.";
+            const languages = document.getElementById("languages");
+            const selectedOptions = Array.from(languages.options).filter(option => option.selected);
+
+            if (selectedOptions.length === 0) {
+                // Handle validation failure
+                return "You must select at least one language.";
+            }
             return "";
         }
 
@@ -247,6 +256,8 @@
                 { id: 'birthdate', validate: getBirthdateValidation },
                 { id: 'website', validate: getWebsiteValidation },
                 { id: 'country', validate: getCountryValidation },
+                { id: 'languages', validate: getLanguagesValidation },
+                { id: 'terms', validate: getTermsValidation },
             ];
 
             for (const field of fields) {
@@ -261,38 +272,24 @@
                 }
             }
 
-            // Validate languages
-            const langError = getLanguagesValidation();
-            const langGroup = document.getElementById("languagesError");
-            if (langError) {
-                langGroup.textContent = langError;
-                globalMessages.push(langError);
-                hasError = true;
-            } else {
-                langGroup.textContent = '';
-            }
-
-            // Validate terms
-            const termsInput = document.getElementById('terms');
-            const termsMsg = getTermsValidation(termsInput);
-            if (termsMsg) {
-                showFieldError(termsInput, termsMsg);
-                globalMessages.push(termsMsg);
-                hasError = true;
-            } else {
-                clearFieldError(termsInput);
-            }
-
-            // Show result
-            if (!hasError) {
-                globalError.classList.add('d-none');
-                successMsg.classList.remove('d-none');
-                form.reset();
-                form.classList.remove('was-validated');
-            } else {
-                successMsg.classList.add('d-none');
+            if (hasError) {
+                const globalError = document.getElementById('globalError');
+                globalError.innerHTML = "<ul class='mb-0'>" + globalMessages.map(m => `<li>${m}</li>`).join("") + "</ul>";
                 globalError.classList.remove('d-none');
-                globalError.innerHTML = '<ul>' + globalMessages.map(msg => '<li>' + msg + '</li>').join('') + '</ul>';
+                globalError.scrollIntoView({ behavior: "smooth" });
+            } else {
+                const globalError = document.getElementById('globalError');
+                globalError.classList.add('d-none');
+
+                const successMsg = document.getElementById('successMsg');
+                successMsg.classList.remove('d-none');
+                successMsg.scrollIntoView({ behavior: "smooth" });
+
+                setTimeout(() => {
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    successMsg.classList.add('d-none');
+                }, 3000);
             }
         });
     </script>

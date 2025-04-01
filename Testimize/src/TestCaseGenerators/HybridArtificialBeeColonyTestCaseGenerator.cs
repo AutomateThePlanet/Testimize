@@ -33,10 +33,10 @@ public class HybridArtificialBeeColonyTestCaseGenerator
     }
 
     // 🔹 Public API: Generates and outputs optimized test cases
-    public HashSet<TestCase> GenerateTestCases(string methodName, List<IInputParameter> parameters, TestCaseCategory testCaseCategoty = TestCaseCategory.All)
+    public HashSet<TestCase> GenerateTestCases(string methodName, List<IInputParameter> parameters, TestCaseCategory testCaseCategory = TestCaseCategory.All)
     {
         var testCases = RunABCAlgorithm(parameters);
-        _config.OutputGenerator.GenerateOutput(methodName, testCases, testCaseCategoty);
+        _config.OutputGenerator?.GenerateOutput(methodName, testCases, testCaseCategory);
         return testCases;
     }
 

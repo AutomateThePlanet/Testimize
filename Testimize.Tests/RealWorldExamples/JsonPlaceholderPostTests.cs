@@ -12,48 +12,56 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
-using Testimize.Parameters;
 using RestSharp;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using Testimize.Contracts;
-using Testimize.OutputGenerators;
 using Testimize.Parameters.Core;
+using Testimize.OutputGenerators;
+using Testimize.Usage;
 
-namespace Testimize.Tests.RealWorld;
+namespace Testimize.Tests.RealWorldExamples;
 
 [TestFixture]
 public class JsonPlaceholderPostTests
 {
-    //public static List<IInputParameter> ABCGeneratedTestParameters()
-    //{
-    //    return new List<IInputParameter>
-    //    {
-    //        new TextDataParameter(minBoundary: 5, maxBoundary: 100),            // title
-    //        new TextDataParameter(minBoundary: 20, maxBoundary: 500),           // body
-    //        new IntegerDataParameter(minBoundary: 1, maxBoundary: 100),         // userId
-    //        new UsernameDataParameter(minBoundary: 6, maxBoundary: 15),         // authorUsername
-    //        new EmailDataParameter(minBoundary: 10, maxBoundary: 30),           // authorEmail
-    //        new BooleanDataParameter(),                                         // isPublished
-    //        new DateTimeDataParameter(minBoundary: DateTime.UtcNow.AddDays(-30), maxBoundary: DateTime.UtcNow) // publishDate
-    //    };
-    //}
-    public static List<IInputParameter> ABCGeneratedTestParameters() =>
-    TestimizeInputBuilder
-        .Start()
-        .AddText(5, 100)                        // title
-        .AddText(20, 500)                       // body
-        .AddInteger(1, 100)                     // userId
-        .AddUsername(6, 15)                     // authorUsername
-        .AddEmail(10, 30)                       // authorEmail
-        .AddBoolean()                           // isPublished
-        .AddDateTime(
-            DateTime.UtcNow.AddDays(-30),
-            DateTime.UtcNow)                    // publishDate
-        .Build();
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddText(5, 100)                         // title
+                .AddText(20, 500)                        // body
+                .AddInteger(1, 100)                      // userId
+                .AddUsername(6, 15)                      // authorUsername
+                .AddEmail(10, 30)                        // authorEmail
+                .AddBoolean()                            // isPublished
+                .AddDateTime(
+                    DateTime.UtcNow.AddDays(-30),
+                    DateTime.UtcNow)                     // publishDate
+            ,
+            settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+                settings.ABCSettings = new ABCGenerationSettings
+                {
+                    TotalPopulationGenerations = 50,
+                    MutationRate = 0.4,
+                    FinalPopulationSelectionRatio = 0.5,
+                    EliteSelectionRatio = 0.3,
+                    OnlookerSelectionRatio = 0.1,
+                    ScoutSelectionRatio = 0.3,
+                    EnableOnlookerSelection = true,
+                    EnableScoutPhase = true,
+                    EnforceMutationUniqueness = true,
+                    StagnationThresholdPercentage = 0.75,
+                    CoolingRate = 0.95,
+                    AllowMultipleInvalidInputs = false,
+                    OutputGenerator = new NUnitTestCaseAttributeOutputGenerator()
+                };
+            }).Generate();
 
     [Test]
-    [ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [ABCTestCaseSource2(nameof(ConfigureEngine))]
     public void CreateFullPost_WithGeneratedMetadata_ShouldSucceed(
         string title,
         string body,
@@ -86,5 +94,4 @@ public class JsonPlaceholderPostTests
 
         Assert.That((int)response.StatusCode, Is.EqualTo(201));
     }
-
 }

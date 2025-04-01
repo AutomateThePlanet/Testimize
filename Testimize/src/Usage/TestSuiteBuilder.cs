@@ -39,6 +39,17 @@ public class TestSuiteBuilder
             };
         }
 
+        public List<TestCase> Build()
+        {
+            _settings.OutputGenerator = null;
+            return _settings.Mode switch
+            {
+                TestGenerationMode.HybridArtificialBeeColony => GenerateUsingABC(_settings.MethodName, _settings.TestCaseCategory),
+                TestGenerationMode.Pairwise => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory),
+                _ => GenerateUsingPairwise(_settings.MethodName, _settings.TestCaseCategory)
+            };
+        }
+
     private List<TestCase> GenerateUsingPairwise(string methodName, TestCaseCategory category)
     {
         var testCases = PairwiseTestCaseGenerator.GenerateTestCases(_parameters).ToList();

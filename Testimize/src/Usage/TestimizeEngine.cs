@@ -13,6 +13,7 @@
 // <site>https://automatetheplanet.com/</site>
 
 using Testimize.Contracts;
+using Testimize.Parameters.Core;
 
 namespace Testimize.Usage;
 public partial class TestimizeEngine
@@ -27,10 +28,10 @@ public partial class TestimizeEngine
     }
 
     public static TestSuiteBuilder Configure(
-        Action<TestInputSetBuilder> parametersConfig,
+        Action<TestimizeInputBuilder> parametersConfig,
         Action<PreciseTestEngineSettings> configOverrides = null)
     {
-        var composer = new TestInputSetBuilder();
+        var composer = new TestimizeInputBuilder();
         parametersConfig(composer);
 
         var config = new PreciseTestEngineSettings();

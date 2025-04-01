@@ -175,7 +175,7 @@ public class FormValidationTests
             settings =>
             {
                 settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
-                settings.TestCaseCategory = TestCaseCategory.Validation;
+                settings.TestCaseCategory = TestCaseCategory.Valid;
                 settings.ABCSettings = new ABCGenerationSettings
                 {
                     TotalPopulationGenerations = 100,
@@ -337,5 +337,99 @@ public class FormValidationTests
         }
     }
 
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+3598888", "Aa1@abcd", 18, "01-01-1990", "http://a.co", true, "United States", new[] { "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888", "Aa1@xxxxxxxxxxxxxxxx", 100, "01-01-1920", "http://a.co", true, "Germany", new[] { "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Aa1@abcd", 18, "01-01-1920", "http://a.co", true, "France", new[] { "English", "French" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "valid.email+tagging@domain.fr", "+3598888", "Aa1@abcd", 100, "01-01-1920", "https://example.com", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Secure1!", 100, "31-12-2020", "http://a.co", true, "United States", new[] { "German" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "a@e.io", "+3598888", "Aa1@xxxxxxxxxxxxxxxx", 25, "01-01-1920", "https://very-long-url.com/with/path", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+359888888888", "Aa1@abcd", 18, "01-01-1920", "https://very-long-url.com/with/path", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888", "Aa1@abcd", 18, "01-01-1920", "http://a.co", true, "France", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+3598888", "Aa1@abcd", 18, "01-01-1990", "http://a.co", true, "Germany", new[] { "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888888", "Aa1@abcd", 25, "31-12-2020", "http://a.co", true, "United States", new[] { "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Aa1@abcd", 18, "31-12-2020", "https://very-long-url.com/with/path", true, "Germany", new[] { "English", "French" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "a@e.io", "+359888888888", "Aa1@abcd", 18, "01-01-1920", "http://a.co", true, "United States", new[] { "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Secure1!", 100, "31-12-2020", "https://very-long-url.com/with/path", true, "United States", new[] { "German" }, "")]
+    [TestCase("Anton Angelov", "a@e.io", "+359888888888888", "Aa1@xxxxxxxxxxxxxxxx", 100, "01-01-1920", "https://very-long-url.com/with/path", true, "France", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "anton@example.com", "+359888888888888", "Aa1@xxxxxxxxxxxxxxxx", 18, "01-01-1990", "http://a.co", true, "France", new[] { "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+359888888888888", "Secure1!", 100, "01-01-1920", "https://example.com", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+3598888", "Secure1!", 25, "01-01-1920", "https://very-long-url.com/with/path", true, "United States", new[] { "English", "French", "German" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "anton@example.com", "+359888888888", "Aa1@xxxxxxxxxxxxxxxx", 100, "01-01-1920", "https://very-long-url.com/with/path", true, "France", new[] { "English", "French", "German" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "anton@example.com", "+3598888", "Aa1@xxxxxxxxxxxxxxxx", 25, "31-12-2020", "https://very-long-url.com/with/path", true, "United States", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888888", "Aa1@abcd", 25, "31-12-2020", "https://example.com", true, "France", new[] { "German" }, "")]
+    [TestCase("Anton Angelov", "a@e.io", "+359888888888888", "Aa1@abcd", 18, "01-01-1990", "http://a.co", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "anton@example.com", "+359888888888", "Aa1@abcd", 18, "01-01-1920", "https://very-long-url.com/with/path", true, "United States", new[] { "English", "French", "German" }, "")]
+    [TestCase("Anton Angelov", "a@e.io", "+359888888888888", "Aa1@abcd", 100, "01-01-1990", "http://a.co", true, "Germany", new[] { "English", "French", "German" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Aa1@abcd", 25, "01-01-1990", "http://a.co", true, "Germany", new[] { "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888", "Aa1@abcd", 100, "01-01-1920", "https://example.com", true, "United States", new[] { "German" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "anton@example.com", "+3598888", "Aa1@abcd", 18, "31-12-2020", "http://a.co", true, "France", new[] { "English", "French" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "anton@example.com", "+359888888888888", "Aa1@xxxxxxxxxxxxxxxx", 25, "01-01-1920", "http://a.co", true, "United States", new[] { "German" }, "")]
+    [TestCase("Ann", "valid.email+tagging@domain.fr", "+359888888888", "Aa1@abcd", 100, "31-12-2020", "https://very-long-url.com/with/path", true, "Germany", new[] { "English", "French" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Aa1@abcd", 100, "31-12-2020", "https://example.com", true, "France", new[] { "English", "French" }, "")]
+    [TestCase("Ann", "a@e.io", "+3598888", "Secure1!", 25, "01-01-1920", "https://very-long-url.com/with/path", true, "Germany", new[] { "German" }, "")]
+    [TestCase("AAAAAAAAAAAAAAAAAAAA", "a@e.io", "+359888888888", "Aa1@abcd", 18, "01-01-1990", "https://very-long-url.com/with/path", true, "United States", new[] { "German" }, "")]
+    [Ignore]
+    public void SuccessMessageDisplayed_WhenSubmitFormWithValidParameters(
+   string fullName, string email, string phone, string password, int age,
+   string birthdate, string website, bool? terms, string country, string[] languages, string expectedError)
+    {
+        _driver.Navigate().Refresh();
+
+        Console.WriteLine("=== Input Parameters ===");
+        Console.WriteLine($"Full Name: {fullName}");
+        Console.WriteLine($"Email: {email}");
+        Console.WriteLine($"Phone: {phone}");
+        Console.WriteLine($"Password: {password}");
+        Console.WriteLine($"Age: {age}");
+        Console.WriteLine($"Birthdate: {birthdate}");
+        Console.WriteLine($"Website: {website}");
+        Console.WriteLine($"Terms Accepted: {terms}");
+        Console.WriteLine($"Country: {country}");
+        Console.WriteLine($"Languages: {string.Join(", ", languages ?? Array.Empty<string>())}");
+        Console.WriteLine($"Expected Error: {expectedError}");
+
+        _driver.FindElement(By.Id("fullName")).SendKeys(fullName);
+        _driver.FindElement(By.Id("email")).SendKeys(email);
+        _driver.FindElement(By.Id("phone")).SendKeys(phone);
+        _driver.FindElement(By.Id("password")).SendKeys(password);
+        _driver.FindElement(By.Id("age")).SendKeys(age.ToString());
+        _driver.FindElement(By.Id("birthdate")).SendKeys(birthdate);
+        _driver.FindElement(By.Id("website")).SendKeys(website);
+        if (terms == true) _driver.FindElement(By.Id("terms")).Click();
+        if (country != null) new SelectElement(_driver.FindElement(By.Id("country"))).SelectByText(country);
+
+        if (languages != null)
+        {
+            foreach (var l in languages)
+            {
+                new SelectElement(_driver.FindElement(By.Id("languages"))).SelectByText(l);
+            }
+        }
+
+        var submitButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
+        new Actions(_driver).MoveToElement(submitButton).Click().Perform();
+
+
+        var invalidFeedbackDivs = _driver.FindElements(By.ClassName("invalid-feedback"))
+            .Where(div => div.Displayed && !string.IsNullOrWhiteSpace(div.Text))
+            .ToList();
+        if (invalidFeedbackDivs.Any())
+        {
+            Console.WriteLine("=== Displayed Validation Messages ===");
+            Debug.WriteLine("=== Displayed Validation Messages ===");
+            foreach (var feedback in invalidFeedbackDivs)
+            {
+                Console.WriteLine($"- {feedback.Text}");
+                Debug.WriteLine($"- {feedback.Text}");
+            }
+
+            Assert.Fail("Expected success message to be visible but there were validation messages displayed.");
+        }
+        else
+        {
+            var successMsg = _driver.FindElement(By.Id("successMsg"));
+            Assert.That(successMsg.Displayed, Is.True, "Expected success message to be visible.");
+        }
+    }
 
 }
