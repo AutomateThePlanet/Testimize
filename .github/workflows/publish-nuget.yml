@@ -31,13 +31,13 @@ jobs:
         run: dotnet build ./Testimize/Testimize.csproj --configuration Release --no-restore
 
       - name: Ensure output directory exists
-        run: mkdir -p ${{ github.workspace }}/nupkg
+        run: mkdir -p ./nupkg
 
       - name: Pack NuGet Package
-        run: dotnet pack ./Testimize/Testimize.csproj --configuration Release --no-build --output ${{ github.workspace }}/nupkg
+        run: dotnet pack ./Testimize/Testimize.csproj --configuration Release --no-build --output ./nupkg
 
       - name: List contents of nupkg folder (debugging)
-        run: ls -la ${{ github.workspace }}/nupkg
+        run: ls -la ./nupkg
 
       - name: Push to NuGet.org
-        run: dotnet nuget push ${{ github.workspace }}/nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source https://api.nuget.org/v3/index.json
