@@ -12,12 +12,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.1.7.0</Version>
+    <Version>1.1.8.0</Version>
     <Authors>Anton Angelov</Authors>
     <Company>Automate The Planet Ltd.</Company>
     <Product>Testimize – Test and Data Generation Library</Product>
-    <AssemblyVersion>1.1.7.0</AssemblyVersion>
-    <FileVersion>1.1.7.0</FileVersion>
+    <AssemblyVersion>1.1.8.0</AssemblyVersion>
+    <FileVersion>1.1.8.0</FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Copyright>Copyright © Automate The Planet Ltd. 2025</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -36,7 +36,7 @@
       - Introduced Precise Mode for full test input control
       - Added Pairwise Mode for lightweight coverage
       - Added ABC Heuristic Generator for exploratory testing
-      - Integrated NUnit output generators (TestCase, TestCaseSource)
+      - Integrated NUnit, MSTest, xUnit output generators (TestCase, TestCaseSource)
       - Config-driven generation via JSON
       - Faker-based localized values support
       - 20+ supported input types
