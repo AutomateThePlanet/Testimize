@@ -44,7 +44,6 @@ public class SampleSecondVerTests
             ).Generate();
 
     [Test, TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
-    //[Category(Categories.CI)]
     public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
     {
         Debug.WriteLine($"Running test with: {textValue}, {email}, {phone}, {anotherText}");

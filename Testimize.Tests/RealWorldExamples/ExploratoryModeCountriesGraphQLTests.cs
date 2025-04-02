@@ -24,69 +24,69 @@ namespace Testimize.Tests.RealWorld;
 [TestFixture]
 public class ExploratoryModeCountriesGraphQLTests
 {
-    public static List<TestCase> ConfigureEngine() =>
-        TestimizeEngine.Configure(
-            parameters => parameters
-                .AddSingleSelect(s => s
-                    .Valid("US")
-                    .Valid("BG")
-                    .Valid("FR")
-                    .Invalid("XX").WithoutMessage()
-                    .Invalid("U1").WithoutMessage()
-                    .Invalid("").WithoutMessage())
-                .AddSingleSelect(s => s
-                    .Valid("en")
-                    .Valid("fr")
-                    .Valid("de")
-                    .Invalid("zz").WithoutMessage()
-                    .Invalid("123").WithoutMessage())
-                .AddSingleSelect(s => s
-                    .Valid("EU")
-                    .Valid("AF")
-                    .Valid("AS")
-                    .Invalid("999").WithoutMessage()
-                    .Invalid("X").WithoutMessage()
-                    .Invalid("").WithoutMessage()),
-            settings =>
-            {
-                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
-                settings.TestCaseCategory = TestCaseCategory.Validation;
-            }).Generate();
+        public static List<TestCase> ConfigureEngine() =>
+            TestimizeEngine.Configure(
+                parameters => parameters
+                    .AddSingleSelect(s => s
+                        .Valid("US")
+                        .Valid("BG")
+                        .Valid("FR")
+                        .Invalid("XX").WithoutMessage()
+                        .Invalid("U1").WithoutMessage()
+                        .Invalid("").WithoutMessage())
+                    .AddSingleSelect(s => s
+                        .Valid("en")
+                        .Valid("fr")
+                        .Valid("de")
+                        .Invalid("zz").WithoutMessage()
+                        .Invalid("123").WithoutMessage())
+                    .AddSingleSelect(s => s
+                        .Valid("EU")
+                        .Valid("AF")
+                        .Valid("AS")
+                        .Invalid("999").WithoutMessage()
+                        .Invalid("X").WithoutMessage()
+                        .Invalid("").WithoutMessage()),
+                settings =>
+                {
+                    settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                    settings.TestCaseCategory = TestCaseCategory.Validation;
+                }).Generate();
 
-    [Test]
-    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
-    public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
-        string countryCode, string languageCode, string continentCode)
-    {
-        var client = new RestClient("https://countries.trevorblades.com/");
-        var request = new RestRequest("", Method.Post);
-        request.AddHeader("Content-Type", "application/json");
-
-        var graphql = new
+        [Test]
+        [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
+        public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
+            string countryCode, string languageCode, string continentCode)
         {
-            query = @"
-                    query FilteredQuery($code: ID!, $lang: String!, $cont: String!) {
-                        country(code: $code) {
-                            name
-                            capital
-                            languages { code name }
-                            continent { code name }
-                        }
-                    }",
-            variables = new
+            var client = new RestClient("https://countries.trevorblades.com/");
+            var request = new RestRequest("", Method.Post);
+            request.AddHeader("Content-Type", "application/json");
+
+            var graphql = new
             {
-                code = countryCode.ToUpperInvariant(),
-                lang = languageCode.ToLowerInvariant(),
-                cont = continentCode.ToUpperInvariant()
-            }
-        };
+                query = @"
+                        query FilteredQuery($code: ID!, $lang: String!, $cont: String!) {
+                            country(code: $code) {
+                                name
+                                capital
+                                languages { code name }
+                                continent { code name }
+                            }
+                        }",
+                variables = new
+                {
+                    code = countryCode.ToUpperInvariant(),
+                    lang = languageCode.ToLowerInvariant(),
+                    cont = continentCode.ToUpperInvariant()
+                }
+            };
 
-        request.AddJsonBody(graphql);
-        var response = client.Execute(request);
+            request.AddJsonBody(graphql);
+            var response = client.Execute(request);
 
-        Console.WriteLine($"→ Querying {countryCode}, Language: {languageCode}, Continent: {continentCode}");
-        Console.WriteLine($"← Response: {response.StatusCode}, Body: {response.Content}");
+            Console.WriteLine($"→ Querying {countryCode}, Language: {languageCode}, Continent: {continentCode}");
+            Console.WriteLine($"← Response: {response.StatusCode}, Body: {response.Content}");
 
-        Assert.That((int)response.StatusCode, Is.EqualTo(200));
-    }
+            Assert.That((int)response.StatusCode, Is.EqualTo(200));
+        }
 }
