@@ -16,6 +16,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using Testimize.Contracts;
+using Testimize.NUnit;
 using Testimize.Parameters.Core;
 using Testimize.OutputGenerators;
 using Testimize.Usage;

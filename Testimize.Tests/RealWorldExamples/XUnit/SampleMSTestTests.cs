@@ -1,4 +1,4 @@
-﻿// <copyright file="SampleTests.cs" company="Automate The Planet Ltd.">
+﻿// <copyright file="SampleXUnitTests.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -13,21 +13,17 @@
 // <site>https://automatetheplanet.com/</site>
 
 using System.Collections.Generic;
-using Testimize.Parameters;
-using System.Diagnostics;
-using Testimize.Contracts;
 using Testimize.OutputGenerators;
 using Testimize.Parameters.Core;
 using Testimize.Usage;
+using System;
+using Testimize.Xunit;
+using Xunit.Sdk;
+using System.Diagnostics;
 
-namespace Testimize.Tests.RealWorldExamples;
+namespace Testimize.Tests.RealWorldExamples.Xunit;
 
-//new TextDataParameter(minBoundary: 6, maxBoundary: 12),
-//new EmailDataParameter(minBoundary: 5, maxBoundary: 10),
-//new PhoneDataParameter(minBoundary: 6, maxBoundary: 8),
-//new TextDataParameter(minBoundary: 4, maxBoundary: 10),
-[TestFixture]
-public class SampleSecondVerTests
+public class SampleXUnitTests
 {
     public static List<TestCase> ConfigureEngine() =>
         TestimizeEngine.Configure(
@@ -41,10 +37,13 @@ public class SampleSecondVerTests
                 settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
                 settings.TestCaseCategory = TestCaseCategory.Validation;
             }
-            ).Generate();
+        ).Generate();
 
-    [Test, TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
-    public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
+    
+    [Category(Categories.CI)]
+    [Theory]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
+    public void ValidateInputs(string textValue, string email, string phone, string anotherText)
     {
         Debug.WriteLine($"Running test with: {textValue}, {email}, {phone}, {anotherText}");
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="ReqresRegistrationTests.cs" company="Automate The Planet Ltd.">
+﻿// <copyright file="SampleMSTestTests.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -12,50 +12,46 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
-using System;
 using System.Collections.Generic;
-using RestSharp;
-using Testimize.NUnit;
+using Testimize.Parameters;
+using System.Diagnostics;
+using Testimize.Contracts;
+using Testimize.MSTest;
 using Testimize.OutputGenerators;
 using Testimize.Parameters.Core;
 using Testimize.Usage;
+using MS = Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
-namespace Testimize.Tests.RealWorldExamples;
+namespace Testimize.Tests.RealWorldExamples.MSTest;
 
-[TestFixture]
-public class ReqresRegistrationTests
+[MS.TestClass]
+public class SampleMSTestTests
 {
     public static List<TestCase> ConfigureEngine() =>
         TestimizeEngine.Configure(
             parameters => parameters
-                .AddEmail(10, 20)
-                .AddPassword(8, 16),
-            settings =>
+                .AddText(6, 12)
+                .AddEmail(5, 10)
+                .AddPhone(6, 8)
+                .AddText(4, 10)
+            , settings =>
             {
                 settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
                 settings.TestCaseCategory = TestCaseCategory.Validation;
-            }).Generate();
+            }
+        ).Generate();
 
-    [Test]
+    [MS.DataTestMethod]
     [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
-    public void RegisterUser_WithGeneratedEmailAndPassword(string email, string password)
+    [Category(Categories.CI)]
+    public void ValidateInputs(string textValue, string email, string phone, string anotherText)
     {
-        var client = new RestClient("https://reqres.in");
-        var request = new RestRequest("/api/register", Method.Post);
-        request.AddJsonBody(new
-        {
-            email,
-            password
-        });
+        MS.Assert.IsNotNull(textValue);
+        MS.Assert.IsNotNull(email);
+        MS.Assert.IsNotNull(phone);
+        MS.Assert.IsNotNull(anotherText);
 
-        var response = client.Execute(request);
-
-        Console.WriteLine($"→ Attempted registration with Email: {email}, Password: {password}");
-        Console.WriteLine($"← Response: {response.StatusCode}, Content: {response.Content}");
-
-        // Reqres returns:
-        // - 200 when email/password are both valid and known to the system
-        // - 400 for missing or invalid data
-        Assert.That((int)response.StatusCode, Is.EqualTo(200).Or.EqualTo(400));
+        Debug.WriteLine($"Running test with: {textValue}, {email}, {phone}, {anotherText}");
     }
 }

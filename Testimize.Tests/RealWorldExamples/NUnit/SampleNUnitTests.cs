@@ -1,4 +1,4 @@
-﻿// <copyright file="SampleTests.cs" company="Automate The Planet Ltd.">
+﻿// <copyright file="SampleMSTestTests.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -16,27 +16,35 @@ using System.Collections.Generic;
 using Testimize.Parameters;
 using System.Diagnostics;
 using Testimize.Contracts;
+using Testimize.NUnit;
 using Testimize.OutputGenerators;
+using Testimize.Parameters.Core;
+using Testimize.Usage;
 
-namespace Testimize.Tests.RealWorldExamples;
+namespace Testimize.Tests.RealWorldExamples.NUnit;
 
+//new TextDataParameter(minBoundary: 6, maxBoundary: 12),
+//new EmailDataParameter(minBoundary: 5, maxBoundary: 10),
+//new PhoneDataParameter(minBoundary: 6, maxBoundary: 8),
+//new TextDataParameter(minBoundary: 4, maxBoundary: 10),
 [TestFixture]
-public class SampleTests
+public class SampleNUnitTests
 {
-    // ✅ This method provides the test parameters.
-    public static List<IInputParameter> ABCGeneratedTestParameters()
-    {
-        return new List<IInputParameter>
-        {
-            new TextDataParameter(minBoundary: 6, maxBoundary: 12),
-            new EmailDataParameter(minBoundary: 5, maxBoundary: 10),
-            new PhoneDataParameter(minBoundary: 6, maxBoundary: 8),
-            new TextDataParameter(minBoundary: 4, maxBoundary: 10),
-        };
-    }
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddText(6, 12)
+                .AddEmail(5, 10)
+                .AddPhone(6, 8)
+                .AddText(4, 10)
+            , settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+            }
+            ).Generate();
 
-    // ✅ Test method using ABC-driven test cases
-    [Test, ABCTestCaseSource(nameof(ABCGeneratedTestParameters), TestCaseCategory.Validation)]
+    [Test, TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     [Category(Categories.CI)]
     public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
     {
@@ -46,6 +54,5 @@ public class SampleTests
         Assert.That(email, Is.Not.Null);
         Assert.That(phone, Is.Not.Null);
         Assert.That(anotherText, Is.Not.Null);
-
     }
 }

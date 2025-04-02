@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Testimize.Contracts;
+using Testimize.NUnit;
 using Testimize.OutputGenerators;
 using Testimize.Parameters.Core;
 using Testimize.Usage;
