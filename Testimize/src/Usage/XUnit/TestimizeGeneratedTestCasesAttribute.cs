@@ -49,9 +49,12 @@ public class TestimizeGeneratedTestCasesAttribute : DataAttribute
         if (sourceMethod == null)
             throw new InvalidOperationException($"Static method '{_configMethodName}' not found in {declaringType.FullName}.");
 
-        var testCases = (List<TestCase>)sourceMethod.Invoke(null, null);
-        if (testCases == null)
-            throw new InvalidOperationException($"Method '{_configMethodName}' returned null.");
+        var result = sourceMethod.Invoke(null, null);
+        if (result is not List<TestCase> testCases)
+            throw new InvalidOperationException($"Method '{_configMethodName}' must return List<TestCase> but returned {result?.GetType().Name ?? "null"}.");
+
+        if (!testCases.Any())
+            throw new InvalidOperationException($"Method '{_configMethodName}' returned no test cases.");
 
         foreach (var testCase in testCases)
         {
