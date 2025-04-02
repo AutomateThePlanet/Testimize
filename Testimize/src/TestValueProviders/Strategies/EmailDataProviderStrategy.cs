@@ -31,7 +31,7 @@ public class EmailDataProviderStrategy : BoundaryCapableDataProviderStrategy<int
 
     protected override TestValue CreateBoundaryTestValue(int boundaryInput, TestValueCategory category)
     {
-        // Generate a realistic email and force it to the required length
+        // GenerateTestCases a realistic email and force it to the required length
         var baseEmail = Faker.Internet.Email(); // e.g., "john.doe@example.com"
         var adjustedEmail = baseEmail
             .EnsureMaxLength(boundaryInput)

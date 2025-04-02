@@ -17,7 +17,8 @@
       "enforceMutationUniqueness": true,
       "stagnationThresholdPercentage": 0.75,
       "coolingRate": 0.95,
-      "allowMultipleInvalidInputs": false
+      "allowMultipleInvalidInputs": false,
+      "seed": 8941 // 42
     },
     "inputTypeSettings": {
       "Email": {

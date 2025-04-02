@@ -31,7 +31,7 @@ public class CurrencyDataProviderStrategy : BoundaryCapableDataProviderStrategy<
 
     protected override TestValue CreateBoundaryTestValue(decimal boundaryInput, TestValueCategory category)
     {
-        // Generate a realistic currency value from Bogus (not required but possible)
+        // GenerateTestCases a realistic currency value from Bogus (not required but possible)
         var raw = Faker.Finance.Amount(min: boundaryInput, max: boundaryInput);
 
         // Apply formatting

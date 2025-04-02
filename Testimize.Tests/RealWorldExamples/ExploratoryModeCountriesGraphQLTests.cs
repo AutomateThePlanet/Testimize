@@ -54,7 +54,7 @@ public class ExploratoryModeCountriesGraphQLTests
             }).Generate();
 
     [Test]
-    [ABCTestCaseSource2(nameof(ConfigureEngine))]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
         string countryCode, string languageCode, string continentCode)
     {

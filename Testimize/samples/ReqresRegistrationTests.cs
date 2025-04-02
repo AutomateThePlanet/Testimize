@@ -53,7 +53,7 @@ public class ReqresRegistrationTests
             }).Generate();
 
     [Test]
-    [ABCTestCaseSource2(nameof(ConfigureEngine))]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     public void RegisterUser_WithGeneratedEmailAndPassword(string email, string password)
     {
         // Uncomment this section to execute actual HTTP registration call to Reqres.in

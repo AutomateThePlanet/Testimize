@@ -12,11 +12,20 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using Testimize.Contracts;
 using Testimize.OutputGenerators;
+using Testimize.TestCaseGenerators;
 
 namespace Testimize;
-public class ABCGenerationSettings
+public class ABCGenerationSettings : ICloneable
 {
+    public ABCGenerationSettings()
+    {
+        TestCaseGenerator = new PairwiseTestCaseGenerator();
+        TestCaseEvaluator = new TestCaseEvaluator(AllowMultipleInvalidInputs);
+        OutputGenerator = new NUnitTestCaseAttributeOutputGenerator();
+    }
+
     public int TotalPopulationGenerations { get; set; } = 50;
     public double MutationRate { get; set; } = 0.3;
     public double FinalPopulationSelectionRatio { get; set; } = 0.5;
@@ -29,7 +38,10 @@ public class ABCGenerationSettings
     public double StagnationThresholdPercentage { get; set; } = 0.75;
     public double CoolingRate { get; set; } = 0.95;
     public bool AllowMultipleInvalidInputs { get; set; } = false;
-    public ITestCaseOutputGenerator OutputGenerator { get; set; } = new NUnitTestCaseAttributeOutputGenerator();
+    public int Seed { get; set; } = 42;
+    public ITestCaseGenerator TestCaseGenerator { get; set; }
+    public ITestCaseEvaluator TestCaseEvaluator { get; set; }
+    public ITestCaseOutputGenerator OutputGenerator { get; set; } 
 
     public override int GetHashCode()
     {
@@ -66,5 +78,29 @@ public class ABCGenerationSettings
                $"StagnationThresholdPercentage={StagnationThresholdPercentage}, " +
                $"CoolingRate={CoolingRate}, " +
                $"AllowMultipleInvalidInputs={AllowMultipleInvalidInputs}, ";
+    }
+
+    public object Clone()
+    {
+        return new ABCGenerationSettings
+        {
+            TotalPopulationGenerations = this.TotalPopulationGenerations,
+            MutationRate = this.MutationRate,
+            FinalPopulationSelectionRatio = this.FinalPopulationSelectionRatio,
+            EliteSelectionRatio = this.EliteSelectionRatio,
+            OnlookerSelectionRatio = this.OnlookerSelectionRatio,
+            ScoutSelectionRatio = this.ScoutSelectionRatio,
+            EnableOnlookerSelection = this.EnableOnlookerSelection,
+            EnableScoutPhase = this.EnableScoutPhase,
+            EnforceMutationUniqueness = this.EnforceMutationUniqueness,
+            StagnationThresholdPercentage = this.StagnationThresholdPercentage,
+            CoolingRate = this.CoolingRate,
+            AllowMultipleInvalidInputs = this.AllowMultipleInvalidInputs,
+            Seed = this.Seed,
+            // Factory-based copies to preserve behavior
+            TestCaseGenerator = this.TestCaseGenerator, // assuming stateless
+            TestCaseEvaluator = new TestCaseEvaluator(this.AllowMultipleInvalidInputs),
+            OutputGenerator = this.OutputGenerator // assuming stateless
+        };
     }
 }

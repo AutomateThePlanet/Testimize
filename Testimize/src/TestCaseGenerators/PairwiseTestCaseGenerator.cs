@@ -18,9 +18,9 @@ using Testimize.Parameters.Core;
 
 namespace Testimize.TestCaseGenerators;
 
-public static class PairwiseTestCaseGenerator
+public class PairwiseTestCaseGenerator : ITestCaseGenerator
 {
-    public static HashSet<TestCase> GenerateTestCases(List<IInputParameter> parameters)
+    public HashSet<TestCase> GenerateTestCases(List<IInputParameter> parameters)
     {
         if (parameters == null || parameters.Count < 2)
         {
@@ -36,7 +36,7 @@ public static class PairwiseTestCaseGenerator
         return uniqueTestCases;
     }
 
-    private static List<TestCase> GeneratePairwiseCombinations(object[][] parameterValues)
+    private List<TestCase> GeneratePairwiseCombinations(object[][] parameterValues)
     {
         var testCases = new List<TestCase>();
 

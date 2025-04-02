@@ -81,7 +81,7 @@ public class ABCTestCaseGeneratorTests
         _abcGenerator = new HybridArtificialBeeColonyTestCaseGenerator(config);
         _abcTestCases = _abcGenerator.RunABCAlgorithm(_parameters);
 
-        _pairwiseTestCases = PairwiseTestCaseGenerator.GenerateTestCases(_parameters);
+        _pairwiseTestCases = new PairwiseTestCaseGenerator().GenerateTestCases(_parameters);
 
         _filteredPairwiseTestCases = _pairwiseTestCases
             .Where(tc => tc.Values.Count(value =>

@@ -22,21 +22,26 @@ namespace Testimize.TestCaseGenerators;
 public class HybridArtificialBeeColonyTestCaseGenerator
 {
     private readonly ABCGenerationSettings _config;
-    private readonly TestCaseEvaluator _testCaseEvaluator;
-    private readonly Random _random = new Random(42);
+    private readonly ITestCaseEvaluator _testCaseEvaluator;
+    private readonly ITestCaseGenerator _testCaseGenerator;
+    private readonly ITestCaseOutputGenerator _outputGenerator;
+    private readonly Random _random;
     private int _initialPopulationSize;
     private int _elitCount;
     public HybridArtificialBeeColonyTestCaseGenerator(ABCGenerationSettings config)
     {
         _config = config;
-        _testCaseEvaluator = new TestCaseEvaluator(config.AllowMultipleInvalidInputs);
+        _testCaseGenerator = config.TestCaseGenerator;
+        _testCaseEvaluator = config.TestCaseEvaluator;
+        _outputGenerator = config.OutputGenerator;
+        _random = new Random(config.Seed);
     }
 
     // 🔹 Public API: Generates and outputs optimized test cases
     public HashSet<TestCase> GenerateTestCases(string methodName, List<IInputParameter> parameters, TestCaseCategory testCaseCategory = TestCaseCategory.All)
     {
         var testCases = RunABCAlgorithm(parameters);
-        _config.OutputGenerator?.GenerateOutput(methodName, testCases, testCaseCategory);
+        _outputGenerator?.GenerateOutput(methodName, testCases, testCaseCategory);
         return testCases;
     }
 
@@ -121,7 +126,7 @@ public class HybridArtificialBeeColonyTestCaseGenerator
 
     private HashSet<TestCase> GenerateInitialPopulation(List<IInputParameter> parameters)
     {
-        return PairwiseTestCaseGenerator.GenerateTestCases(parameters);
+        return _testCaseGenerator.GenerateTestCases(parameters);
     }
 
     private int CalculateElitePopulationSize()

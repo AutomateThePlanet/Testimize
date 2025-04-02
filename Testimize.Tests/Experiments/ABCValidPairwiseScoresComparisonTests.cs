@@ -235,7 +235,7 @@ public class ABCValidPairwiseScoresComparisonTests
     // 🔹 Precompute pairwise scores for baseline comparison
     private void PrecomputePairwiseScores()
     {
-        var pairwiseTestCases = PairwiseTestCaseGenerator.GenerateTestCases(_parameters);
+        var pairwiseTestCases = new PairwiseTestCaseGenerator().GenerateTestCases(_parameters);
         var testCaseEvaluator = new TestCaseEvaluator();
         testCaseEvaluator.EvaluatePopulation(pairwiseTestCases);
 

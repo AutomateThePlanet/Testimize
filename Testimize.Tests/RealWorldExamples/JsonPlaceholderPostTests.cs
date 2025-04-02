@@ -61,7 +61,7 @@ public class JsonPlaceholderPostTests
             }).Generate();
 
     [Test]
-    [ABCTestCaseSource2(nameof(ConfigureEngine))]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     public void CreateFullPost_WithGeneratedMetadata_ShouldSucceed(
         string title,
         string body,

@@ -12,11 +12,12 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using Testimize.Contracts;
 using Testimize.Parameters.Core;
 
 namespace Testimize.TestCaseGenerators;
 
-public class TestCaseEvaluator
+public class TestCaseEvaluator : ITestCaseEvaluator
 {
     private readonly bool _allowMultipleInvalidInputs;
     private readonly Dictionary<int, HashSet<object>> _globalSeenValuesPerParameter = new(); // Tracks first-time values per parameter

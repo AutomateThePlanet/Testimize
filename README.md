@@ -38,7 +38,7 @@ dotnet add package Testimize
 
 ## 📐 Modes of Generation
 
-Testimize offers **three powerful modes** of test case generation:
+Testimize offers **two powerful modes** of test case generation:
 
 ### ✅ 1. Precise Mode
 
@@ -243,6 +243,7 @@ public void QueryCountry_WithLanguageAndContinentFilters_ShouldReturn200(
 See `/samples` for examples of using Testimize in:
 
 - ✅ Unit tests
+- ✅ System Web, Mobile, Desktop, API tests
 - ✅ Data-driven tests
 - ✅ Exploratory test generation
 

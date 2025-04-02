@@ -43,7 +43,7 @@ public class SampleSecondVerTests
             }
             ).Generate();
 
-    [Test, ABCTestCaseSource2(nameof(ConfigureEngine))]
+    [Test, TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     //[Category(Categories.CI)]
     public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
     {

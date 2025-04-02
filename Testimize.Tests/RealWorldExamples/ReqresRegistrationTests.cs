@@ -36,7 +36,7 @@ public class ReqresRegistrationTests
             }).Generate();
 
     [Test]
-    [ABCTestCaseSource2(nameof(ConfigureEngine))]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
     public void RegisterUser_WithGeneratedEmailAndPassword(string email, string password)
     {
         var client = new RestClient("https://reqres.in");

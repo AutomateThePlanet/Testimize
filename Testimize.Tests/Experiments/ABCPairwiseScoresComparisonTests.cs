@@ -20,6 +20,8 @@ using Testimize.Parameters;
 using Testimize.TestCaseGenerators;
 using Testimize.Contracts;
 using Testimize.Parameters.Core;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Testimize.Tests.Experiments;
 
@@ -39,6 +41,35 @@ public class ABCOptimizationBenchmarkTests
         InitializeParameters();
         InitializeParameterSets();
         PrecomputePairwiseScores();
+    }
+
+    [Test]
+    public void FindBestSeed_ForTopABCConfig_Parallel_Optimized()
+    {
+        const int maxSeed = 10000;
+        var baseConfig = new ABCGenerationSettings();
+
+        Console.WriteLine("\n========== Finding Best Seed for Top Config ==========");
+
+        var results = new ConcurrentBag<(int Seed, double Score)>();
+
+        Parallel.For(0, maxSeed, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, seed =>
+        {
+            var config = (ABCGenerationSettings)baseConfig.Clone();
+            config.Seed = seed;
+
+            var abcGenerator = new HybridArtificialBeeColonyTestCaseGenerator(config);
+            var abcTestCases = abcGenerator.RunABCAlgorithm(_parameters);
+
+            var evaluator = new TestCaseEvaluator();
+            double score = evaluator.EvaluatePopulationToDictionary(abcTestCases).Values.Sum();
+            results.Add((seed, score));
+        });
+
+        var best = results.OrderByDescending(r => r.Score).First();
+
+        Console.WriteLine($"\n✅ Best Seed Found: {best.Seed} with Score: {best.Score}");
+        Debug.WriteLine($"\n✅ Best Seed Found: {best.Seed} with Score: {best.Score}");
     }
 
     [Test]
@@ -225,7 +256,7 @@ public class ABCOptimizationBenchmarkTests
     // 🔹 Precompute pairwise scores for baseline comparison
     private void PrecomputePairwiseScores()
     {
-        var pairwiseTestCases = PairwiseTestCaseGenerator.GenerateTestCases(_parameters);
+        var pairwiseTestCases = new PairwiseTestCaseGenerator().GenerateTestCases(_parameters);
         var testCaseEvaluator = new TestCaseEvaluator();
         testCaseEvaluator.EvaluatePopulation(pairwiseTestCases);
 

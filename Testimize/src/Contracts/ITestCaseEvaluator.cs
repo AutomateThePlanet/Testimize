@@ -1,4 +1,4 @@
-﻿// <copyright file="TestGenerationMode.cs" company="Automate The Planet Ltd.">
+﻿// <copyright file="ITestCaseEvaluator.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
-namespace Testimize.Usage;
+using Testimize.Parameters.Core;
 
-public enum TestGenerationMode
+namespace Testimize.Contracts;
+public interface ITestCaseEvaluator
 {
-    Pairwise,
-    OptimizedPairwise,
-    Combinatorial,
-    OptimizedCombinatorial,
-    HybridArtificialBeeColony
+    void EvaluatePopulation(HashSet<TestCase> population);
+    double Evaluate(TestCase testCase, HashSet<TestCase> evaluatedTestCases);
+    Dictionary<TestCase, double> EvaluatePopulationToDictionary(HashSet<TestCase> population);
 }
