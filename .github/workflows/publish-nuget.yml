@@ -30,14 +30,8 @@ jobs:
       - name: Build Project
         run: dotnet build ./Testimize/Testimize.csproj --configuration Release --no-restore
 
-      - name: Ensure output directory exists
-        run: mkdir -p ./nupkg
-
       - name: Pack NuGet Package
         run: dotnet pack ./Testimize/Testimize.csproj --configuration Release --no-build --output ./nupkg
-
-      - name: List contents of nupkg folder (debugging)
-        run: ls -la ./nupkg
 
       - name: Push to NuGet.org
         run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGETKEY }} --source https://api.nuget.org/v3/index.json
