@@ -495,7 +495,135 @@ Define custom equivalence classes and settings for each input type:
 | Precise | Regression suites, CI pipelines, validation of well-defined rules |
 
 ---
+## 🧠 Theory and Metaheuristic Foundations
 
+Testimize leverages classical testing techniques enhanced by powerful metaheuristics to produce compact, high-value test cases. Below we explain the core test design principles and the intelligent optimization behind Hybrid ABC.
+
+---
+
+### 🔍 Classical Test Design Techniques
+
+#### ✅ Equivalence Partitioning (EP)
+Equivalence Partitioning divides input data into groups where values are assumed to behave the same. Only one representative is tested from each class.
+
+**Example:**  
+For input 1–100, equivalence classes are:
+- Valid: [1–100]
+- Invalid: <1, >100
+
+Testimize uses this in both **Exploratory** and **Precise** modes via predefined or custom equivalence classes.
+
+---
+
+#### ✅ Boundary Value Analysis (BVA)
+BVA focuses on values at the edge of valid and invalid ranges where bugs frequently occur.
+
+**Example:**  
+For 1–100, test:
+- 0 (invalid), 1 (min), 100 (max), 101 (invalid)
+
+In Testimize, BVA is automatically added when using boundary-aware data parameters like:
+```csharp
+.AddInteger(1, 100)
+```
+
+---
+
+#### ✅ Pairwise Testing
+Pairwise ensures every pair of input parameters is tested in all combinations, significantly reducing test count while maintaining interaction coverage.
+
+**Example:**  
+3 fields with 3 values →  
+- Full combo: 27 cases  
+- Pairwise: ~9 cases
+
+Use it via:
+```csharp
+settings.Mode = TestGenerationMode.Pairwise;
+```
+
+---
+
+#### ✅ Combinatorial Testing
+All combinations of all inputs. Use when you need **exhaustive** coverage (e.g., <4 fields).
+
+```csharp
+settings.Mode = TestGenerationMode.Combinatorial;
+```
+
+Combine with fitness filtering:
+```csharp
+settings.Mode = TestGenerationMode.CombinatorialOptimized;
+```
+
+---
+
+## 🐝 Hybrid Artificial Bee Colony (ABC)
+
+Hybrid ABC is a swarm-based optimization algorithm inspired by bee foraging behavior. It generates **small but effective test sets** by maximizing test case fitness.
+
+---
+
+### 🎯 How Hybrid ABC Works
+
+Each test case is a **"food source"**. Bees explore and refine these:
+
+- **Employed bees** mutate current test cases.
+- **Onlooker bees** choose promising ones to exploit based on fitness.
+- **Scout bees** randomly generate new ones after stagnation.
+
+---
+
+### ⚙️ Key Enhancements in Testimize
+
+| Feature                      | Purpose |
+|-----------------------------|---------|
+| **Elite selection**         | Keeps top test cases across generations. |
+| **Simulated annealing**     | Allows accepting worse solutions early to escape local optima. |
+| **Cooling rate**            | Gradually lowers mutation intensity over time. |
+| **RCL (restricted candidate list)** | Selects test cases probabilistically for balanced search. |
+| **Mutation uniqueness**     | Accepts only improving mutations (hill climbing). |
+| **Tabu-like behavior**      | Avoids regenerating previously seen test cases. |
+
+---
+
+### 🧮 Fitness Function Details
+
+Each test case receives a fitness score based on:
+
+| Value Category        | Score |
+|-----------------------|-------|
+| Boundary Valid        | +20   |
+| Valid                 | +2    |
+| Boundary Invalid      | -1    |
+| Invalid               | -2    |
+| **New unique value**  | +25   |
+
+If `AllowMultipleInvalidInputs=false`, then for each extra invalid parameter:
+- **Penalty = -50 × (invalidCount)**
+
+**Formula:**
+```
+F(t) = Σ score(value) + Σ uniqueness bonuses - invalid penalties
+```
+
+This scoring:
+- Promotes **diversity**
+- Maximizes **coverage of categories**
+- Penalizes test cases that are too negative
+
+---
+### ✅ When to Use What
+
+| Use Case                         | Suggested Mode |
+|----------------------------------|----------------|
+| Fast exploration of inputs       | Exploratory + Pairwise |
+| Maximum fault detection          | Precise + Hybrid ABC |
+| Stable CI-friendly generation    | Precise + ABC + fixed Seed |
+| Form/API validation coverage     | Exploratory + ABC |
+| Performance-sensitive test sets  | ABC + FinalPopulationSelectionRatio < 0.5 |
+
+---
 ## 🔧 ABCGenerationSettings Explained
 
 The `ABCGenerationSettings` class contains all the configuration options for the HybridArtificialBeeColonyTestCaseGenerator. Here's a breakdown of each property:
