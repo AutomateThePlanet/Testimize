@@ -359,7 +359,7 @@ The following test will output to console and copy to clipboard the following te
 
 ## ✅ Usage in Tests
 
-### ✅ Use `TestimizeGeneratedTestCases` Attributte
+### ✅ Use `TestimizeGeneratedTestCases` NUnit Attributte
 
 ```csharp
 [TestFixture]
@@ -388,6 +388,67 @@ public class SampleTests
 
 ```
 
+---
+
+### ✅ Use `TestimizeGeneratedTestCases` MSTest Attributte
+
+```csharp
+[TestClass]
+public class SampleTests
+{
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddText(6, 12)
+                .AddEmail(5, 10)
+                .AddPhone(6, 8)
+                .AddText(4, 10)
+            , settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+            }
+            ).Generate();
+
+    [DataTestMethod]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
+    public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
+    {
+        // your test logic here
+    }
+}
+
+```
+---
+
+### ✅ Use `TestimizeGeneratedTestCases` xUnit Attributte
+
+```csharp
+public class SampleXUnitTests
+{
+    public static List<TestCase> ConfigureEngine() =>
+        TestimizeEngine.Configure(
+            parameters => parameters
+                .AddText(6, 12)
+                .AddEmail(5, 10)
+                .AddPhone(6, 8)
+                .AddText(4, 10)
+            , settings =>
+            {
+                settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+                settings.TestCaseCategory = TestCaseCategory.Validation;
+            }
+            ).Generate();
+
+    [Theory]
+    [TestimizeGeneratedTestCases(nameof(ConfigureEngine))]
+    public void TestABCGeneration(string textValue, string email, string phone, string anotherText)
+    {
+        // your test logic here
+    }
+}
+
+```
 ---
 
 ## 🛠 Available Parameters
@@ -473,14 +534,18 @@ Define custom equivalence classes and settings for each input type:
 }
 
 ```
-## 📦 Output Generators
+## 📦 Supported Output Generators
 
-| Class Name                              | Description                        |
-|----------------------------------------|------------------------------------|
-| `NUnitTestCaseAttributeOutputGenerator` | `[TestCase(...)]` attributes       |
-| `NUnitTestCaseSourceOutputGenerator`    | `IEnumerable<object[]>` method     |
-| `CsvTestCaseOutputGenerator`            | CSV output                         |
-| `JsonTestCaseOutputGenerator`           | JSON test data output              |
+| Output Generator Class                        | Target Framework | Description                                                                 |
+|----------------------------------------------|------------------|-----------------------------------------------------------------------------|
+| `NUnitTestCaseAttributeOutputGenerator`       | NUnit            | Generates `[TestCase(...)]` attributes per test case.                       |
+| `NUnitTestCaseSourceOutputGenerator`          | NUnit            | Outputs a method with `IEnumerable<object[]>` for use with `TestCaseSource`.|
+| `XUnitInlineDataOutputGenerator`              | xUnit            | Generates `[InlineData(...)]` attributes for xUnit tests.                   |
+| `MSTestTestMethodAttributeOutputGenerator`    | MSTest           | Generates `[DataTestMethod]` and `[DataRow(...)]` attributes.               |
+| `CsvTestCaseOutputGenerator`                  | CSV              | Writes test cases as CSV rows (e.g., for import/export or tools).           |
+| `JsonTestCaseOutputGenerator`                 | JSON             | Outputs test cases as a structured JSON array (used in pipelines/tools).    |
+| `FactoryMethodTestCaseOutputGenerator`        | Any (.NET)       | Generates `List<Model>` factory-style methods for object-based test cases.  |
+
 
 ---
 
