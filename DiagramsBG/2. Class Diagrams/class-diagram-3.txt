@@ -1,0 +1,113 @@
+'https://editor.plantuml.com/
+'Клас Диаграма 3: Как работи Testimize Configure
+
+@startuml
+' === Визуален стил ===
+skinparam classAttributeIconSize 0
+skinparam interfaceBackgroundColor #D0E4F5
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam interfaceBorderColor Black
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 2.0
+skinparam ranksep 2.5
+skinparam roundcorner 0
+top to bottom direction
+
+' === Интерфейси ===
+interface IInputParameter {
+    +TestValues: List<TestValue>
+}
+
+interface ITestCaseGenerator {
+    +GenerateTestCases(...): HashSet<TestCase>
+}
+
+interface ITestCaseOutputGenerator {
+    +GenerateOutput(...): void
+}
+
+' === Централен engine и builder ===
+class TestimizeEngine {
+    +Configure(configureParams, configSettings): TestSuiteBuilder
+}
+TestimizeEngine *-- TestSuiteBuilder
+TestimizeEngine *-- TestimizeInputBuilder
+TestimizeEngine ..> TestCase : returns 1..*
+
+class TestSuiteBuilder {
+    +Generate(): List<TestCase>
+    -GenerateUsingPairwise(...): void
+    -GenerateUsingArtificialBeeColony(...): void
+}
+TestSuiteBuilder --> ITestCaseGenerator
+TestSuiteBuilder --> ITestCaseOutputGenerator
+TestSuiteBuilder --> PreciseTestEngineSettings
+
+class PreciseTestEngineSettings {
+    +Mode: TestGenerationMode
+    +TestCaseCategory: TestCaseCategory
+    +MethodName: string
+    +OutputGenerator: ITestCaseOutputGenerator
+    +ABCSettings: ABCGenerationSettings
+}
+
+' === Fluent билдъри ===
+class TestimizeInputBuilder {
+    +AddText(...): TestimizeInputBuilder
+    +AddEmail(...): TestimizeInputBuilder
+    +Build(): List<IInputParameter>
+}
+TestimizeInputBuilder o-- IInputParameter
+
+class ParameterBuilder<TDataParameter> {
+    +Valid(value): ParameterBuilder
+    +BoundaryValid(value): ParameterBuilder
+    +Invalid(value): TestValueBuilder
+    +BoundaryInvalid(value): TestValueBuilder
+    +Build(): IInputParameter
+    -Add(TestValue): void
+    +TestValues: List<TestValue>
+}
+TestimizeInputBuilder *-- ParameterBuilder
+
+class TestValueBuilder<T> {
+    +WithExpectedMessage(msg): ParameterBuilder
+    +WithoutMessage(): ParameterBuilder
+}
+ParameterBuilder *-- TestValueBuilder
+ParameterBuilder o-- TestValue
+TestValueBuilder --> ParameterBuilder
+TestValueBuilder ..> TestValue : creates
+
+' === Data Parameter и Strategy ===
+class DataParameter<TStrategy> implements IInputParameter {
+    +TestValues: List<TestValue>
+    +Strategy: TStrategy
+}
+DataParameter --> DataProviderStrategy : uses
+
+abstract class DataProviderStrategy {
+    +GenerateValid(): List<object>
+    +GenerateInvalid(): List<object>
+}
+
+class MonthDataProviderStrategy extends DataProviderStrategy
+class ColorDataProviderStrategy extends DataProviderStrategy
+
+' === Тестови стойности и обекти ===
+class TestValue {
+    +Value: object
+    +ExpectedInvalidMessage: string
+    +Category: TestValueCategory
+}
+
+class TestCase {
+    +Values: List<TestValue>
+    +Score: double
+}
+TestCase o-- TestValue
+IInputParameter --> TestValue
+
+@enduml

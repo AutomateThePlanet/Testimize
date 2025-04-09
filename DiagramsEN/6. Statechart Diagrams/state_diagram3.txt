@@ -1,0 +1,39 @@
+'https://editor.plantuml.com/
+'State Diagram 3: Показване на различните начини за използване на TestimizeUse Case Диаграма 2: QA / Тест разработчик (Exploratory Mode)
+
+@startuml
+skinparam shadowing false
+skinparam roundcorner 20
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+
+[*] --> SelectingMode
+
+SelectingMode --> ConfiguringPrecise : onModeSelected(PRECISE)
+ConfiguringPrecise : entry / create parameters\nadd validations and values
+
+SelectingMode --> ConfiguringExploratory : onModeSelected(EXPLORATORY)
+ConfiguringExploratory : entry / auto-detect parameters\nuse internal strategies
+
+ConfiguringPrecise --> ReadyToStart : onConfigComplete()
+ConfiguringExploratory --> ReadyToStart
+
+ReadyToStart : entry / Start TestimizeEngine\napply settings
+
+ReadyToStart --> SelectingStrategy : onEngineStarted()
+SelectingStrategy --> GeneratingPairwise : onStrategySelected(PAIRWISE)
+GeneratingPairwise : entry / Generate with Pairwise
+
+SelectingStrategy --> GeneratingABC : onStrategySelected(ABC)
+GeneratingABC : entry / Generate with Hybrid ABC
+
+GeneratingPairwise --> ReviewingResults : onGenerated()
+GeneratingABC --> ReviewingResults
+
+ReviewingResults : entry / analyze output from OutputGenerator
+
+ReviewingResults --> SelectingMode : [hasErrors] / reconfigure
+ReviewingResults --> [*] : [noErrors] / finished
+
+@enduml

@@ -1,0 +1,70 @@
+'https://editor.plantuml.com/
+'Use Case Диаграма 2: QA / Тест разработчик (Exploratory Mode)
+
+@startuml
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 1.5
+skinparam ranksep 1.8
+skinparam roundcorner 0
+left to right direction
+
+object "generator : HybridArtificialBeeColonyTestCaseGenerator" {
+  _initialPopulationSize = 10
+  _elitCount = 5
+  currentGeneration = 7
+}
+
+object "config : ABCGenerationSettings" {
+  TotalPopulationGenerations = 50
+  MutationRate = 0.3
+  FinalPopulationSelectionRatio = 0.5
+  EliteSelectionRatio = 0.5
+  OnlookerSelectionRatio = 0.1
+  ScoutSelectionRatio = 0.3
+  EnableOnlookerSelection = true
+  EnableScoutPhase = true
+  EnforceMutationUniqueness = true
+  StagnationThresholdPercentage = 0.75
+  CoolingRate = 0.95
+  AllowMultipleInvalidInputs = false
+  Seed = 12345
+}
+
+object "generatorStrategy : PairwiseTestCaseGenerator"
+object "evaluatorStrategy : TestCaseEvaluator"
+object "outputStrategy : NUnitTestCaseAttributeOutputGenerator"
+object "rnd : Random" {
+  Seed = 12345
+}
+
+object "initialPop : HashSet<TestCase> (Count=10)"
+object "elitePop : HashSet<TestCase> (Count=5)"
+object "finalPop : HashSet<TestCase> (Count=5)"
+
+object "testCase1 : TestCase" {
+  Values = ["admin", "en", "EU"]
+  Score = 72.5
+}
+
+object "testCase2 : TestCase" {
+  Values = ["XX", "en", "AF"]
+  Score = -100
+  ExpectedInvalidMessage = "Invalid country code"
+}
+
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "config : ABCGenerationSettings"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "generatorStrategy : PairwiseTestCaseGenerator"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "evaluatorStrategy : TestCaseEvaluator"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "outputStrategy : NUnitTestCaseAttributeOutputGenerator"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "rnd : Random"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "initialPop : HashSet<TestCase> (Count=10)"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "finalPop : HashSet<TestCase> (Count=5)"
+"generator : HybridArtificialBeeColonyTestCaseGenerator" --> "elitePop : HashSet<TestCase> (Count=5)"
+
+"initialPop : HashSet<TestCase> (Count=10)" --> "testCase1 : TestCase"
+"initialPop : HashSet<TestCase> (Count=10)" --> "testCase2 : TestCase"
+"elitePop : HashSet<TestCase> (Count=5)" --> "testCase1 : TestCase"
+"finalPop : HashSet<TestCase> (Count=5)" --> "testCase1 : TestCase"
+
+@enduml

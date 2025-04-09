@@ -1,0 +1,80 @@
+'https://editor.plantuml.com/
+'Sequence Diagram 1– Генериране на тест кейсове с ABC генератора
+
+@startuml
+' === Класически UML стил със силно визуално присъствие ===
+skinparam style strictuml
+skinparam roundcorner 0
+skinparam ArrowColor Black
+skinparam ArrowFontColor Black
+skinparam sequenceMessageAlignment center
+
+actor client
+participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
+participant settings as "settings : ABCGenerationSettings"
+participant generatorStrategy as "generatorStrategy : ITestCaseGenerator"
+participant evaluatorStrategy as "evaluatorStrategy : ITestCaseEvaluator"
+participant outputStrategy as "outputStrategy : ITestCaseOutputGenerator"
+
+client -> generator : GenerateTestCases(methodName, parameters, category)
+
+note right of generator
+Фаза 0: Извличане на стратегии от Settings
+end note
+
+generator -> settings : get_TestCaseGenerator()
+generator -> settings : get_TestCaseEvaluator()
+generator -> settings : get_OutputGenerator()
+
+note right of generator
+Фаза 1: Генериране на начална популация
+end note
+
+generator -> generatorStrategy : GenerateTestCases(parameters)
+generatorStrategy --> generator : HashSet<TestCase>
+
+note right of generator
+Фаза 2: Оценка на началната популация
+end note
+
+generator -> evaluatorStrategy : EvaluatePopulation(initialPopulation)
+
+loop за всяко поколение
+
+    note right of generator
+    Фаза 3: Мутация и подобрение
+    end note
+
+    generator -> generator : ApplyMutation()
+
+    note right of generator
+    Фаза 4: Преоценка
+    end note
+
+    generator -> evaluatorStrategy : EvaluatePopulation(mutatedPopulation)
+
+    note right of generator
+    Фаза 5: Селекция (Elite, Onlooker, Scout)
+    end note
+
+    generator -> generator : SelectEliteBees()
+    generator -> generator : SelectOnlookerBees()
+    generator -> generator : SelectScoutBees()
+
+end
+
+note right of generator
+Фаза 6: Финална селекция
+end note
+
+generator -> generator : SelectFinalPopulation()
+
+note right of generator
+Фаза 7: Генериране на изход
+end note
+
+generator -> outputStrategy : GenerateOutput(methodName, finalTestCases, category)
+
+generator --> client : HashSet<TestCase>
+
+@enduml

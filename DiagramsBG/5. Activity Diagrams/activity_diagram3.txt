@@ -1,0 +1,44 @@
+'https://editor.plantuml.com/
+'Activity Diagram 3: Показване на различните начини за използване на Testimize
+
+@startuml
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+
+start
+
+:Избор на режим от потребителя;
+
+if (Precise Mode?) then
+  :Създаване на конфигурация с параметри;
+  :Създаване на валидации и стойности;
+else
+  :Автоматично откриване на входни параметри;
+  :Генериране на стойности чрез вградени стратегии;
+endif
+
+:Стартиране на TestimizeEngine;
+:Подаване на параметри и настройки;
+
+:Избор на стратегия за генериране;
+
+if (Pairwise?) then
+  :Генериране на тестове чрез Pairwise;
+else
+  :Генериране на тестове чрез Hybrid ABC;
+endif
+
+:Извеждане на резултат чрез избрания OutputGenerator;
+
+:Преглед на резултата и анализ;
+
+if (Има грешки?) then
+  :Повторна конфигурация или корекция;
+  -> :Стартиране на TestimizeEngine;
+endif
+
+stop
+@enduml

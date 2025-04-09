@@ -1,0 +1,80 @@
+'https://editor.plantuml.com/
+'Клас Диаграма 2: Как работи генерирането на тестови стойности
+
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam interfaceBackgroundColor #D0E4F5
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam interfaceBorderColor Black
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 2.0
+skinparam ranksep 2.5
+skinparam roundcorner 0
+left to right direction
+
+' === Интерфейс ===
+interface IDataProviderStrategy {
+    +GenerateTestValues(): List<TestValue>
+}
+
+' === Абстрактни стратегии ===
+abstract class EquivalenceOnlyDataProviderStrategy {
+    +GenerateTestValues(): List<TestValue>
+}
+EquivalenceOnlyDataProviderStrategy ..|> IDataProviderStrategy
+
+abstract class "BoundaryCapableDataProviderStrategy<T>" as BoundaryCapableDataProviderStrategy_T {
+    +GenerateTestValues(): List<TestValue>
+    +GenerateBoundaryValues(): List<TestValue>
+}
+BoundaryCapableDataProviderStrategy_T --|> EquivalenceOnlyDataProviderStrategy
+
+' === Конкретни стратегии ===
+class EmailDataProviderStrategy {
+    +GenerateTestValues(): List<TestValue>
+    +GenerateBoundaryValues(): List<TestValue>
+}
+EmailDataProviderStrategy --|> BoundaryCapableDataProviderStrategy_T
+
+class TextDataProviderStrategy {
+    +GenerateTestValues(): List<TestValue>
+    +GenerateBoundaryValues(): List<TestValue>
+}
+TextDataProviderStrategy --|> BoundaryCapableDataProviderStrategy_T
+
+class CountryCodeDataProviderStrategy {
+    +GenerateTestValues(): List<TestValue>
+}
+CountryCodeDataProviderStrategy --|> EquivalenceOnlyDataProviderStrategy
+
+' === DataParameter<TStrategy> ===
+class "DataParameter<TStrategy>" as DataParameter_T {
+    +TestValues: List<TestValue>
+    +Strategy: TStrategy
+}
+DataParameter_T *-- IDataProviderStrategy : uses
+DataParameter_T o-- TestValue : generates
+
+' === Конкретни параметри, използващи стратегии ===
+class EmailDataParameter
+EmailDataParameter --|> DataParameter_T
+EmailDataParameter ..> EmailDataProviderStrategy : uses
+
+class TextDataParameter
+TextDataParameter --|> DataParameter_T
+TextDataParameter ..> TextDataProviderStrategy : uses
+
+class CountryCodeDataParameter
+CountryCodeDataParameter --|> DataParameter_T
+CountryCodeDataParameter ..> CountryCodeDataProviderStrategy : uses
+
+' === Тестова стойност ===
+class TestValue {
+    +Value: object
+    +ExpectedInvalidMessage: string
+}
+
+@enduml

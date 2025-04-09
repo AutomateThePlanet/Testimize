@@ -1,0 +1,74 @@
+'https://editor.plantuml.com/
+'Sequence Diagram 2 - Конфигуриране и изпълнение чрез TestimizeEngine
+
+@startuml
+' === Класически UML стил със силно визуално присъствие ===
+skinparam style strictuml
+skinparam roundcorner 0
+skinparam ArrowColor Black
+skinparam ArrowFontColor Black
+skinparam sequenceMessageAlignment center
+
+actor client
+participant engine as "engine : TestimizeEngine"
+participant inputBuilder as "inputBuilder : TestimizeInputBuilder"
+participant paramBuilder as "paramBuilder : ParameterBuilder<T>"
+participant valueBuilder as "valueBuilder : TestValueBuilder<T>"
+participant settings as "settings : PreciseTestEngineSettings"
+participant builder as "builder : TestSuiteBuilder"
+participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
+participant outputGenerator as "outputGenerator : NUnitTestCaseOutputGenerator"
+
+note over client, engine
+Фаза 1: Клиентът извиква конфигурация с делегати
+end note
+
+client -> engine : Configure(parametersLambda, settingsLambda)
+activate engine
+
+engine -> inputBuilder : new TestimizeInputBuilder()
+activate inputBuilder
+
+note right of inputBuilder
+Извикване на AddText(...) чрез делегат
+end note
+
+inputBuilder -> paramBuilder : new ParameterBuilder<Text>
+paramBuilder -> valueBuilder : Valid("admin")
+valueBuilder -> paramBuilder : WithExpectedMessage("valid input")
+
+note right of inputBuilder
+Build() се извиква вътрешно в AddText()
+end note
+
+deactivate inputBuilder
+
+engine -> settings : Apply config overrides
+engine -> builder : new TestSuiteBuilder(...)
+deactivate engine
+
+note over client, generator
+Фаза 2: Генериране чрез DI и ABC алгоритъм
+end note
+
+client -> builder : Generate()
+activate builder
+
+builder -> settings : get.ABCSettings
+builder -> generator : GenerateTestCases(parameters)
+activate generator
+
+generator -> generator : RunABCAlgorithm()
+generator -> outputGenerator : GenerateOutput(methodName, testCases, category)
+
+note right of outputGenerator
+Извежда към Console и Clipboard
+end note
+
+generator --> builder : HashSet<TestCase>
+deactivate generator
+
+builder --> client : List<TestCase>
+deactivate builder
+
+@enduml

@@ -1,0 +1,45 @@
+'https://editor.plantuml.com/
+'Use Case Диаграма 2: QA / Тест разработчик (Exploratory Mode)
+
+@startuml
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam nodesep 120
+skinparam ranksep 40
+left to right direction
+
+' === Централен компонент ===
+component "HybridArtificialBeeColonyTestCaseGenerator" as ABCGen {
+}
+
+' === Интерфейси (Strategy pattern) ===
+interface "ITestCaseGenerator" as IGen
+interface "ITestCaseEvaluator" as IEval
+interface "ITestCaseOutputGenerator" as IOut
+
+ABCGen --> IGen : <<requires>>
+ABCGen --> IEval : <<requires>>
+ABCGen --> IOut : <<requires>>
+
+' === Реализации на стратегии ===
+component "PairwiseTestCaseGenerator" as GenImpl
+GenImpl ..> IGen : <<provides>>
+
+component "TestCaseEvaluator" as EvalImpl
+EvalImpl ..> IEval : <<provides>>
+
+component "NUnitTestCaseSourceOutputGenerator" as OutImpl
+OutImpl ..> IOut : <<provides>>
+
+' === Конфигурационен обект ===
+component "ABCGenerationSettings" as Config
+
+Config --> GenImpl
+Config --> EvalImpl
+Config --> OutImpl
+
+ABCGen --> Config : settings injected
+
+@enduml

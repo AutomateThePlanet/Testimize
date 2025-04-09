@@ -1,0 +1,40 @@
+'https://editor.plantuml.com/
+'Activity Diagram #2: Вътрешната логика на ABC алгоритъма.
+
+@startuml
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+
+start
+
+:GenerateInitialPopulation(parameters);
+:Оценка чрез EvaluatePopulation(initialPopulation);
+
+repeat
+    :EvaluatePopulation(currentPopulation);
+
+    :SelectElitePopulation();
+    :Формира non-elite като evaluated - elite;
+
+    if (EnableOnlookerSelection?) then
+        :nonElite = MaintainDiversePopulationOnlookerSelection(...);
+    else
+        :nonElite остава непроменен;
+    endif
+
+    :MutatePopulation(evaluated, nonElite, ...);
+
+    if (EnableScoutPhase? && iteration > stagnationThreshold) then
+        :PerformScoutPhaseIfNeeded();
+    endif
+
+repeat while (currentGeneration < totalGenerations)
+
+:LimitFinalPopulationBasedOnSelectionRatio();
+:Връщане на finalPopulation;
+
+stop
+@enduml

@@ -1,0 +1,85 @@
+'https://editor.plantuml.com/
+'Use Case Диаграма 2: QA / Тест разработчик (Exploratory Mode)
+
+@startuml
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 2.0
+skinparam ranksep 3.0
+skinparam roundcorner 0
+left to right direction
+
+' === Developer Machine ===
+node "Developer Machine\n(Local)" {
+    component "Testimize" <<library>>
+    component "Testimize.Tests" <<test-project>>
+    artifact "Testimize.csproj" <<artifact>>
+    artifact "Testimize.Tests.csproj" <<artifact>>
+    component "Local Git Repository" <<git>>
+
+    "Testimize.Tests" --> "Testimize"
+    "Testimize" --> "Testimize.csproj"
+    "Testimize.Tests" --> "Testimize.Tests.csproj"
+
+    "Testimize" --> "Local Git Repository"
+    "Testimize.Tests" --> "Local Git Repository"
+}
+
+' === GitHub Remote ===
+node "GitHub Repository (Remote)" {
+    artifact "main" <<branch>>
+    artifact "v1.1.8" <<tag>>
+}
+
+"Local Git Repository" --> "main" : push
+"Local Git Repository" --> "v1.1.8" : tag
+
+' === CI/CD Runner ===
+node "GitHub Actions\nCI/CD Runner" {
+    artifact ".github/workflows/ci.yml" <<artifact>>
+    artifact ".github/workflows/publish-nuget.yml" <<artifact>>
+
+    component "DotnetBuild" <<build>>
+    component "DotnetTest" <<test-runner>>
+    component "DotnetPack" <<build>>
+    component "NuGetPush" <<deployer>>
+
+    artifact "Testimize.dll" <<artifact>>
+    artifact "Testimize.Tests.dll" <<artifact>>
+    artifact "TestResults.trx" <<artifact>>
+    artifact "Testimize.1.1.8.nupkg" <<artifact>>
+
+    "ci.yml" --> "DotnetBuild"
+    "ci.yml" --> "DotnetTest"
+    "DotnetBuild" --> "Testimize.dll"
+    "DotnetBuild" --> "Testimize.Tests.dll"
+    "DotnetTest" --> "Testimize.Tests.dll"
+    "DotnetTest" --> "TestResults.trx"
+
+    "publish-nuget.yml" --> "DotnetPack"
+    "DotnetPack" --> "Testimize.1.1.8.nupkg"
+    "publish-nuget.yml" --> "NuGetPush"
+    "NuGetPush" --> "Testimize.1.1.8.nupkg"
+}
+
+' === Optional Manual Gate ===
+component "Manual Approval" <<manual>>
+"Manual Approval" --> "publish-nuget.yml"
+
+' === GitHub Secrets ===
+node "Secrets Store (GitHub)" {
+    artifact "NUGET_API_KEY" <<secret>>
+}
+"NuGetPush" --> "NUGET_API_KEY"
+
+' === NuGet Gallery ===
+node "NuGet Gallery\n(nuget.org)" {
+    artifact "Testimize.1.1.8.nupkg" <<artifact>>
+}
+"NuGetPush" --> "NuGet Gallery"
+
+' === Triggers ===
+"main" --> "ci.yml" : triggers CI
+"v1.1.8" --> "publish-nuget.yml" : triggers release
+
+@enduml

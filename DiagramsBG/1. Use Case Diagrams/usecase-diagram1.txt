@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Contributor
+actor "Core Maintainer" as Maintainer
+actor "GitHub CI Server" as CI
+actor "NuGet Gallery" as NuGet
+
+rectangle "Testimize Development Workflow" {
+  usecase UC1 as "Клониране на репозиторито"
+  usecase UC2 as "Създаване на feature branch"
+  usecase UC3 as "Разработка и локални тестове"
+  usecase UC4 as "Push към remote branch"
+  usecase UC5 as "Създаване на Pull Request"
+  usecase UC6 as "Одобрение на PR"
+  usecase UC7 as "Merge към main"
+  usecase UC8 as "CI билд и тестове (ci.yml)"
+  usecase UC9 as "Създаване на нов git tag версия"
+  usecase UC10 as "Одобрение на release"
+  usecase UC11 as "Публикация в NuGet (publish-nuget.yml)"
+}
+
+Contributor --> UC1
+Contributor --> UC2
+Contributor --> UC3
+Contributor --> UC4
+Contributor --> UC5
+UC5 --> UC6 : <<include>>
+UC6 --> UC7
+UC7 --> CI : "Trigger CI"
+CI --> UC8
+CI --> UC11
+
+Contributor --> UC9
+UC9 --> UC10 : <<include>>
+UC10 --> UC11
+UC11 --> NuGet : "Публикуване на пакет"
+
+Maintainer --> UC6
+Maintainer --> UC10
+@enduml

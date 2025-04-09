@@ -1,0 +1,62 @@
+' https://editor.plantuml.com/
+' Use Case Диаграма 3: QA / Тест разработчик (Precise Mode)
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Tester as "QA / Тест разработчик"
+actor "Test Runner / CI" as Runner
+actor "Application Under Test" as AUT
+actor "Testimize (библиотека)" as Testimize
+
+rectangle "Testimize — Precise Mode" {
+  usecase UC1 as "Създаване на Precise конфигурация\n(с параметри и валидации)"
+  usecase UC2 as "Стартиране на генериране на тестови случаи"
+  usecase UC3 as "Генериране на тестови случаи"
+  usecase UC4 as "Използване на генерираните тестове"
+  usecase UC5 as "Стартиране на тестовете"
+  usecase UC6 as "Изпълнение на тестовете"
+  usecase UC7 as "Взаимодействие с приложението"
+  usecase UC8 as "Генериране на резултати"
+  usecase UC9 as "Визуализация на резултати"
+  usecase UC10 as "Анализ на резултати"
+  usecase UC11 as "Корекция на приложението"
+}
+
+' QA действия
+Tester --> UC1
+Tester --> UC2
+Tester --> UC4
+Tester --> UC5
+Tester --> UC10
+UC10 .> UC11 : <<extend>>
+UC11 --> AUT : "Корекции в UI, API, логика"
+
+' Генериране на тестове
+UC2 --> UC3 : <<include>>
+Testimize --> UC3
+UC3 --> UC4 : <<include>>
+
+' Стартиране и изпълнение
+UC5 --> UC6 : <<extend>>
+UC6 --> UC7 : <<include>>
+UC6 --> UC8 : <<include>>
+UC7 --> AUT : "UI/API действия"
+UC8 --> UC9 : <<include>>
+
+' Runner изпълнение
+Runner --> UC6
+Runner --> UC7
+Runner --> UC8
+Runner --> UC9
+
+note right of UC3
+  Testimize генерира тестовите случаи
+  според конфигурацията
+end note
+
+note right of UC6
+  Изпълнението може да бъде прекъснато
+  при грешен билд или невалидни тестове
+end note
+@enduml

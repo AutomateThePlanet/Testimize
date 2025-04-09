@@ -1,0 +1,43 @@
+'https://editor.plantuml.com/
+'Communication Diagram 1– Генериране на тест кейсове с ABC генератора
+
+@startuml
+
+' === Визуални настройки ===
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam nodesep 100
+skinparam ranksep 220
+left to right direction
+
+' === Участници с "име : Клас" (валидно UML 2.x) ===
+rectangle "client : Client" as client
+rectangle "generator : HybridArtificialBeeColonyTestCaseGenerator" as generator
+rectangle "settings : ABCGenerationSettings" as settings
+rectangle "generatorStrategy : ITestCaseGenerator" as generatorStrategy
+rectangle "evaluatorStrategy : ITestCaseEvaluator" as evaluatorStrategy
+rectangle "outputStrategy : ITestCaseOutputGenerator" as outputStrategy
+
+' === Връзки и номерация ===
+client --> generator : 1. GenerateTestCases(...)
+
+generator --> settings : 1.1 get_TestCaseGenerator()
+generator --> settings : 1.2 get_TestCaseEvaluator()
+generator --> settings : 1.3 get_OutputGenerator()
+
+generator --> generatorStrategy : 2. GenerateTestCases(...)
+generatorStrategy --> generator : 2.1 return HashSet<TestCase>
+
+generator --> evaluatorStrategy : 3. EvaluatePopulation(initialPopulation)
+
+generator --> generator : 4. ApplyMutation()
+generator --> evaluatorStrategy : 5. EvaluatePopulation(mutatedPopulation)
+generator --> generator : 6. SelectEliteBees()
+generator --> generator : 7. SelectOnlookerBees()
+generator --> generator : 8. SelectScoutBees()
+generator --> generator : 9. SelectFinalPopulation()
+
+generator --> outputStrategy : 10. GenerateOutput(...)
+generator --> client : 11. return HashSet<TestCase>
+
+@enduml

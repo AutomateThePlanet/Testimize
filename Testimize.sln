@@ -21,6 +21,110 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\publish-nuget.yml = .github\workflows\publish-nuget.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "diagrams", "diagrams", "{59F9385B-9A0B-412F-B6A1-6642A7591519}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "en", "en", "{6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bg", "bg", "{37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. use case", "1. use case", "{21DEEBAE-5E18-499C-BE6F-FFE362466E44}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\1. Use Case Diagrams\usecase-diagram1.png = DiagramsBG\1. Use Case Diagrams\usecase-diagram1.png
+		usecase-diagram1.txt = usecase-diagram1.txt
+		DiagramsBG\1. Use Case Diagrams\usecase-diagram2.png = DiagramsBG\1. Use Case Diagrams\usecase-diagram2.png
+		usecase-diagram2.txt = usecase-diagram2.txt
+		DiagramsBG\1. Use Case Diagrams\usecase-diagram3.png = DiagramsBG\1. Use Case Diagrams\usecase-diagram3.png
+		usecase-diagram3.txt = usecase-diagram3.txt
+		DiagramsBG\1. Use Case Diagrams\usecase-diagram4.png = DiagramsBG\1. Use Case Diagrams\usecase-diagram4.png
+		usecase-diagram4.txt = usecase-diagram4.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. class", "2. class", "{29C53104-B992-43D8-B398-9E0B6F1F419D}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\2. Class Diagrams\class-diagram-1.png = DiagramsBG\2. Class Diagrams\class-diagram-1.png
+		DiagramsBG\2. Class Diagrams\class-diagram-1.txt = DiagramsBG\2. Class Diagrams\class-diagram-1.txt
+		DiagramsBG\2. Class Diagrams\class-diagram-2.png = DiagramsBG\2. Class Diagrams\class-diagram-2.png
+		DiagramsBG\2. Class Diagrams\class-diagram-2.txt = DiagramsBG\2. Class Diagrams\class-diagram-2.txt
+		DiagramsBG\2. Class Diagrams\class-diagram-3.png = DiagramsBG\2. Class Diagrams\class-diagram-3.png
+		DiagramsBG\2. Class Diagrams\class-diagram-3.txt = DiagramsBG\2. Class Diagrams\class-diagram-3.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. sequence", "3. sequence", "{E33202AE-8AFD-4ADB-A17A-B5B78F67A13B}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram1.png = DiagramsBG\3. Sequence Diagrams\sequence_diagram1.png
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram1.txt = DiagramsBG\3. Sequence Diagrams\sequence_diagram1.txt
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram2.png = DiagramsBG\3. Sequence Diagrams\sequence_diagram2.png
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram2.txt = DiagramsBG\3. Sequence Diagrams\sequence_diagram2.txt
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram3.png = DiagramsBG\3. Sequence Diagrams\sequence_diagram3.png
+		DiagramsBG\3. Sequence Diagrams\sequence_diagram3.txt = DiagramsBG\3. Sequence Diagrams\sequence_diagram3.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. communication", "4. communication", "{B2D50707-2A50-497F-8843-ABAC6569823B}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\4. Communication Diagrams\communication_diagram1.png = DiagramsBG\4. Communication Diagrams\communication_diagram1.png
+		DiagramsBG\4. Communication Diagrams\communication_diagram1.txt = DiagramsBG\4. Communication Diagrams\communication_diagram1.txt
+		DiagramsBG\4. Communication Diagrams\communication_diagram2.png = DiagramsBG\4. Communication Diagrams\communication_diagram2.png
+		DiagramsBG\4. Communication Diagrams\communication_diagram2.txt = DiagramsBG\4. Communication Diagrams\communication_diagram2.txt
+		DiagramsBG\4. Communication Diagrams\communication_diagram3.png = DiagramsBG\4. Communication Diagrams\communication_diagram3.png
+		DiagramsBG\4. Communication Diagrams\communication_diagram3.txt = DiagramsBG\4. Communication Diagrams\communication_diagram3.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. activity", "5. activity", "{8A53EF04-B429-440A-815B-630BCF0953A4}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\5. Activity Diagrams\activity_diagram1.png = DiagramsBG\5. Activity Diagrams\activity_diagram1.png
+		DiagramsBG\5. Activity Diagrams\activity_diagram1.txt = DiagramsBG\5. Activity Diagrams\activity_diagram1.txt
+		DiagramsBG\5. Activity Diagrams\activity_diagram2.png = DiagramsBG\5. Activity Diagrams\activity_diagram2.png
+		DiagramsBG\5. Activity Diagrams\activity_diagram2.txt = DiagramsBG\5. Activity Diagrams\activity_diagram2.txt
+		DiagramsBG\5. Activity Diagrams\activity_diagram3.png = DiagramsBG\5. Activity Diagrams\activity_diagram3.png
+		DiagramsBG\5. Activity Diagrams\activity_diagram3.txt = DiagramsBG\5. Activity Diagrams\activity_diagram3.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. statechart", "6. statechart", "{4A340EF0-8D83-42F5-8791-5545928BF4AF}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\6. Statechart Diagrams\state_diagram1.png = DiagramsBG\6. Statechart Diagrams\state_diagram1.png
+		DiagramsBG\6. Statechart Diagrams\state_diagram1.txt = DiagramsBG\6. Statechart Diagrams\state_diagram1.txt
+		DiagramsBG\6. Statechart Diagrams\state_diagram2.png = DiagramsBG\6. Statechart Diagrams\state_diagram2.png
+		DiagramsBG\6. Statechart Diagrams\state_diagram2.txt = DiagramsBG\6. Statechart Diagrams\state_diagram2.txt
+		DiagramsBG\6. Statechart Diagrams\state_diagram3.png = DiagramsBG\6. Statechart Diagrams\state_diagram3.png
+		DiagramsBG\6. Statechart Diagrams\state_diagram3.txt = DiagramsBG\6. Statechart Diagrams\state_diagram3.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7. object", "7. object", "{35982CEE-A7EA-4EA6-A4A6-86A225F050B4}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\7. Object Diagrams\object_diagram1.png = DiagramsBG\7. Object Diagrams\object_diagram1.png
+		DiagramsBG\7. Object Diagrams\object_diagram1.txt = DiagramsBG\7. Object Diagrams\object_diagram1.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8. component", "8. component", "{EE71F1CC-6F15-4C2A-9D03-4C550966139C}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\8. Component Diagrams\component_diagram1.png = DiagramsBG\8. Component Diagrams\component_diagram1.png
+		DiagramsBG\8. Component Diagrams\component_diagram1.txt = DiagramsBG\8. Component Diagrams\component_diagram1.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deployment", "{A9E01DE0-9371-40DB-98C9-C20DEA0B674A}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsBG\9. Deployment Diagrams\deployment_diagram1.png = DiagramsBG\9. Deployment Diagrams\deployment_diagram1.png
+		DiagramsBG\9. Deployment Diagrams\deployment_diagram1.txt = DiagramsBG\9. Deployment Diagrams\deployment_diagram1.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. use case", "1. use case", "{93BD2C1E-F9F6-4FC8-9D21-35923E5DA3B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. class", "2. class", "{6696FB7D-1FB8-4D2E-B0B2-7276842C9C8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. sequence", "3. sequence", "{2D7635BA-FA87-43AC-8E08-48C7D881EFD8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. communication", "4. communication", "{B08E1B72-1921-4732-A7EC-24F49F2D590C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. activity", "5. activity", "{C6BCF8D7-A92E-4769-A307-4DD8A38BE861}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. statechart", "6. statechart", "{8533F587-47CF-4A8A-8E3B-1582EA2290FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7. object", "7. object", "{9B048A20-8CA9-4BA9-9175-EBF7EB8EFDF4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8. component", "8. component", "{BC0D9EF9-EF68-4328-B1E3-FA90DDAFC5E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deployment", "{5148DF4A-CA25-46A2-BBD1-06123CF4780E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +142,28 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6CDD2D95-6B0B-45C3-BC41-6926D0B3523A} = {59F9385B-9A0B-412F-B6A1-6642A7591519}
+		{37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D} = {59F9385B-9A0B-412F-B6A1-6642A7591519}
+		{21DEEBAE-5E18-499C-BE6F-FFE362466E44} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{29C53104-B992-43D8-B398-9E0B6F1F419D} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{E33202AE-8AFD-4ADB-A17A-B5B78F67A13B} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{B2D50707-2A50-497F-8843-ABAC6569823B} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{8A53EF04-B429-440A-815B-630BCF0953A4} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{4A340EF0-8D83-42F5-8791-5545928BF4AF} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{35982CEE-A7EA-4EA6-A4A6-86A225F050B4} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{EE71F1CC-6F15-4C2A-9D03-4C550966139C} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{A9E01DE0-9371-40DB-98C9-C20DEA0B674A} = {37AF3B22-E469-4FFE-ACCD-61B2F9E05F9D}
+		{93BD2C1E-F9F6-4FC8-9D21-35923E5DA3B2} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{6696FB7D-1FB8-4D2E-B0B2-7276842C9C8C} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{2D7635BA-FA87-43AC-8E08-48C7D881EFD8} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{B08E1B72-1921-4732-A7EC-24F49F2D590C} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{C6BCF8D7-A92E-4769-A307-4DD8A38BE861} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{8533F587-47CF-4A8A-8E3B-1582EA2290FC} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{9B048A20-8CA9-4BA9-9175-EBF7EB8EFDF4} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{BC0D9EF9-EF68-4328-B1E3-FA90DDAFC5E3} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
+		{5148DF4A-CA25-46A2-BBD1-06123CF4780E} = {6CDD2D95-6B0B-45C3-BC41-6926D0B3523A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {423FD77E-EA69-421B-8EC5-06B157D204A0}

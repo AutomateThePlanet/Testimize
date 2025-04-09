@@ -1,0 +1,26 @@
+'https://editor.plantuml.com/
+'Use Case Диаграма 4: Разширяване на функционалността на Testimize
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Tester as "QA / Разработчик на тестове"
+actor "Testimize (библиотека)" as Testimize
+
+rectangle "Разширяване на Testimize" {
+  usecase UC1 as "Създаване на разширения\n(InputParam, Evaluator и др.)"
+  usecase UC2 as "Конфигуриране на разширения"
+  usecase UC3 as "Използване на разширения\nпри генериране/изпълнение"
+}
+
+Tester --> UC1
+Tester --> UC2
+UC2 .> UC3 : <<extend>>
+Testimize --> UC3
+
+note right of UC3
+  Разширенията се използват автоматично
+  от Testimize в Precise/Exploratory режим
+end note
+@enduml

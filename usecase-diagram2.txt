@@ -1,0 +1,59 @@
+'https://editor.plantuml.com/
+'Use Case Диаграма 2: QA / Тест разработчик (Exploratory Mode)
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor Tester as "QA / Тест разработчик"
+actor "Test Runner / CI" as Runner
+actor "Application Under Test" as AUT
+actor "Testimize (библиотека)" as Testimize
+
+rectangle "Testimize — Exploratory Mode" {
+  usecase UC1 as "Конфигуриране на Exploratory Mode"
+  usecase UC2 as "Стартиране на тестовете"
+  usecase UC3 as "Генериране на тестове (Exploratory)"
+  usecase UC4 as "Изпълнение на тестовете"
+  usecase UC5 as "Взаимодействие с приложението"
+  usecase UC6 as "Генериране на резултати"
+  usecase UC7 as "Визуализация на резултати"
+  usecase UC8 as "Анализ на резултати"
+  usecase UC9 as "Корекция на приложението"
+}
+
+' QA участва в конфигурация, стартиране и анализ
+Tester --> UC1
+Tester --> UC2
+Tester --> UC8
+UC8 .> UC9 : <<extend>>
+UC9 --> AUT : "Корекции в UI, API, логика"
+
+' Runner изпълнява тестовете
+Runner --> UC4
+Runner --> UC5
+Runner --> UC6
+Runner --> UC7
+
+' Testimize участва в конфигурация и генериране
+Testimize --> UC1
+UC2 --> UC3 : <<include>>
+Testimize --> UC3
+UC3 --> UC4 : <<include>>
+
+' Изпълнение включва взаимодействие и резултати
+UC4 --> UC5 : <<include>>
+UC5 --> AUT : "UI/API действия"
+UC4 --> UC6 : <<include>>
+UC6 --> UC7 : <<include>>
+
+note right of UC3
+  Testimize генерира тестовете автоматично
+  при стартиране в Exploratory Mode
+end note
+
+note right of UC4
+  Изпълнението може да бъде прекъснато
+  при грешен билд или runtime грешка
+end note
+@enduml

@@ -1,0 +1,32 @@
+'https://editor.plantuml.com/
+'State Diagram 1: "Конфигурация и стартиране на Testimize Engine с ABC алгоритъм"
+
+@startuml
+skinparam shadowing false
+skinparam roundcorner 20
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+
+[*] --> Idle
+
+Idle --> Configuring : onConfigure()
+Configuring : entry / create TestimizeInputBuilder\ncreate PreciseTestEngineSettings
+
+Configuring --> ParametersDefined : onBuildInputParameters()
+ParametersDefined : entry / finalize IInputParameter
+
+ParametersDefined --> ReadyToGenerate : [isConfigurationValid()] / wait for Generate()
+
+ReadyToGenerate --> FetchingSettings : onGenerate()
+FetchingSettings : entry / extract ABCGenerationSettings
+
+FetchingSettings --> ExecutingGeneration : onGenerateTestCases()
+ExecutingGeneration : entry / HybridArtificialBeeColonyTestCaseGenerator.GenerateTestCases()
+
+ExecutingGeneration --> Outputting : onGenerateOutput()
+Outputting : entry / OutputGenerator.GenerateOutput()
+
+Outputting --> [*] : done
+
+@enduml

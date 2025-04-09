@@ -1,0 +1,104 @@
+'https://editor.plantuml.com/
+'Клас Диаграма 1: Как работи HybridArtificialBeeColonyTestCaseGenerator
+
+@startuml
+' === Визуален стил ===
+skinparam classAttributeIconSize 0
+skinparam interfaceBackgroundColor #D0E4F5
+skinparam classBackgroundColor White
+skinparam classBorderColor Black
+skinparam interfaceBorderColor Black
+skinparam shadowing false
+skinparam linetype ortho
+skinparam roundcorner 0
+skinparam nodesep 2.0
+skinparam ranksep 2.5
+top to bottom direction
+
+' === Интерфейси ===
+interface ITestCaseGenerator {
+    +GenerateTestCases(parameters: List<object>): HashSet<TestCase>
+}
+
+interface ITestCaseEvaluator {
+    +EvaluatePopulation(population: HashSet<TestCase>): void
+    +Evaluate(testCase: TestCase, evaluatedTestCases: HashSet<TestCase>): double
+    +EvaluatePopulationToDictionary(population: HashSet<TestCase>): Dictionary<TestCase, double>
+}
+
+interface ITestCaseOutputGenerator {
+    +GenerateOutput(methodName: string, testCases: IEnumerable<TestCase>, testCaseCategory: TestCaseCategory): void
+}
+
+' === Абстрактна база ===
+abstract class TestCaseOutputGenerator implements ITestCaseOutputGenerator {
+    +GenerateOutput(methodName: string, testCases: IEnumerable<TestCase>, testCaseCategory: TestCaseCategory): void
+}
+
+' === Имплементации на генератори ===
+class PairwiseTestCaseGenerator implements ITestCaseGenerator{
+    +GenerateTestCases(parameters: List<object>): HashSet<TestCase>
+}
+
+class CombinatorialTestCaseGenerator implements ITestCaseGenerator {
+    +GenerateTestCases(parameters: List<object>): HashSet<TestCase>
+}
+
+' === Имплементации на Output ===
+
+class JsonTestCaseOutputGenerator extends TestCaseOutputGenerator{
+    +GenerateOutput(methodName: string, testCases: IEnumerable<TestCase>, testCaseCategory: TestCaseCategory): void
+}
+
+class CsvTestCaseOutputGenerator extends TestCaseOutputGenerator{
+    +GenerateOutput(methodName: string, testCases: IEnumerable<TestCase>, testCaseCategory: TestCaseCategory): void
+}
+
+' === Имплементация на Evaluator ===
+class TestCaseEvaluator implements ITestCaseEvaluator {
+    -_allowMultipleInvalidInputs: bool
+    +EvaluatePopulation(population: HashSet<TestCase>): void
+    +Evaluate(testCase: TestCase, evaluatedTestCases: HashSet<TestCase>): double
+    +EvaluatePopulationToDictionary(population: HashSet<TestCase>): Dictionary<TestCase, double>
+}
+
+' === ABC Генератор ===
+class HybridArtificialBeeColonyTestCaseGenerator {
+    -_config: ABCGenerationSettings
+    -_testCaseEvaluator: ITestCaseEvaluator
+    -_testCaseGenerator: ITestCaseGenerator
+    -_outputGenerator: ITestCaseOutputGenerator
+    -_random: Random
+    -_initialPopulationSize: int
+    -_elitCount: int
+    +GenerateTestCases(methodName: string, parameters: List<object>, testCaseCategory: TestCaseCategory): HashSet<TestCase>
+    +GetGeneratedTestCases(parameters: List<object>): HashSet<TestCase>
+    -RunABCAlgorithm(parameters: List<object>): HashSet<TestCase>
+}
+
+HybridArtificialBeeColonyTestCaseGenerator --> ITestCaseGenerator : uses
+HybridArtificialBeeColonyTestCaseGenerator --> ITestCaseEvaluator : uses
+HybridArtificialBeeColonyTestCaseGenerator --> ITestCaseOutputGenerator : uses
+HybridArtificialBeeColonyTestCaseGenerator --> ABCGenerationSettings : has
+
+' === Конфигурация ===
+class ABCGenerationSettings {
+    +TotalPopulationGenerations: int
+    +MutationRate: double
+    +FinalPopulationSelectionRatio: double
+    +EliteSelectionRatio: double
+    +OnlookerSelectionRatio: double
+    +ScoutSelectionRatio: double
+    +EnableOnlookerSelection: bool
+    +EnableScoutPhase: bool
+    +EnforceMutationUniqueness: bool
+    +StagnationThresholdPercentage: double
+    +CoolingRate: double
+    +AllowMultipleInvalidInputs: bool
+    +Seed: int
+    +TestCaseGenerator: ITestCaseGenerator
+    +TestCaseEvaluator: ITestCaseEvaluator
+    +OutputGenerator: ITestCaseOutputGenerator
+}
+
+@enduml

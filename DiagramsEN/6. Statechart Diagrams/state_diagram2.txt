@@ -1,0 +1,42 @@
+'https://editor.plantuml.com/
+'State Diagram #2: Вътрешната логика на ABC алгоритъма
+
+@startuml
+skinparam shadowing false
+skinparam roundcorner 20
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+
+[*] --> Initializing
+
+Initializing : entry / GenerateInitialPopulation(parameters)\nEvaluatePopulation(initialPopulation)
+
+Initializing --> Evaluating : onStartIterations()
+
+Evaluating : entry / EvaluatePopulation(currentPopulation)
+
+Evaluating --> SelectingElite : onEvaluated()
+SelectingElite : entry / SelectElitePopulation()
+
+SelectingElite --> OnlookerPhase : [EnableOnlookerSelection] / MaintainDiversePopulationOnlookerSelection()
+SelectingElite --> Mutation : [else]
+
+OnlookerPhase --> Mutation
+
+Mutation : entry / MutatePopulation(evaluated, nonElite)
+
+Mutation --> ScoutPhase : [EnableScoutPhase && iteration > threshold]
+Mutation --> IterationCheck : [else]
+
+ScoutPhase : entry / PerformScoutPhaseIfNeeded()
+ScoutPhase --> IterationCheck
+
+IterationCheck --> Evaluating : [currentGeneration < totalGenerations] / next iteration
+IterationCheck --> Finalizing : [else]
+
+Finalizing : entry / LimitFinalPopulationBasedOnSelectionRatio()\nreturn finalPopulation
+
+Finalizing --> [*]
+
+@enduml
