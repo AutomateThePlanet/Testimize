@@ -10,14 +10,14 @@ skinparam ArrowFontColor Black
 skinparam sequenceMessageAlignment center
 
 actor client
-participant engine as "engine : TestimizeEngine"
-participant inputBuilder as "inputBuilder : TestimizeInputBuilder"
-participant paramBuilder as "paramBuilder : ParameterBuilder<T>"
-participant valueBuilder as "valueBuilder : TestValueBuilder<T>"
-participant settings as "settings : PreciseTestEngineSettings"
-participant builder as "builder : TestSuiteBuilder"
-participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
-participant outputGenerator as "outputGenerator : NUnitTestCaseOutputGenerator"
+participant engine as "<u>engine : TestimizeEngine</u>"
+participant inputBuilder as "<u>inputBuilder : TestimizeInputBuilder</u>"
+participant paramBuilder as "<u>paramBuilder : ParameterBuilder<T></u>"
+participant valueBuilder as "<u>valueBuilder : TestValueBuilder<T></u>"
+participant settings as "<u>settings : PreciseTestEngineSettings</u>"
+participant builder as "<u>builder : TestSuiteBuilder</u>"
+participant generator as "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>"
+participant outputGenerator as "<u>outputGenerator : NUnitTestCaseOutputGenerator</u>"
 
 note over client, engine
 Фаза 1: Клиентът извиква конфигурация с делегати

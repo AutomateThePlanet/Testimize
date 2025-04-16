@@ -9,9 +9,9 @@ skinparam ArrowColor Black
 skinparam ArrowFontColor Black
 skinparam sequenceMessageAlignment center
 
-participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
-participant evaluator as "evaluator : ITestCaseEvaluator"
-participant randomizer as "randomizer : Random"
+participant generator as "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>"
+participant evaluator as "<u>evaluator : ITestCaseEvaluator</u>"
+participant randomizer as "<u>randomizer : Random</u>"
 
 note over generator
 Фаза 1: Стартиране на RunABCAlgorithm()

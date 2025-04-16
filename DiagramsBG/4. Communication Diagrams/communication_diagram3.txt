@@ -1,44 +1,32 @@
-'https://editor.plantuml.com/
-'Communication Diagram 3: Вътрешен ABC итеративен цикъл
-
-
 @startuml
 
 ' === Визуални настройки ===
 skinparam shadowing false
 skinparam roundcorner 0
 skinparam nodesep 60
-skinparam ranksep 10
+skinparam ranksep 40
 left to right direction
 
 ' === Участници с "име : Клас" ===
-rectangle "client : Client" as client
-rectangle "engine : TestimizeEngine" as engine
-rectangle "inputBuilder : TestimizeInputBuilder" as inputBuilder
-rectangle "paramBuilder : ParameterBuilder<T>" as paramBuilder
-rectangle "valueBuilder : TestValueBuilder<T>" as valueBuilder
-rectangle "settings : PreciseTestEngineSettings" as settings
-rectangle "builder : TestSuiteBuilder" as builder
-rectangle "generator : HybridArtificialBeeColonyTestCaseGenerator" as generator
-rectangle "outputGenerator : NUnitTestCaseOutputGenerator" as outputGenerator
+rectangle "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>" as generator
+rectangle "<u>evaluator : ITestCaseEvaluator</u>" as evaluator
+rectangle "<u>randomizer : Random</u>" as randomizer
 
-' === Конфигурация с делегати ===
-client --> engine : 1. Configure(parametersLambda, settingsLambda)
-engine --> inputBuilder : 1.1 new TestimizeInputBuilder()
-inputBuilder --> paramBuilder : 1.2 AddText(...) → new ParameterBuilder<T>
-paramBuilder --> valueBuilder : 1.3 Valid("admin")
-valueBuilder --> paramBuilder : 1.4 WithExpectedMessage("valid input")
-engine --> settings : 1.5 Apply config overrides
-engine --> builder : 1.6 new TestSuiteBuilder(...)
+' === Стартиране на алгоритъма ===
+generator --> generator : 1. CreateInitialPopulation()
+generator --> evaluator : 2. EvaluatePopulation(initialPopulation)
 
-' === Генерация чрез DI и ABC алгоритъм ===
-client --> builder : 2. Generate()
-builder --> settings : 2.1 get.ABCSettings
-builder --> generator : 2.2 GenerateTestCases(parameters)
-generator --> generator : 2.2.1 RunABCAlgorithm()
-generator --> outputGenerator : 2.2.2 GenerateOutput(...)
-outputGenerator --> generator : 2.2.3 return (prints + clipboard)
-generator --> builder : 2.3 return HashSet<TestCase>
-builder --> client : 2.4 return List<TestCase>
+' === Итеративен цикъл ===
+generator --> randomizer : 3.1 Select test cases for mutation
+generator --> generator : 3.2 ApplyMutation(testCases)
+generator --> evaluator : 3.3 EvaluatePopulation(mutatedPopulation)
+generator --> generator : 3.4 CheckImprovement()
+
+' === Условен блок за подобрение ===
+generator --> generator : 3.5.1 IncreaseStagnationCounter() [ако няма подобрение]
+generator --> generator : 3.5.2 UpdateBestPopulation() [ако има подобрение]
+
+' === Финална селекция ===
+generator --> generator : 4. SelectFinalPopulation()
 
 @enduml

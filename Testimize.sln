@@ -108,22 +108,84 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deploym
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. use case", "1. use case", "{93BD2C1E-F9F6-4FC8-9D21-35923E5DA3B2}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram1.png = DiagramsEN\1. Use Case Diagrams\usecase-diagram1.png
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram1.txt = DiagramsEN\1. Use Case Diagrams\usecase-diagram1.txt
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram2.png = DiagramsEN\1. Use Case Diagrams\usecase-diagram2.png
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram2.txt = DiagramsEN\1. Use Case Diagrams\usecase-diagram2.txt
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram3.png = DiagramsEN\1. Use Case Diagrams\usecase-diagram3.png
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram3.txt = DiagramsEN\1. Use Case Diagrams\usecase-diagram3.txt
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram4.png = DiagramsEN\1. Use Case Diagrams\usecase-diagram4.png
+		DiagramsEN\1. Use Case Diagrams\usecase-diagram4.txt = DiagramsEN\1. Use Case Diagrams\usecase-diagram4.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. class", "2. class", "{6696FB7D-1FB8-4D2E-B0B2-7276842C9C8C}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\2. Class Diagrams\class-diagram-1.png = DiagramsEN\2. Class Diagrams\class-diagram-1.png
+		DiagramsEN\2. Class Diagrams\class-diagram-1.txt = DiagramsEN\2. Class Diagrams\class-diagram-1.txt
+		DiagramsEN\2. Class Diagrams\class-diagram-2.png = DiagramsEN\2. Class Diagrams\class-diagram-2.png
+		DiagramsEN\2. Class Diagrams\class-diagram-2.txt = DiagramsEN\2. Class Diagrams\class-diagram-2.txt
+		DiagramsEN\2. Class Diagrams\class-diagram-3.png = DiagramsEN\2. Class Diagrams\class-diagram-3.png
+		DiagramsEN\2. Class Diagrams\class-diagram-3.txt = DiagramsEN\2. Class Diagrams\class-diagram-3.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. sequence", "3. sequence", "{2D7635BA-FA87-43AC-8E08-48C7D881EFD8}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram1.png = DiagramsEN\3. Sequence Diagrams\sequence_diagram1.png
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram1.txt = DiagramsEN\3. Sequence Diagrams\sequence_diagram1.txt
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram2.png = DiagramsEN\3. Sequence Diagrams\sequence_diagram2.png
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram2.txt = DiagramsEN\3. Sequence Diagrams\sequence_diagram2.txt
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram3.png = DiagramsEN\3. Sequence Diagrams\sequence_diagram3.png
+		DiagramsEN\3. Sequence Diagrams\sequence_diagram3.txt = DiagramsEN\3. Sequence Diagrams\sequence_diagram3.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. communication", "4. communication", "{B08E1B72-1921-4732-A7EC-24F49F2D590C}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\4. Communication Diagrams\communication_diagram1.png = DiagramsEN\4. Communication Diagrams\communication_diagram1.png
+		DiagramsEN\4. Communication Diagrams\communication_diagram1.txt = DiagramsEN\4. Communication Diagrams\communication_diagram1.txt
+		DiagramsEN\4. Communication Diagrams\communication_diagram2.png = DiagramsEN\4. Communication Diagrams\communication_diagram2.png
+		DiagramsEN\4. Communication Diagrams\communication_diagram2.txt = DiagramsEN\4. Communication Diagrams\communication_diagram2.txt
+		DiagramsEN\4. Communication Diagrams\communication_diagram3.png = DiagramsEN\4. Communication Diagrams\communication_diagram3.png
+		DiagramsEN\4. Communication Diagrams\communication_diagram3.txt = DiagramsEN\4. Communication Diagrams\communication_diagram3.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. activity", "5. activity", "{C6BCF8D7-A92E-4769-A307-4DD8A38BE861}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\5. Activity Diagrams\activity_diagram1.png = DiagramsEN\5. Activity Diagrams\activity_diagram1.png
+		DiagramsEN\5. Activity Diagrams\activity_diagram1.txt = DiagramsEN\5. Activity Diagrams\activity_diagram1.txt
+		DiagramsEN\5. Activity Diagrams\activity_diagram2.png = DiagramsEN\5. Activity Diagrams\activity_diagram2.png
+		DiagramsEN\5. Activity Diagrams\activity_diagram2.txt = DiagramsEN\5. Activity Diagrams\activity_diagram2.txt
+		DiagramsEN\5. Activity Diagrams\activity_diagram3.png = DiagramsEN\5. Activity Diagrams\activity_diagram3.png
+		DiagramsEN\5. Activity Diagrams\activity_diagram3.txt = DiagramsEN\5. Activity Diagrams\activity_diagram3.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. statechart", "6. statechart", "{8533F587-47CF-4A8A-8E3B-1582EA2290FC}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\6. Statechart Diagrams\state_diagram1.png = DiagramsEN\6. Statechart Diagrams\state_diagram1.png
+		DiagramsEN\6. Statechart Diagrams\state_diagram1.txt = DiagramsEN\6. Statechart Diagrams\state_diagram1.txt
+		DiagramsEN\6. Statechart Diagrams\state_diagram2.png = DiagramsEN\6. Statechart Diagrams\state_diagram2.png
+		DiagramsEN\6. Statechart Diagrams\state_diagram2.txt = DiagramsEN\6. Statechart Diagrams\state_diagram2.txt
+		DiagramsEN\6. Statechart Diagrams\state_diagram3.png = DiagramsEN\6. Statechart Diagrams\state_diagram3.png
+		DiagramsEN\6. Statechart Diagrams\state_diagram3.txt = DiagramsEN\6. Statechart Diagrams\state_diagram3.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "7. object", "7. object", "{9B048A20-8CA9-4BA9-9175-EBF7EB8EFDF4}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\7. Object Diagrams\object_diagram1.png = DiagramsEN\7. Object Diagrams\object_diagram1.png
+		DiagramsEN\7. Object Diagrams\object_diagram1.txt = DiagramsEN\7. Object Diagrams\object_diagram1.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "8. component", "8. component", "{BC0D9EF9-EF68-4328-B1E3-FA90DDAFC5E3}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\8. Component Diagrams\component_diagram1.png = DiagramsEN\8. Component Diagrams\component_diagram1.png
+		DiagramsEN\8. Component Diagrams\component_diagram1.txt = DiagramsEN\8. Component Diagrams\component_diagram1.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deployment", "{5148DF4A-CA25-46A2-BBD1-06123CF4780E}"
+	ProjectSection(SolutionItems) = preProject
+		DiagramsEN\9. Deployment Diagrams\deployment_diagram1.png = DiagramsEN\9. Deployment Diagrams\deployment_diagram1.png
+		DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt = DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

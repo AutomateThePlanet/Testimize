@@ -11,12 +11,12 @@ skinparam ranksep 220
 left to right direction
 
 ' === Участници с "име : Клас" (валидно UML 2.x) ===
-rectangle "client : Client" as client
-rectangle "generator : HybridArtificialBeeColonyTestCaseGenerator" as generator
-rectangle "settings : ABCGenerationSettings" as settings
-rectangle "generatorStrategy : ITestCaseGenerator" as generatorStrategy
-rectangle "evaluatorStrategy : ITestCaseEvaluator" as evaluatorStrategy
-rectangle "outputStrategy : ITestCaseOutputGenerator" as outputStrategy
+rectangle "<u>client : Client</u>" as client
+rectangle "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>" as generator
+rectangle "<u>settings : ABCGenerationSettings</u>" as settings
+rectangle "<u>generatorStrategy : ITestCaseGenerator</u>" as generatorStrategy
+rectangle "<u>evaluatorStrategy : ITestCaseEvaluator</u>" as evaluatorStrategy
+rectangle "<u>outputStrategy : ITestCaseOutputGenerator</u>" as outputStrategy
 
 ' === Връзки и номерация ===
 client --> generator : 1. GenerateTestCases(...)

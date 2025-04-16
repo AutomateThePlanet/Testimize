@@ -12,15 +12,15 @@ skinparam ranksep 10
 left to right direction
 
 ' === Участници с "име : Клас" ===
-rectangle "client : Client" as client
-rectangle "engine : TestimizeEngine" as engine
-rectangle "inputBuilder : TestimizeInputBuilder" as inputBuilder
-rectangle "paramBuilder : ParameterBuilder<T>" as paramBuilder
-rectangle "valueBuilder : TestValueBuilder<T>" as valueBuilder
-rectangle "settings : PreciseTestEngineSettings" as settings
-rectangle "builder : TestSuiteBuilder" as builder
-rectangle "generator : HybridArtificialBeeColonyTestCaseGenerator" as generator
-rectangle "outputGenerator : NUnitTestCaseOutputGenerator" as outputGenerator
+rectangle "<u>client : Client</u>" as client
+rectangle "<u>engine : TestimizeEngine</u>" as engine
+rectangle "<u>inputBuilder : TestimizeInputBuilder</u>" as inputBuilder
+rectangle "<u>paramBuilder : ParameterBuilder<T></u>" as paramBuilder
+rectangle "<u>valueBuilder : TestValueBuilder<T></u>" as valueBuilder
+rectangle "<u>settings : PreciseTestEngineSettings</u>" as settings
+rectangle "<u>builder : TestSuiteBuilder</u>" as builder
+rectangle "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>" as generator
+rectangle "<u>outputGenerator : NUnitTestCaseOutputGenerator</u>" as outputGenerator
 
 ' === Конфигурация с делегати ===
 client --> engine : 1. Configure(parametersLambda, settingsLambda)

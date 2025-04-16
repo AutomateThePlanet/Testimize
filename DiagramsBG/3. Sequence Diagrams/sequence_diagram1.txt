@@ -10,11 +10,11 @@ skinparam ArrowFontColor Black
 skinparam sequenceMessageAlignment center
 
 actor client
-participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
-participant settings as "settings : ABCGenerationSettings"
-participant generatorStrategy as "generatorStrategy : ITestCaseGenerator"
-participant evaluatorStrategy as "evaluatorStrategy : ITestCaseEvaluator"
-participant outputStrategy as "outputStrategy : ITestCaseOutputGenerator"
+participant generator as "<u>generator : HybridArtificialBeeColonyTestCaseGenerator</u>"
+participant settings as "<u>settings : ABCGenerationSettings</u>"
+participant generatorStrategy as "<u>generatorStrategy : ITestCaseGenerator</u>"
+participant evaluatorStrategy as "<u>evaluatorStrategy : ITestCaseEvaluator</u>"
+participant outputStrategy as "<u>outputStrategy : ITestCaseOutputGenerator</u>"
 
 client -> generator : GenerateTestCases(methodName, parameters, category)
 
