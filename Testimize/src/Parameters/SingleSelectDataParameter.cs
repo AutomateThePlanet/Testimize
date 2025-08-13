@@ -44,4 +44,6 @@ public class SingleSelectDataParameter : DataParameter<SingleSelectDataProviderS
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

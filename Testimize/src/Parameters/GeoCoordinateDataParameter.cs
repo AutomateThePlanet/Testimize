@@ -35,4 +35,6 @@ public class GeoCoordinateDataParameter : DataParameter<GeoCoordinateDataProvide
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

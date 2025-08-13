@@ -35,4 +35,6 @@ public class IntegerDataParameter : DataParameter<IntegerDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

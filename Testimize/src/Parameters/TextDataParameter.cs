@@ -35,4 +35,6 @@ public class TextDataParameter : DataParameter<TextDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

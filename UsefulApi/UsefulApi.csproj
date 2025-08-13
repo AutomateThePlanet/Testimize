@@ -20,4 +20,8 @@
     <Folder Include="Test\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Testimize\Testimize.csproj" />
+  </ItemGroup>
+
 </Project>

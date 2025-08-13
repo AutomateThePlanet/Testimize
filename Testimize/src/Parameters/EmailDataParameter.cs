@@ -35,4 +35,6 @@ public class EmailDataParameter : DataParameter<EmailDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

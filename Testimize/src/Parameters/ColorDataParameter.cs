@@ -35,4 +35,6 @@ public class ColorDataParameter : DataParameter<ColorDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

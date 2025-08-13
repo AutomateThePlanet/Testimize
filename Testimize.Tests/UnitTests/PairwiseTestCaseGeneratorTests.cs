@@ -29,6 +29,8 @@ public class PairwiseTestCaseGeneratorTests
         public string Name { get; }
         public List<TestValue> TestValues { get; }
 
+        public string ParameteryType => this.GetType().FullName;
+
         public MockInputParameter(string name, params string[] values)
         {
             Name = name;

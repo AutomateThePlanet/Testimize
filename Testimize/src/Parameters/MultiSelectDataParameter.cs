@@ -35,4 +35,6 @@ public class MultiSelectDataParameter : DataParameter<MultiSelectDataProviderStr
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

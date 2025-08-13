@@ -35,4 +35,6 @@ public class MonthDataParameter : DataParameter<MonthDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

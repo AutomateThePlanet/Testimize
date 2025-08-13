@@ -35,4 +35,6 @@ public class DateDataParameter : DataParameter<DateDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

@@ -7,4 +7,5 @@ public interface IMcpProtocolHandler
     object Initialize(object @params);
     object ToolsList();
     object ToolsCall(object @params);
+    object GenerateTestCases(object @params);
 }

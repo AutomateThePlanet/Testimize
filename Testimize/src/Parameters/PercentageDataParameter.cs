@@ -35,4 +35,6 @@ public class PercentageDataParameter : DataParameter<PercentageDataProviderStrat
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

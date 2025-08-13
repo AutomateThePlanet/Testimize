@@ -35,4 +35,6 @@ public class UrlDataParameter : DataParameter<UrlDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

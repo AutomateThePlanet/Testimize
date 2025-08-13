@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Testimize.Parameters;
+using Testimize.Parameters.Core;
+using Testimize.Contracts;
+using Testimize.Usage;
 
 // MCP Protocol implementation (Dependency Inversion - depends on abstraction)
 public class McpProtocolHandler : IMcpProtocolHandler
@@ -117,5 +121,56 @@ public class McpProtocolHandler : IMcpProtocolHandler
                 }
             }
         };
+    }
+
+    public object GenerateTestCases(object @params)
+    {
+        if (@params is not JsonElement jsonElement || !jsonElement.TryGetProperty("parameters", out var parametersElement) || !jsonElement.TryGetProperty("settings", out var settingsElement))
+        {
+            throw new ArgumentException("Invalid parameters for GenerateTestCases");
+        }
+
+        var parameters = new List<IInputParameter>();
+        foreach (var parameterElement in parametersElement.EnumerateArray())
+        {
+            var type = parameterElement.GetProperty("Type").GetString();
+            var values = parameterElement.GetProperty("Values").GetRawText();
+
+            var parameter = type switch
+            {
+                "Testimize.Parameters.TextDataParameter" => JsonSerializer.Deserialize<TextDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.IntegerDataParameter" => JsonSerializer.Deserialize<IntegerDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.CurrencyDataParameter" => JsonSerializer.Deserialize<CurrencyDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.UsernameDataParameter" => JsonSerializer.Deserialize<UsernameDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.EmailDataParameter" => JsonSerializer.Deserialize<EmailDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.BooleanDataParameter" => JsonSerializer.Deserialize<BooleanDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.DateTimeDataParameter" => JsonSerializer.Deserialize<DateTimeDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.AddressDataParameter" => JsonSerializer.Deserialize<AddressDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.ColorDataParameter" => JsonSerializer.Deserialize<ColorDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.DateDataParameter" => JsonSerializer.Deserialize<DateDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.MonthDataParameter" => JsonSerializer.Deserialize<MonthDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.MultiSelectDataParameter" => JsonSerializer.Deserialize<MultiSelectDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.PasswordDataParameter" => JsonSerializer.Deserialize<PasswordDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.PercentageDataParameter" => JsonSerializer.Deserialize<PercentageDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.PhoneDataParameter" => JsonSerializer.Deserialize<PhoneDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.SingleSelectDataParameter" => JsonSerializer.Deserialize<SingleSelectDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.TimeDataParameter" => JsonSerializer.Deserialize<TimeDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.UrlDataParameter" => JsonSerializer.Deserialize<UrlDataParameter>(values) as IInputParameter,
+                "Testimize.Parameters.WeekDataParameter" => JsonSerializer.Deserialize<WeekDataParameter>(values) as IInputParameter,
+                _ => throw new ArgumentException($"Unknown parameter type: {type}")
+            };
+
+            parameters.Add(parameter);
+        }
+
+        var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText());
+
+        if (settings == null)
+        {
+            throw new ArgumentException("Failed to deserialize settings");
+        }
+
+        var testCases = _utilityService.Generate(parameters, settings);
+        return new { testCases };
     }
 }

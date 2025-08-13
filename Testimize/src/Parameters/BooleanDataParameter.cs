@@ -35,4 +35,6 @@ public class BooleanDataParameter : DataParameter<BooleanDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

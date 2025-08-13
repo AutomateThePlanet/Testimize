@@ -35,4 +35,6 @@ public class UsernameDataParameter : DataParameter<UsernameDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

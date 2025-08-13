@@ -35,4 +35,6 @@ public class WeekDataParameter : DataParameter<WeekDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

@@ -16,7 +16,7 @@ using Testimize.Contracts;
 
 namespace Testimize.Parameters.Core;
 
-public class DataParameter<TDataStrategy> : IInputParameter
+public abstract class DataParameter<TDataStrategy> : IInputParameter
     where TDataStrategy : class, IDataProviderStrategy
 {
     public DataParameter(
@@ -37,5 +37,7 @@ public class DataParameter<TDataStrategy> : IInputParameter
     }
 
     protected TDataStrategy DataProviderStrategy { get; }
+
     public List<TestValue> TestValues { get; }
+    public abstract string ParameteryType { get; }
 }

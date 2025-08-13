@@ -35,4 +35,6 @@ public class CurrencyDataParameter : DataParameter<CurrencyDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

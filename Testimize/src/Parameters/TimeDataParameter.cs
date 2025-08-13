@@ -35,4 +35,6 @@ public class TimeDataParameter : DataParameter<TimeDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

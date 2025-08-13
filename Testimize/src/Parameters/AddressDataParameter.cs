@@ -35,4 +35,6 @@ public class AddressDataParameter : DataParameter<AddressDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

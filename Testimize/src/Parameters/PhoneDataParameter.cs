@@ -35,4 +35,6 @@ public class PhoneDataParameter : DataParameter<PhoneDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

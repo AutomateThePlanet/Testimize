@@ -2,6 +2,10 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Nerdbank.Streams;
+using Testimize.Parameters.Core;
+using Testimize.Parameters;
+using Testimize.Contracts;
+using Testimize.Usage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -153,6 +157,65 @@ app.MapPost("/echo", (JsonElement body) => Results.Json(new { received = body })
 .WithName("Echo")
 .WithSummary("Echo")
 .WithDescription("Echos the posted JSON payload.")
+.WithOpenApi();
+
+app.MapPost("/generate-test-cases", async (HttpContext context, IUtilityService service) =>
+{
+    using var reader = new StreamReader(context.Request.Body);
+    var body = await reader.ReadToEndAsync();
+    var json = JsonSerializer.Deserialize<JsonElement>(body);
+
+    if (!json.TryGetProperty("parameters", out var parametersElement) || !json.TryGetProperty("settings", out var settingsElement))
+    {
+        return Results.BadRequest(new { error = "Invalid request body" });
+    }
+
+    var parameters = new List<IInputParameter>();
+    foreach (var parameterElement in parametersElement.EnumerateArray())
+    {
+        var type = parameterElement.GetProperty("Type").GetString();
+        var values = parameterElement.GetProperty("Values").GetRawText();
+
+        var parameter = type switch
+        {
+            "Testimize.Parameters.TextDataParameter" => JsonSerializer.Deserialize<TextDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.IntegerDataParameter" => JsonSerializer.Deserialize<IntegerDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.CurrencyDataParameter" => JsonSerializer.Deserialize<CurrencyDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.UsernameDataParameter" => JsonSerializer.Deserialize<UsernameDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.EmailDataParameter" => JsonSerializer.Deserialize<EmailDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.BooleanDataParameter" => JsonSerializer.Deserialize<BooleanDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.DateTimeDataParameter" => JsonSerializer.Deserialize<DateTimeDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.AddressDataParameter" => JsonSerializer.Deserialize<AddressDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.ColorDataParameter" => JsonSerializer.Deserialize<ColorDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.DateDataParameter" => JsonSerializer.Deserialize<DateDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.MonthDataParameter" => JsonSerializer.Deserialize<MonthDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.MultiSelectDataParameter" => JsonSerializer.Deserialize<MultiSelectDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.PasswordDataParameter" => JsonSerializer.Deserialize<PasswordDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.PercentageDataParameter" => JsonSerializer.Deserialize<PercentageDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.PhoneDataParameter" => JsonSerializer.Deserialize<PhoneDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.SingleSelectDataParameter" => JsonSerializer.Deserialize<SingleSelectDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.TimeDataParameter" => JsonSerializer.Deserialize<TimeDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.UrlDataParameter" => JsonSerializer.Deserialize<UrlDataParameter>(values) as IInputParameter,
+            "Testimize.Parameters.WeekDataParameter" => JsonSerializer.Deserialize<WeekDataParameter>(values) as IInputParameter,
+            _ => throw new ArgumentException($"Unknown parameter type: {type}")
+        };
+
+        parameters.Add(parameter);
+    }
+
+    var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText());
+
+    if (settings == null)
+    {
+        return Results.BadRequest(new { error = "Failed to deserialize settings" });
+    }
+
+    var testCases = service.Generate(parameters, settings);
+    return Results.Json(new { testCases });
+})
+.WithName("GenerateTestCases")
+.WithSummary("Generate Test Cases")
+.WithDescription("Generates test cases based on input parameters and settings.")
 .WithOpenApi();
 
 app.Run();
