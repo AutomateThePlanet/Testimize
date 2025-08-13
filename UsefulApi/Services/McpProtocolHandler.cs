@@ -249,10 +249,10 @@ public class McpProtocolHandler : IMcpProtocolHandler
                     {
                         throw new ArgumentException($"Parameter {i} has empty or null ParameterType");
                     }
-                    
+
                     var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
                     parameters.Add(parameter);
-                    
+
                     Console.WriteLine($"MCP DEBUG: Successfully created parameter of type {parameter.GetType().Name}");
                 }
                 else

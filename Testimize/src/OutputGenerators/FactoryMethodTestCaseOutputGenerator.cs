@@ -69,7 +69,15 @@ public class FactoryMethodTestCaseOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine(output);
         Debug.WriteLine(output);
 
-        ClipboardService.SetText(output);
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ CSV output copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy CSV output to clipboard: {ex.Message}");
+        }
         Console.WriteLine("✅ Factory method output copied to clipboard.");
     }
 }

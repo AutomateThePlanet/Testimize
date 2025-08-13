@@ -330,6 +330,13 @@ public static class DataParameterFactory
         var parameter = new MultiSelectDataParameter();
         var strategy = new MultiSelectDataProviderStrategy();
         
+        // Set options if provided
+        if (universal.Options != null && universal.Options.Length > 0)
+        {
+            // Need to set options on the strategy or parameter
+            // This might require modifying the strategy to accept options
+        }
+        
         parameter.Initialize(
             strategy,
             universal.PreciseMode,
@@ -399,6 +406,13 @@ public static class DataParameterFactory
     {
         var parameter = new SingleSelectDataParameter();
         var strategy = new SingleSelectDataProviderStrategy();
+        
+        // Set options if provided
+        if (universal.Options != null && universal.Options.Length > 0)
+        {
+            // Need to set options on the strategy or parameter
+            // This might require modifying the strategy to accept options
+        }
         
         parameter.Initialize(
             strategy,

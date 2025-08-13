@@ -207,6 +207,30 @@
           "red",
           ""
         ]
+      },
+      "SingleSelect": {
+        "ValidEquivalenceClasses": [
+          "Option1",
+          "Option2",
+          "Option3"
+        ],
+        "InvalidEquivalenceClasses": [
+          "",
+          null,
+          "InvalidOption"
+        ]
+      },
+      "MultiSelect": {
+        "ValidEquivalenceClasses": [
+          ["Option1"],
+          ["Option1", "Option2"],
+          ["Option1", "Option2", "Option3"]
+        ],
+        "InvalidEquivalenceClasses": [
+          [],
+          null,
+          ["InvalidOption"]
+        ]
       }
     }
   }

@@ -1,17 +1,14 @@
-# ?? Copilot Agent Assistant Guide for Testimize API
+﻿# 🤖 Copilot Agent Assistant Guide for Testimize API
 
-## ?? Overview
+## 📖 Overview
 
-This comprehensive guide explains how to use the **Testimize API** for intelligent test data generation. The API supports two primary modes:
-
-- **?? Precise Mode**: Full control with explicit test values and expected messages
-- **?? Exploratory Mode**: Automatic generation using boundaries, equivalence classes, and boundary value analysis
+This guide has been enhanced with detailed parameter specifications and limitations based on the actual Testimize data parameter classes and settings. You can provide plain text explanations about field requirements, and the assistant will automatically construct and execute the correct MCP call.
 
 ---
 
-## ?? Core Concepts
+## 🧠 Core Features
 
-### ?? Precise Mode vs ?? Exploratory Mode
+### 🎯 Precise Mode vs 🔍 Exploratory Mode
 
 | Aspect | **Precise Mode** | **Exploratory Mode** |
 |--------|------------------|---------------------|
@@ -21,402 +18,326 @@ This comprehensive guide explains how to use the **Testimize API** for intellige
 | **Use Case** | Known edge cases, validation scenarios | Discovery, boundary testing, exploration |
 | **Configuration** | `PreciseMode: true` + `PreciseTestValues` | `PreciseMode: false` + boundary settings |
 
-#### Precise Mode Example{
+---
+
+## 📋 Complete Parameter Types Reference
+
+### 🔤 Text & String Parameters
+
+#### TextDataParameter
+- **Aliases**: `"Text"`, `"TextDataParameter"`
+- **Boundary Type**: `int` (character length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 3, 50)
+
+#### EmailDataParameter  
+- **Aliases**: `"Email"`, `"EmailDataParameter"`
+- **Boundary Type**: `int` (email length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 6, 50)
+
+#### UsernameDataParameter
+- **Aliases**: `"Username"`, `"UsernameDataParameter"`
+- **Boundary Type**: `int` (username length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 3, 20)
+
+#### PasswordDataParameter
+- **Aliases**: `"Password"`, `"PasswordDataParameter"`
+- **Boundary Type**: `int` (password length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 8, 20)
+
+#### PhoneDataParameter
+- **Aliases**: `"Phone"`, `"PhoneDataParameter"`
+- **Boundary Type**: `int` (phone number length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 6, 15)
+
+#### UrlDataParameter
+- **Aliases**: `"Url"`, `"UrlDataParameter"` ⚠️ (Note: NOT "URL")
+- **Boundary Type**: `int` (URL length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 10, 100)
+
+#### AddressDataParameter
+- **Aliases**: `"Address"`, `"AddressDataParameter"`
+- **Boundary Type**: `int` (address length)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Character count (e.g., 10, 200)
+
+---
+
+### 🔢 Numeric Parameters
+
+#### IntegerDataParameter
+- **Aliases**: `"Integer"`, `"Int"`, `"IntegerDataParameter"`
+- **Boundary Type**: `int` (numeric value)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Integer values (e.g., 1, 100)
+
+#### CurrencyDataParameter
+- **Aliases**: `"Currency"`, `"CurrencyDataParameter"`
+- **Boundary Type**: `decimal` (currency amount)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Decimal values (e.g., 0.01, 9999.99)
+
+#### PercentageDataParameter
+- **Aliases**: `"Percentage"`, `"PercentageDataParameter"`
+- **Boundary Type**: `decimal` (percentage value)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Decimal values (e.g., 0.0, 100.0)
+
+#### GeoCoordinateDataParameter
+- **Aliases**: `"GeoCoordinate"`, `"GeoCoordinateDataParameter"`
+- **Boundary Type**: `double` (coordinate value)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Double values (e.g., -180.0, 180.0)
+
+---
+
+### ⏰ Date & Time Parameters
+
+#### DateTimeDataParameter
+- **Aliases**: `"DateTime"`, `"DateTimeDataParameter"`
+- **Boundary Type**: ISO DateTime string (`"2023-01-01T12:00:00"`)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: ISO DateTime strings
+
+#### DateDataParameter
+- **Aliases**: `"Date"`, `"DateDataParameter"`
+- **Boundary Type**: ISO Date string (`"2023-01-01"`)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: ISO Date strings
+
+#### TimeDataParameter
+- **Aliases**: `"Time"`, `"TimeDataParameter"`
+- **Boundary Type**: TimeSpan string (`"12:30:45"`)
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: TimeSpan strings
+
+#### WeekDataParameter
+- **Aliases**: `"Week"`, `"WeekDataParameter"`
+- **Boundary Type**: ISO Date string for week boundaries
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: ISO Date strings
+
+#### MonthDataParameter
+- **Aliases**: `"Month"`, `"MonthDataParameter"`
+- **Boundary Type**: ISO Date string for month boundaries
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: ISO Date strings
+
+---
+
+### ✅ Boolean & Selection Parameters
+
+#### BooleanDataParameter
+- **Aliases**: `"Boolean"`, `"Bool"`, `"BooleanDataParameter"`
+- **Boundary Type**: None (no boundaries)
+- **Has Equivalence Classes**: ✅ Yes (but limited)
+- **MinBoundary/MaxBoundary**: Not used
+
+#### SingleSelectDataParameter
+- **Aliases**: `"SingleSelect"`, `"SingleSelectDataParameter"`
+- **Boundary Type**: None
+- **Has Equivalence Classes**: ✅ Yes
+- **Special Properties**: Requires `Options` array
+- **MinBoundary/MaxBoundary**: Not used
+
+#### MultiSelectDataParameter
+- **Aliases**: `"MultiSelect"`, `"MultiSelectDataParameter"`
+- **Boundary Type**: None
+- **Has Equivalence Classes**: ✅ Yes
+- **Special Properties**: Requires `Options` array and `Multiple: true`
+- **MinBoundary/MaxBoundary**: Not used
+
+---
+
+### 🎨 Special Parameters
+
+#### ColorDataParameter
+- **Aliases**: `"Color"`, `"ColorDataParameter"`
+- **Boundary Type**: None
+- **Has Equivalence Classes**: ✅ Yes
+- **MinBoundary/MaxBoundary**: Not used
+
+---
+
+## ⚠️ Critical Limitations & Requirements
+
+### Parameters WITHOUT Equivalence Classes
+These parameters have **NO** equivalence classes defined in testimizeSettings.json and will fail if you try to use exploratory mode with equivalence classes:
+
+❌ **Missing Equivalence Classes**: None (all parameters have equivalence classes defined)
+
+### Parameters WITH Equivalence Classes
+✅ All parameter types have equivalence classes defined in testimizeSettings.json.
+
+**Note**: `SingleSelect` and `MultiSelect` parameters were previously missing from the settings configuration, causing dictionary key errors. This has been fixed by adding their equivalence class definitions to all testimizeSettings.json files.
+
+### Boundary Requirements by Parameter Type
+
+| Parameter Type | MinBoundary Type | MaxBoundary Type | Example |
+|---------------|------------------|------------------|---------|
+| `Text`, `Email`, `Username`, `Password`, `Phone`, `Url`, `Address` | `int` | `int` | `3`, `50` |
+| `Integer` | `int` | `int` | `1`, `100` |
+| `Currency`, `Percentage` | `decimal` | `decimal` | `0.01`, `9999.99` |
+| `GeoCoordinate` | `double` | `double` | `-180.0`, `180.0` |
+| `Date`, `DateTime`, `Week`, `Month` | `string` (ISO) | `string` (ISO) | `"2020-01-01"`, `"2030-12-31"` |
+| `Time` | `string` (TimeSpan) | `string` (TimeSpan) | `"00:00:00"`, `"23:59:59"` |
+| `Boolean`, `Color` | Not used | Not used | N/A |
+| `SingleSelect`, `MultiSelect` | Not used | Not used | Use `Options` array |
+
+---
+
+## 🚀 Correct Usage Patterns
+
+### ✅ Exploratory Mode (Recommended){
+  "ParameterType": "Text",
+  "PreciseMode": false,
+  "MinBoundary": 6,
+  "MaxBoundary": 12,
+  "IncludeBoundaryValues": true,
+  "AllowValidEquivalenceClasses": true,
+  "AllowInvalidEquivalenceClasses": true
+}
+### ✅ Precise Mode (Advanced){
   "ParameterType": "Email",
   "PreciseMode": true,
   "PreciseTestValues": [
-    { "Value": "valid@example.com", "Category": "Valid" },
+    { "Value": "user@example.com", "Category": "Valid" },
     { "Value": "invalid-email", "Category": "Invalid", "ExpectedInvalidMessage": "Invalid email format" }
   ]
 }
-#### Exploratory Mode Example{
-  "ParameterType": "Email",
+### ✅ Selection Parameters{
+  "ParameterType": "SingleSelect",
   "PreciseMode": false,
-  "MinBoundary": 6,
-  "MaxBoundary": 50,
-  "IncludeBoundaryValues": true,
+  "Options": ["United States", "France", "Germany"],
   "AllowValidEquivalenceClasses": true,
   "AllowInvalidEquivalenceClasses": true
 }
-### ??? Test Value Categories
-
-| Category | Value | Description | When Generated |
-|----------|-------|-------------|----------------|
-| **Valid** | `"Valid"` | Normal, valid input values | All modes |
-| **BoundaryValid** | `"BoundaryValid"` | Valid values at boundaries (min/max) | When `IncludeBoundaryValues: true` |
-| **BoundaryInvalid** | `"BoundaryInvalid"` | Invalid values just outside boundaries | When `IncludeBoundaryValues: true` |
-| **Invalid** | `"Invalid"` | Invalid input values with expected errors | When `AllowInvalidEquivalenceClasses: true` |
-
----
-
-## ?? Complete Parameter Reference
-
-### ?? Universal Parameter Properties
-
-Every parameter supports these core properties:
-{
-  "ParameterType": "string",           // Required: Parameter type identifier
-  "PreciseMode": true/false,           // Required: Mode selection
-  
-  // Exploratory Mode Properties
-  "MinBoundary": "value",              // Min boundary (type-specific)
-  "MaxBoundary": "value",              // Max boundary (type-specific)
-  "IncludeBoundaryValues": true/false, // Generate boundary test values
-  "AllowValidEquivalenceClasses": true/false,   // Generate valid equivalence classes
-  "AllowInvalidEquivalenceClasses": true/false, // Generate invalid equivalence classes
-  
-  // Precise Mode Properties
-  "PreciseTestValues": [               // Array of explicit test values
-    {
-      "Value": "actual_value",         // The test value
-      "Category": "Valid|BoundaryValid|BoundaryInvalid|Invalid", // Test category
-      "ExpectedInvalidMessage": "string" // Optional: Expected validation message
-    }
-  ],
-  
-  // Selection Parameters Only
-  "Options": ["option1", "option2"],   // Available options for select parameters
-  "Multiple": true/false               // Allow multiple selections (MultiSelect only)
+### ✅ MultiSelect Parameters{
+  "ParameterType": "MultiSelect",
+  "PreciseMode": false,
+  "Options": ["English", "French", "German"],
+  "Multiple": true,
+  "AllowValidEquivalenceClasses": true,
+  "AllowInvalidEquivalenceClasses": true
 }
 ---
 
-## ?? Text & String Parameters
+## 🧬 Default Settings
 
-### TextDataParameter
-**Aliases**: `"Text"`, `"TextDataParameter"`, `"Testimize.Parameters.TextDataParameter"`
-**Boundary Type**: `int` (character length)
-{
+### Mode Defaults
+- **Mode**: 4 (Hybrid ABC)
+- **TestCaseCategory**: 2 (Validation)
+- **MethodName**: "GeneratedTestMethod"
+
+### Exploratory Mode Defaults
+- **IncludeBoundaryValues**: `true`
+- **AllowValidEquivalenceClasses**: `true`
+- **AllowInvalidEquivalenceClasses**: `true`
+
+### ABC Settings Defaults{
+  "TotalPopulationGenerations": 50,
+  "MutationRate": 0.4,
+  "FinalPopulationSelectionRatio": 0.5,
+  "EliteSelectionRatio": 0.3,
+  "OnlookerSelectionRatio": 0.1,
+  "ScoutSelectionRatio": 0.3,
+  "EnableOnlookerSelection": true,
+  "EnableScoutPhase": true,
+  "EnforceMutationUniqueness": true,
+  "StagnationThresholdPercentage": 0.75,
+  "CoolingRate": 0.95,
+  "AllowMultipleInvalidInputs": false,
+  "Seed": 42
+}
+---
+
+## ❌ Common Mistakes to Avoid
+
+1. **Wrong Parameter Type**: Using `"URL"` instead of `"Url"`
+2. **Missing Required Properties**: 
+   - Precise mode without `PreciseTestValues`
+   - Exploratory mode without boundary flags
+   - Selection parameters without `Options`
+3. **Wrong Boundary Types**: Using string for integer boundaries
+4. **Invalid Properties**: Adding non-existent properties like `"Name"`
+5. **Mixed Modes**: Using both `PreciseTestValues` and exploratory settings
+6. **❗ CRITICAL**: **NEVER mix `PreciseTestValues` with `MinBoundary/MaxBoundary`** - they are mutually exclusive!
+
+---
+
+## 🚨 Mode Selection Rules (CRITICAL)
+
+### ⚠️ Rule #1: Choose ONE Mode Per Parameter
+- **Precise Mode**: `PreciseMode: true` + `PreciseTestValues` (NO boundaries)
+- **Exploratory Mode**: `PreciseMode: false` + boundaries + flags (NO PreciseTestValues)
+
+### ⚠️ Rule #2: Required Properties by Mode
+
+#### Precise Mode Requirements:{
   "ParameterType": "Text",
+  "PreciseMode": true,
+  "PreciseTestValues": [
+    { "Value": "test", "Category": "Valid" }
+  ]
+  // ❌ NO MinBoundary, MaxBoundary, or exploratory flags
+}
+#### Exploratory Mode Requirements:{
+  "ParameterType": "Text", 
   "PreciseMode": false,
   "MinBoundary": 3,
-  "MaxBoundary": 50,
-  "IncludeBoundaryValues": true,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-}
-**Exploratory Mode Generates**:
-- Valid text of various lengths
-- Boundary values (exactly 3 and 50 characters)
-- Invalid values (2 chars, 51 chars, empty string)
-- Special characters, numbers, unicode text
-
-### EmailDataParameter
-**Aliases**: `"Email"`, `"EmailDataParameter"`, `"Testimize.Parameters.EmailDataParameter"`
-**Boundary Type**: `int` (email length)
-{
-  "ParameterType": "Email",
-  "PreciseMode": true,
-  "MinBoundary": 6,
-  "MaxBoundary": 30,
-  "PreciseTestValues": [
-    { "Value": "user@example.com", "Category": "Valid" },
-    { "Value": "a@b.co", "Category": "BoundaryValid" },
-    { "Value": "verylongemailaddress@domain.com", "Category": "BoundaryValid" },
-    { "Value": "a@b", "Category": "BoundaryInvalid", "ExpectedInvalidMessage": "Email too short" },
-    { "Value": "invalid-email", "Category": "Invalid", "ExpectedInvalidMessage": "Invalid email format" },
-    { "Value": "", "Category": "Invalid", "ExpectedInvalidMessage": "Email is required" }
-  ]
-}
-### UsernameDataParameter
-**Aliases**: `"Username"`, `"UsernameDataParameter"`, `"Testimize.Parameters.UsernameDataParameter"`
-**Boundary Type**: `int` (username length)
-
-### PasswordDataParameter
-**Aliases**: `"Password"`, `"PasswordDataParameter"`, `"Testimize.Parameters.PasswordDataParameter"`
-**Boundary Type**: `int` (password length)
-{
-  "ParameterType": "Password",
-  "PreciseMode": false,
-  "MinBoundary": 8,
   "MaxBoundary": 20,
   "IncludeBoundaryValues": true,
   "AllowValidEquivalenceClasses": true,
   "AllowInvalidEquivalenceClasses": true
+  // ❌ NO PreciseTestValues
 }
-**Exploratory Mode Generates**:
-- Strong passwords with various complexity
-- Boundary passwords (8 and 20 characters)
-- Weak passwords (too short, no special chars)
-- Common password patterns
+### ⚠️ Rule #3: Special Parameter Requirements
 
-### PhoneDataParameter
-**Aliases**: `"Phone"`, `"PhoneDataParameter"`, `"Testimize.Parameters.PhoneDataParameter"`
-**Boundary Type**: `int` (phone number length)
-
-### UrlDataParameter
-**Aliases**: `"Url"`, `"UrlDataParameter"`, `"Testimize.Parameters.UrlDataParameter"`
-**Boundary Type**: `int` (URL length)
-
-### AddressDataParameter
-**Aliases**: `"Address"`, `"AddressDataParameter"`, `"Testimize.Parameters.AddressDataParameter"`
-**Boundary Type**: `int` (address length)
-
----
-
-## ?? Numeric Parameters
-
-### IntegerDataParameter
-**Aliases**: `"Integer"`, `"Int"`, `"IntegerDataParameter"`, `"Testimize.Parameters.IntegerDataParameter"`
-**Boundary Type**: `int` (numeric value)
-{
-  "ParameterType": "Integer",
-  "PreciseMode": false,
-  "MinBoundary": 1,
-  "MaxBoundary": 100,
-  "IncludeBoundaryValues": true,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-}
-**Exploratory Mode Generates**:
-- Random integers within range
-- Boundary values (1, 100)
-- Invalid values (0, 101, negative numbers)
-- Edge cases (very large numbers, zero)
-
-### CurrencyDataParameter
-**Aliases**: `"Currency"`, `"CurrencyDataParameter"`, `"Testimize.Parameters.CurrencyDataParameter"`
-**Boundary Type**: `decimal` (currency amount)
-{
-  "ParameterType": "Currency",
-  "PreciseMode": true,
-  "MinBoundary": 0.01,
-  "MaxBoundary": 9999.99,
-  "PreciseTestValues": [
-    { "Value": 100.50, "Category": "Valid" },
-    { "Value": 0.01, "Category": "BoundaryValid" },
-    { "Value": 9999.99, "Category": "BoundaryValid" },
-    { "Value": 0.00, "Category": "BoundaryInvalid", "ExpectedInvalidMessage": "Amount too low" },
-    { "Value": 10000.00, "Category": "BoundaryInvalid", "ExpectedInvalidMessage": "Amount too high" },
-    { "Value": -5.00, "Category": "Invalid", "ExpectedInvalidMessage": "Negative amounts not allowed" }
-  ]
-}
-### PercentageDataParameter
-**Aliases**: `"Percentage"`, `"PercentageDataParameter"`, `"Testimize.Parameters.PercentageDataParameter"`
-**Boundary Type**: `decimal` (percentage value)
-
-### GeoCoordinateDataParameter
-**Aliases**: `"GeoCoordinate"`, `"GeoCoordinateDataParameter"`, `"Testimize.Parameters.GeoCoordinateDataParameter"`
-**Boundary Type**: `double` (coordinate value)
-
----
-
-## ? Date & Time Parameters
-
-### DateTimeDataParameter
-**Aliases**: `"DateTime"`, `"DateTimeDataParameter"`, `"Testimize.Parameters.DateTimeDataParameter"`
-**Boundary Type**: ISO DateTime string (`"2023-01-01T12:00:00"`)
-{
-  "ParameterType": "DateTime",
-  "PreciseMode": false,
-  "MinBoundary": "1920-01-01T00:00:00",
-  "MaxBoundary": "2030-12-31T23:59:59",
-  "IncludeBoundaryValues": true,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-}
-### DateDataParameter
-**Aliases**: `"Date"`, `"DateDataParameter"`, `"Testimize.Parameters.DateDataParameter"`
-**Boundary Type**: ISO Date string (`"2023-01-01"`)
-
-### TimeDataParameter
-**Aliases**: `"Time"`, `"TimeDataParameter"`, `"Testimize.Parameters.TimeDataParameter"`
-**Boundary Type**: TimeSpan string (`"12:30:45"`)
-
-### WeekDataParameter
-**Aliases**: `"Week"`, `"WeekDataParameter"`, `"Testimize.Parameters.WeekDataParameter"`
-**Boundary Type**: ISO Date string for week boundaries
-
-### MonthDataParameter
-**Aliases**: `"Month"`, `"MonthDataParameter"`, `"Testimize.Parameters.MonthDataParameter"`
-**Boundary Type**: ISO Date string for month boundaries
-
----
-
-## ? Boolean & Selection Parameters
-
-### BooleanDataParameter
-**Aliases**: `"Boolean"`, `"Bool"`, `"BooleanDataParameter"`, `"Testimize.Parameters.BooleanDataParameter"`
-**No Boundaries**: Boolean parameters don't use MinBoundary/MaxBoundary
-{
-  "ParameterType": "Boolean",
-  "PreciseMode": true,
-  "PreciseTestValues": [
-    { "Value": true, "Category": "Valid" },
-    { "Value": false, "Category": "Invalid", "ExpectedInvalidMessage": "Must accept terms" }
-  ]
-}
-### SingleSelectDataParameter
-**Aliases**: `"SingleSelect"`, `"SingleSelectDataParameter"`, `"Testimize.Parameters.SingleSelectDataParameter"`
-**Special Properties**: Requires `Options` array
-{
+#### Selection Parameters (Both Modes):{
   "ParameterType": "SingleSelect",
-  "PreciseMode": false,
-  "Options": ["Option1", "Option2", "Option3"],
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
+  "PreciseMode": false, // or true
+  "Options": ["Option1", "Option2"], // ✅ ALWAYS required
+  // + mode-specific properties
 }
-**Exploratory Mode Generates**:
-- Each option from Options array
-- null/empty selection (invalid)
-- Invalid option values not in the list
-
-### MultiSelectDataParameter
-**Aliases**: `"MultiSelect"`, `"MultiSelectDataParameter"`, `"Testimize.Parameters.MultiSelectDataParameter"`
-**Special Properties**: Requires `Options` array and `Multiple: true`
-{
-  "ParameterType": "MultiSelect",
-  "PreciseMode": true,
-  "Multiple": true,
-  "Options": ["English", "French", "German", "Spanish"],
-  "PreciseTestValues": [
-    { "Value": ["English"], "Category": "Valid" },
-    { "Value": ["English", "French"], "Category": "Valid" },
-    { "Value": ["English", "French", "German", "Spanish"], "Category": "BoundaryValid" },
-    { "Value": [], "Category": "Invalid", "ExpectedInvalidMessage": "At least one selection required" },
-    { "Value": null, "Category": "Invalid", "ExpectedInvalidMessage": "Selection is required" }
-  ]
+#### MultiSelect Parameters:{
+  "ParameterType": "MultiSelect", 
+  "PreciseMode": false, // or true
+  "Options": ["Option1", "Option2"], // ✅ ALWAYS required
+  "Multiple": true, // ✅ ALWAYS required
+  // + mode-specific properties  
 }
 ---
 
-## ?? Special Parameters
+## 🎯 CORRECTED Example Templates
 
-### ColorDataParameter
-**Aliases**: `"Color"`, `"ColorDataParameter"`, `"Testimize.Parameters.ColorDataParameter"`
-**No Boundaries**: Generates color codes and invalid color formats
-{
-  "ParameterType": "Color",
-  "PreciseMode": false,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-}
-**Exploratory Mode Generates**:
-- Valid hex colors (#FF0000, #00FF00)
-- Named colors (red, blue, green)
-- Invalid color formats (not-a-color, #GGGGGG)
-
----
-
-## ?? Generation Settings
-
-### Test Generation Modes"settings": {
-  "Mode": 1,                    // Generation algorithm
-  "TestCaseCategory": 0,        // Filter by category
-  "MethodName": "TestMethod",   // Output method name
-  "ABCSettings": { }            // Advanced AI settings (Mode 4 only)
-}
-#### Available Modes
-| Mode | Value | Algorithm | Best For | Parameter Count |
-|------|-------|-----------|----------|-----------------|
-| **Combinatorial** | `0` | All combinations | Critical systems | 2-4 parameters |
-| **Pairwise** | `1` | All pairs | Balanced testing | 5-10 parameters |
-| **CombinatorialOptimized** | `2` | AI-optimized combinatorial | Quality over quantity | 2-6 parameters |
-| **PairwiseOptimized** | `3` | AI-optimized pairwise | Enhanced coverage | 5-15 parameters |
-| **HybridArtificialBeeColony** | `4` | AI-driven selection | Complex scenarios | 5-20+ parameters |
-
-#### Test Case Categories
-| Category | Value | Includes |
-|----------|-------|----------|
-| **All** | `0` | All generated test cases |
-| **Valid** | `1` | Only Valid + BoundaryValid |
-| **Validation** | `2` | Only Invalid + BoundaryInvalid |
-| **Invalid** | `3` | Only Invalid |
-
----
-
-## ?? Advanced ABC Settings (Mode 4)
-
-When using `Mode: 4`, you can fine-tune the AI algorithm:
-"ABCSettings": {
-  "TotalPopulationGenerations": 50,      // Evolution cycles (10-200)
-  "MutationRate": 0.4,                   // Mutation rate (0.1-0.9)
-  "FinalPopulationSelectionRatio": 0.5,  // Final selection ratio (0.1-1.0)
-  "EliteSelectionRatio": 0.3,            // Elite preservation (0.1-0.9)
-  "OnlookerSelectionRatio": 0.1,         // Onlooker phase ratio (0.05-0.5)
-  "ScoutSelectionRatio": 0.3,            // Scout phase ratio (0.1-0.5)
-  "EnableOnlookerSelection": true,       // Enable onlooker bees
-  "EnableScoutPhase": true,              // Enable scout bees
-  "EnforceMutationUniqueness": true,     // Ensure unique mutations
-  "StagnationThresholdPercentage": 0.75, // Stagnation detection (0.5-1.0)
-  "CoolingRate": 0.95,                   // Simulated annealing (0.8-0.99)
-  "AllowMultipleInvalidInputs": false,   // Multiple invalid inputs per case
-  "Seed": 42                             // Reproducible results
-}
----
-
-## ?? Complete Working Examples
-
-### 1. Precise Mode - Form Validation{
+### ✅ Form Validation (Full Exploratory Mode){
   "parameters": [
     {
       "ParameterType": "Text",
-      "PreciseMode": true,
-      "PreciseTestValues": [
-        { "Value": "John Doe", "Category": "Valid" },
-        { "Value": "A", "Category": "BoundaryInvalid", "ExpectedInvalidMessage": "Name too short" },
-        { "Value": "", "Category": "Invalid", "ExpectedInvalidMessage": "Name is required" }
-      ]
-    },
-    {
-      "ParameterType": "Email",
-      "PreciseMode": true,
-      "PreciseTestValues": [
-        { "Value": "user@example.com", "Category": "Valid" },
-        { "Value": "invalid-email", "Category": "Invalid", "ExpectedInvalidMessage": "Invalid email" }
-      ]
-    }
-  ],
-  "settings": {
-    "Mode": 1,
-    "TestCaseCategory": 2,
-    "MethodName": "ValidateFormInput"
-  }
-}
-### 2. Exploratory Mode - API Testing{
-  "parameters": [
-    {
-      "ParameterType": "Integer",
       "PreciseMode": false,
-      "MinBoundary": 1,
-      "MaxBoundary": 100,
+      "MinBoundary": 3,
+      "MaxBoundary": 20,
       "IncludeBoundaryValues": true,
       "AllowValidEquivalenceClasses": true,
       "AllowInvalidEquivalenceClasses": true
     },
     {
-      "ParameterType": "Currency",
+      "ParameterType": "Email", 
       "PreciseMode": false,
-      "MinBoundary": 0.01,
-      "MaxBoundary": 9999.99,
+      "MinBoundary": 6,
+      "MaxBoundary": 50,
       "IncludeBoundaryValues": true,
       "AllowValidEquivalenceClasses": true,
       "AllowInvalidEquivalenceClasses": true
-    }
-  ],
-  "settings": {
-    "Mode": 4,
-    "TestCaseCategory": 0,
-    "MethodName": "TestProductAPI",
-    "ABCSettings": {
-      "TotalPopulationGenerations": 50,
-      "MutationRate": 0.4,
-      "AllowMultipleInvalidInputs": false,
-      "Seed": 42
-    }
-  }
-}
-### 3. Hybrid Mode - Complex Scenario{
-  "parameters": [
-    {
-      "ParameterType": "Text",
-      "PreciseMode": true,
-      "PreciseTestValues": [
-        { "Value": "Known Edge Case", "Category": "Valid" },
-        { "Value": "", "Category": "Invalid", "ExpectedInvalidMessage": "Required field" }
-      ]
     },
     {
       "ParameterType": "Integer",
-      "PreciseMode": false,
+      "PreciseMode": false, 
       "MinBoundary": 18,
       "MaxBoundary": 100,
       "IncludeBoundaryValues": true,
@@ -424,111 +345,88 @@ When using `Mode: 4`, you can fine-tune the AI algorithm:
       "AllowInvalidEquivalenceClasses": true
     },
     {
-      "ParameterType": "MultiSelect",
+      "ParameterType": "Url",
       "PreciseMode": false,
-      "Multiple": true,
-      "Options": ["Option1", "Option2", "Option3"],
+      "IncludeBoundaryValues": true,
+      "AllowValidEquivalenceClasses": true,
+      "AllowInvalidEquivalenceClasses": true
+    },
+    {
+      "ParameterType": "Boolean",
+      "PreciseMode": false,
+      "AllowValidEquivalenceClasses": true,
+      "AllowInvalidEquivalenceClasses": true
+    },
+    {
+      "ParameterType": "SingleSelect",
+      "PreciseMode": false,
+      "Options": ["United States", "France", "Germany"],
       "AllowValidEquivalenceClasses": true,
       "AllowInvalidEquivalenceClasses": true
     }
   ],
   "settings": {
     "Mode": 4,
-    "TestCaseCategory": 0,
-    "MethodName": "ComplexBusinessLogic"
+    "TestCaseCategory": 2,
+    "MethodName": "FormValidation"
   }
 }
----
-
-## ?? MCP Call Examples
-
-### Basic MCP Request{
-  "name": "generate_test_cases",
-  "arguments": {
-    "parameters": [
-      {
-        "ParameterType": "Text",
-        "PreciseMode": true,
-        "PreciseTestValues": [
-          { "Value": "Test Value", "Category": "Valid" },
-          { "Value": "", "Category": "Invalid", "ExpectedInvalidMessage": "Required" }
-        ]
-      }
-    ],
-    "settings": {
-      "Mode": 1,
-      "TestCaseCategory": 0,
-      "MethodName": "TestMethod"
+### ✅ Form Validation (Full Precise Mode){
+  "parameters": [
+    {
+      "ParameterType": "Text",
+      "PreciseMode": true,
+      "PreciseTestValues": [
+        { "Value": "John Doe", "Category": "Valid" },
+        { "Value": "AB", "Category": "BoundaryInvalid", "ExpectedInvalidMessage": "Too short" },
+        { "Value": "", "Category": "Invalid", "ExpectedInvalidMessage": "Required" }
+      ]
+    },
+    {
+      "ParameterType": "Email",
+      "PreciseMode": true, 
+      "PreciseTestValues": [
+        { "Value": "user@example.com", "Category": "Valid" },
+        { "Value": "invalid-email", "Category": "Invalid", "ExpectedInvalidMessage": "Invalid format" }
+      ]
+    },
+    {
+      "ParameterType": "Boolean",
+      "PreciseMode": true,
+      "PreciseTestValues": [
+        { "Value": true, "Category": "Valid" },
+        { "Value": false, "Category": "Invalid", "ExpectedInvalidMessage": "Must accept terms" }
+      ]
+    },
+    {
+      "ParameterType": "SingleSelect",
+      "PreciseMode": true,
+      "Options": ["United States", "France", "Germany"],
+      "PreciseTestValues": [
+        { "Value": "United States", "Category": "Valid" },
+        { "Value": null, "Category": "Invalid", "ExpectedInvalidMessage": "Required" }
+      ]
     }
-  }
-}
-### Advanced MCP Request with ABC{
-  "name": "generate_test_cases",
-  "arguments": {
-    "parameters": [
-      {
-        "ParameterType": "Email",
-        "PreciseMode": false,
-        "MinBoundary": 6,
-        "MaxBoundary": 50,
-        "IncludeBoundaryValues": true,
-        "AllowValidEquivalenceClasses": true,
-        "AllowInvalidEquivalenceClasses": true
-      },
-      {
-        "ParameterType": "Password",
-        "PreciseMode": false,
-        "MinBoundary": 8,
-        "MaxBoundary": 20,
-        "IncludeBoundaryValues": true,
-        "AllowValidEquivalenceClasses": true,
-        "AllowInvalidEquivalenceClasses": true
-      }
-    ],
-    "settings": {
-      "Mode": 4,
-      "TestCaseCategory": 2,
-      "MethodName": "RegisterUser",
-      "ABCSettings": {
-        "TotalPopulationGenerations": 50,
-        "MutationRate": 0.4,
-        "AllowMultipleInvalidInputs": false,
-        "Seed": 42
-      }
-    }
+  ],
+  "settings": {
+    "Mode": 1,
+    "TestCaseCategory": 2,
+    "MethodName": "FormValidation"
   }
 }
 ---
 
-## ?? Quick Reference
+## 🔧 Quick Fix for Common Errors
 
-### Parameter Type Quick Lookup
-- **Text/String**: Text, Email, Username, Password, Phone, Url, Address
-- **Numeric**: Integer, Currency, Percentage, GeoCoordinate  
-- **Date/Time**: DateTime, Date, Time, Week, Month
-- **Selection**: Boolean, SingleSelect, MultiSelect
-- **Special**: Color
+### Error: "Total test cases to be generated: 0"
+**Cause**: Mixed mode configuration or missing required properties
+**Fix**: Choose consistent mode and include all required properties
 
-### Mode Selection Guide
-- **Mode 0-1**: Small-medium parameter sets, fast generation
-- **Mode 2-3**: Medium parameter sets, optimized quality
-- **Mode 4**: Large parameter sets, complex scenarios, AI optimization
+### Error: Wrong parameter type "URL"  
+**Fix**: Change to `"Url"` (case sensitive)
 
-### Common Patterns
-- **Validation Testing**: Precise mode with Invalid categories
-- **Boundary Testing**: Exploratory mode with IncludeBoundaryValues
-- **Exploratory Testing**: Exploratory mode with ABC algorithm
-- **Regression Testing**: Precise mode with fixed Seed
+### Error: Empty testValues arrays
+**Cause**: Using `PreciseMode: true` without `PreciseTestValues`
+**Fix**: Either add `PreciseTestValues` OR switch to exploratory mode
 
----
-
-## ?? Important Notes
-
-1. **Parameter Type Flexibility**: Supports full names, class names, and short aliases (case-insensitive)
-2. **Boundary Types**: Match the parameter type (int for length, decimal for currency, DateTime for dates)
-3. **Selection Parameters**: Always include `Options` array for SingleSelect/MultiSelect
-4. **ABC Settings**: Only apply when using Mode 4 (HybridArtificialBeeColony)
-5. **Expected Messages**: Use `ExpectedInvalidMessage` for validation testing scenarios
-6. **Reproducibility**: Set `Seed` for consistent results across runs
-
-This guide provides everything needed to effectively use the Testimize API for comprehensive test data generation!
+This comprehensive guide ensures the assistant generates correct MCP calls based on the actual Testimize implementation!

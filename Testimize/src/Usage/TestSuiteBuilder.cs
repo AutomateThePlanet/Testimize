@@ -81,14 +81,6 @@ public class TestSuiteBuilder
     {
         var generatedTestCases = generator.GenerateTestCases(_parameters);
 
-        // save JSON deserialization of _settings and _parameters
-        var settingsJson = System.Text.Json.JsonSerializer.Serialize(_settings, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-        var parametersJson = System.Text.Json.JsonSerializer.Serialize(_parameters, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-
-        // Save to files (example paths, adjust as needed)
-        File.WriteAllText("settings.json", settingsJson);
-        File.WriteAllText("parameters.json", parametersJson);
-
         var testCaseEvaluator = new TestCaseEvaluator();
         var scoredTestCases = testCaseEvaluator.EvaluatePopulationToDictionary(generatedTestCases);
 

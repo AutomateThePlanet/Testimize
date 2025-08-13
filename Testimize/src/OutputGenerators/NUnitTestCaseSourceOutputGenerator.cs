@@ -64,7 +64,15 @@ public class NUnitTestCaseSourceOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine(output);
         Debug.WriteLine(output);
 
-        ClipboardService.SetText(output);
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ CSV output copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy CSV output to clipboard: {ex.Message}");
+        }
         Console.WriteLine("✅ Method copied to clipboard.");
     }
 }
