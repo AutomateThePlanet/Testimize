@@ -80,7 +80,7 @@ $tests = @(
         Method = "tools/call"
         Params = @{
             name = "health_check"
-            params = @{
+            arguments = @{
                 verbose = $true
             }
         }
@@ -90,7 +90,7 @@ $tests = @(
         Method = "tools/call"
         Params = @{
             name = "get_time"
-            params = @{
+            arguments = @{
                 utc = $true
             }
         }
@@ -100,7 +100,7 @@ $tests = @(
         Method = "tools/call"
         Params = @{
             name = "generate_guid"
-            params = @{
+            arguments = @{
                 prefix = "test-"
             }
         }
@@ -109,7 +109,142 @@ $tests = @(
     @{
         Method = "tools/call"
         Params = @{
+            name = "generate_test_cases"
+            arguments = @{
+                parameters = @(
+                    @{
+                        ParameterType = "Text"
+                        PreciseMode = $true
+                        PreciseTestValues = @(
+                            @{
+                                Value = "Test Value"
+                                Category = "Valid"
+                            },
+                            @{
+                                Value = ""
+                                Category = "Invalid"
+                                ExpectedInvalidMessage = "Required field"
+                            }
+                        )
+                    }
+                )
+                settings = @{
+                    Mode = 1
+                    TestCaseCategory = 0
+                    MethodName = "TestMethod"
+                }
+            }
+        }
+        Description = "Call Generate Test Cases Tool (Precise Mode)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "generate_test_cases"
+            arguments = @{
+                parameters = @(
+                    @{
+                        ParameterType = "Integer"
+                        PreciseMode = $false
+                        MinBoundary = 1
+                        MaxBoundary = 100
+                        IncludeBoundaryValues = $true
+                        AllowValidEquivalenceClasses = $true
+                        AllowInvalidEquivalenceClasses = $true
+                    }
+                )
+                settings = @{
+                    Mode = 1
+                    TestCaseCategory = 0
+                    MethodName = "ExploratoryTest"
+                }
+            }
+        }
+        Description = "Call Generate Test Cases Tool (Exploratory Mode)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "generate_test_cases"
+            arguments = @{
+                parameters = @(
+                    @{
+                        ParameterType = "Email"
+                        PreciseMode = $false
+                        MinBoundary = 6
+                        MaxBoundary = 50
+                        IncludeBoundaryValues = $true
+                        AllowValidEquivalenceClasses = $true
+                        AllowInvalidEquivalenceClasses = $true
+                    },
+                    @{
+                        ParameterType = "Password"
+                        PreciseMode = $false
+                        MinBoundary = 8
+                        MaxBoundary = 20
+                        IncludeBoundaryValues = $true
+                        AllowValidEquivalenceClasses = $true
+                        AllowInvalidEquivalenceClasses = $true
+                    }
+                )
+                settings = @{
+                    Mode = 4
+                    TestCaseCategory = 2
+                    MethodName = "RegisterUser"
+                    ABCSettings = @{
+                        TotalPopulationGenerations = 50
+                        MutationRate = 0.4
+                        AllowMultipleInvalidInputs = $false
+                        Seed = 42
+                    }
+                }
+            }
+        }
+        Description = "Call Generate Test Cases Tool (ABC Mode)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "generate_test_cases"
+            arguments = @{
+                parameters = @(
+                    @{
+                        ParameterType = "MultiSelect"
+                        PreciseMode = $true
+                        Multiple = $true
+                        Options = @("English", "French", "German", "Spanish")
+                        PreciseTestValues = @(
+                            @{
+                                Value = @("English")
+                                Category = "Valid"
+                            },
+                            @{
+                                Value = @("English", "French")
+                                Category = "Valid"
+                            },
+                            @{
+                                Value = @()
+                                Category = "Invalid"
+                                ExpectedInvalidMessage = "At least one selection required"
+                            }
+                        )
+                    }
+                )
+                settings = @{
+                    Mode = 1
+                    TestCaseCategory = 0
+                    MethodName = "LanguageSelection"
+                }
+            }
+        }
+        Description = "Call Generate Test Cases Tool (MultiSelect)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
             name = "unknown_tool"
+            arguments = @{
+            }
         }
         Description = "Call Unknown Tool (should fail)"
     },

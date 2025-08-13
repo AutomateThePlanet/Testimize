@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Test\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="testimizeSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
