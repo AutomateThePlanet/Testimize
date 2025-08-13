@@ -25,7 +25,7 @@ public class UrlDataProviderStrategy : BoundaryCapableDataProviderStrategy<int>
     {
     }
 
-    protected override string GetInputTypeName() => "URL";
+    protected override string GetInputTypeName() => "Url";
 
     protected override Type GetExpectedType() => typeof(string);
 

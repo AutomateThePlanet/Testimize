@@ -1,4 +1,3 @@
-
 // Business logic implementation
 using Testimize;
 using Testimize.Contracts;
@@ -13,5 +12,21 @@ public class UtilityService : IUtilityService
     public object GenerateGuid() => new { value = Guid.NewGuid(), kind = "random-v4" };
 
     public List<TestCase> Generate(List<IInputParameter> parameters, PreciseTestEngineSettings settings)
-        => new TestSuiteBuilder(parameters, settings).Generate();
+    {
+        // Apply defaults for MCP usage if not explicitly set
+        if (settings.Mode == TestGenerationMode.Pairwise && 
+            settings.TestCaseCategory == TestCaseCategory.All && 
+            settings.MethodName == "TestMethodName")
+        {
+            // User likely didn't specify settings, apply MCP defaults
+            settings.Mode = TestGenerationMode.HybridArtificialBeeColony;
+            settings.TestCaseCategory = TestCaseCategory.All;
+            settings.MethodName = settings.MethodName == "TestMethodName" ? "GeneratedTestMethod" : settings.MethodName;
+        }
+        
+        // Always use JSON output generator for MCP responses to ensure JSON-compatible results
+        settings.OutputGenerator = new JsonTestCaseOutputGenerator();
+        
+        return new TestSuiteBuilder(parameters, settings).Generate();
+    }
 }
