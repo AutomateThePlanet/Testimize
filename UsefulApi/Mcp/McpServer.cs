@@ -8,18 +8,13 @@ public static class McpServer
 {
     public static async Task RunAsync()
     {
-        // Optional notification (not required, but accepted)
-        await JsonRpc.WriteResponseAsync(new
-        {
-            jsonrpc = "2.0",
-            method = "initialized",
-            @params = new { }
-        });
-
         await foreach (var req in JsonRpc.ReadRequestsAsync())
         {
             try
             {
+                // Debugging log for incoming requests
+                Console.Error.WriteLine($"[DEBUG] Received request: Method={req.Method}, Id={req.Id}, Params={req.Params}");
+
                 switch (req.Method)
                 {
                     case "initialize":
