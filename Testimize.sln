@@ -187,6 +187,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deploym
 		DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt = DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsefulApi", "UsefulApi\UsefulApi.csproj", "{3C080A27-6B42-47B4-B81D-C37130D48A5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -201,6 +203,10 @@ Global
 		{2355EA74-ACAD-84D7-0C57-812159FC8D9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2355EA74-ACAD-84D7-0C57-812159FC8D9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2355EA74-ACAD-84D7-0C57-812159FC8D9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C080A27-6B42-47B4-B81D-C37130D48A5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C080A27-6B42-47B4-B81D-C37130D48A5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C080A27-6B42-47B4-B81D-C37130D48A5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C080A27-6B42-47B4-B81D-C37130D48A5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
