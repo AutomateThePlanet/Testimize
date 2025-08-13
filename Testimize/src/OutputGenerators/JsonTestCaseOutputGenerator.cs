@@ -42,7 +42,14 @@ public class JsonTestCaseOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine(jsonOutput);
         Debug.WriteLine(jsonOutput);
 
-        ClipboardService.SetText(jsonOutput);
-        Console.WriteLine("✅ JSON output copied to clipboard.");
+        try
+        {
+            ClipboardService.SetText(jsonOutput);
+            Console.WriteLine("✅ JSON output copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy JSON output to clipboard: {ex.Message}");
+        }
     }
 }

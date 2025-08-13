@@ -275,8 +275,22 @@ public class McpProtocolHandler : IMcpProtocolHandler
         }
 
         Console.WriteLine($"MCP DEBUG: Successfully processed {parameters.Count} parameters");
+        Console.WriteLine("DEBUG: Validating settings and parameters before generating test cases...");
+        Console.WriteLine($"DEBUG: Settings: {JsonSerializer.Serialize(settings, JsonOptions)}");
+        Console.WriteLine($"DEBUG: Parameters: {JsonSerializer.Serialize(parameters, JsonOptions)}");
+
+        if (settings == null)
+        {
+            throw new ArgumentException("Settings object is null");
+        }
+
+        if (parameters == null || parameters.Count == 0)
+        {
+            throw new ArgumentException("Parameters list is null or empty");
+        }
+
         var testCases = _utilityService.Generate(parameters, settings);
-        Console.WriteLine($"MCP DEBUG: Generated {testCases?.Count() ?? 0} test cases");
+        Console.WriteLine($"DEBUG: Generated {testCases?.Count() ?? 0} test cases");
         
         return new { testCases };
     }

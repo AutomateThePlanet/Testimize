@@ -24,7 +24,7 @@ public class ABCGenerationSettings : ICloneable
     {
         TestCaseGenerator = new PairwiseTestCaseGenerator();
         TestCaseEvaluator = new TestCaseEvaluator(AllowMultipleInvalidInputs);
-        OutputGenerator = new NUnitTestCaseAttributeOutputGenerator();
+        OutputGenerator = new JsonTestCaseOutputGenerator();
     }
 
     public int TotalPopulationGenerations { get; set; } = 50;
