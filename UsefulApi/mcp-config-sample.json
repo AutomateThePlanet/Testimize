@@ -1,0 +1,17 @@
+{
+  "$schema": "https://github.com/modelcontextprotocol/specification/raw/main/schema/mcp_config_schema.json",
+  "mcpServers": {
+    "useful-api-dotnet": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": ["run", "--project", "C:/SourceCode/Testimize/UsefulApi", "--", "--mcp"],
+      "description": "Useful API MCP Server (.NET development mode)"
+    },
+    "useful-api-docker": {
+      "type": "stdio", 
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "useful-api:1.0", "--mcp"],
+      "description": "Useful API MCP Server (Docker mode)"
+    }
+  }
+}

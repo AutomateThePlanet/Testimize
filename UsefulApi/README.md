@@ -1,19 +1,128 @@
 ﻿# Useful API + MCP (stdio)
 
-A tiny .NET 8 Web API with 3 endpoints and an MCP stdio server for GitHub Copilot.
+A .NET 8 Web API with HTTP endpoints and MCP stdio server for GitHub Copilot integration.
 
-## Endpoints
-- GET /health → { status, service, version, timeUtc }
-- GET /time   → { utc, unixSeconds, iso }
-- GET /guid   → { value, kind }
+## Features
+- **HTTP API**: REST endpoints for direct API access
+- **MCP Server**: Model Context Protocol server for VS Code GitHub Copilot
+- **Docker Support**: Both modes available in containers
+- **SOLID Architecture**: Clean separation of concerns
 
-## Run (HTTP)
-dotnet run --project src/UsefulApi/UsefulApi.csproj
-curl http://localhost:8080/health
+## HTTP API Endpoints
+- `GET /health` → API health info
+- `GET /time` → Current UTC time
+- `GET /guid` → Generate random GUID
+- `POST /echo` → Echo JSON payload
 
-## Run (MCP stdio)
-dotnet run --project src/UsefulApi/UsefulApi.csproj -- --mcp
+## MCP Tools (for VS Code GitHub Copilot)
+- `health_check` → Get API health info
+- `get_time` → Get current UTC time
+- `generate_guid` → Generate a random GUID
 
-## Docker
-docker build -t useful-api:1.0 .
-docker run --rm -p 8080:8080 useful-api:1.0
+## Development Usage
+
+### HTTP Mode (Development)dotnet run --project UsefulApi
+# API available at: http://localhost:5000
+# Swagger UI at: http://localhost:5000/swagger
+### MCP Mode (Development)dotnet run --project UsefulApi -- --mcp
+# Starts MCP server on stdio for VS Code integration
+## Docker Usage
+
+### Build Docker Imagedocker build -t useful-api:1.0 .
+### HTTP Mode (Docker)# Run HTTP API in container
+docker run --rm -p 8088:8088 useful-api:1.0
+
+# Test HTTP API
+curl http://localhost:8088/health
+### MCP Mode (Docker)# Run MCP server in container (for VS Code)
+docker run --rm -i useful-api:1.0 --mcp
+## VS Code GitHub Copilot Configuration
+
+Add this to your VS Code `settings.json` or MCP configuration:
+
+### Option 1: Direct .NET execution (Recommended for development){
+  "useful-api": {
+    "type": "stdio",
+    "command": "dotnet",
+    "args": ["run", "--project", "path/to/UsefulApi", "--", "--mcp"]
+  }
+}
+### Option 2: Docker execution{
+  "useful-api": {
+    "type": "stdio", 
+    "command": "docker",
+    "args": ["run", "--rm", "-i", "useful-api:1.0", "--mcp"]
+  }
+}
+### Option 3: Local binary (after publish){
+  "useful-api": {
+    "type": "stdio",
+    "command": "path/to/UsefulApi.exe", 
+    "args": ["--mcp"]
+  }
+}
+## Architecture
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   HTTP Client   │    │   VS Code MCP    │    │  Business Logic │
+│                 │    │                  │    │                 │
+│  REST API calls │───▶│  JSON-RPC stdio  │───▶│ IUtilityService │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │                        │
+                                ▼                        │
+                       ┌──────────────────┐             │
+                       │ IMcpProtocolHandler │◀──────────┘
+                       │                  │
+                       │ • Initialize     │
+                       │ • ToolsList      │
+                       │ • ToolsCall      │
+                       └──────────────────┘
+## Extending the API
+
+To add new functionality that works in both HTTP and MCP modes:
+
+1. **Add business logic** to `IUtilityService` and `UtilityService`
+2. **Add HTTP endpoint** in `Program.cs`
+3. **Add MCP tool** definition in `McpProtocolHandler.ToolsList()`
+4. **Add tool implementation** in `McpProtocolHandler.ToolsCall()`
+
+Example:// 1. Add to IUtilityService
+public interface IUtilityService
+{
+    object GetWeather(string city);
+}
+
+// 2. Add HTTP endpoint
+app.MapGet("/weather/{city}", (string city, IUtilityService service) => 
+    Results.Json(service.GetWeather(city)));
+
+// 3. Add to ToolsList()
+new {
+    name = "get_weather",
+    description = "Get weather for a city",
+    inputSchema = new {
+        type = "object",
+        properties = new { city = new { type = "string" } },
+        required = new[] { "city" }
+    }
+}
+
+// 4. Add to ToolsCall()
+"get_weather" => _utilityService.GetWeather(
+    paramsDict?["city"]?.ToString() ?? "Unknown")
+## Troubleshooting
+
+### MCP Connection Issues
+- Ensure Docker image is built: `docker build -t useful-api:1.0 .`
+- Check VS Code MCP configuration syntax
+- Verify paths in MCP configuration are correct
+- Check VS Code developer console for MCP errors
+
+### HTTP API Issues  
+- Verify port 8088 is available
+- Check Docker container logs: `docker logs <container-id>`
+- Test with curl: `curl http://localhost:8088/health`
+
+### Development Issues
+- Run `dotnet build` to verify compilation
+- Check for missing dependencies: `dotnet restore`
+- Verify .NET 8 SDK is installed

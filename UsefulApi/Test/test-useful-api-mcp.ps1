@@ -1,24 +1,146 @@
-﻿# test-useful-api-initialize.ps1
+﻿# test-useful-api-mcp.ps1 - Comprehensive MCP Server Test
+# Tests the Useful API MCP server with VS Code-compatible JSON-RPC messages
 
-# Construct a proper JSON-RPC 2.0 initialize request
-$json = @{
-    jsonrpc = "2.0"
-    id = 1
-    method = "initialize"
-    params = @{}
-} | ConvertTo-Json -Compress
+Write-Host "🧪 Testing Useful API MCP Server" -ForegroundColor Green
+Write-Host "================================" -ForegroundColor Green
 
-# Calculate the correct Content-Length (in bytes)
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
-$contentLength = $bytes.Length
+# Function to test a JSON-RPC method
+function Test-McpMethod {
+    param(
+        [string]$Method,
+        [hashtable]$Params = @{},
+        [int]$Id = 1,
+        [string]$Description
+    )
+    
+    Write-Host "`n📋 Testing: $Description" -ForegroundColor Yellow
+    
+    # Create JSON-RPC request (unframed, as VS Code sends)
+    $request = @{
+        jsonrpc = "2.0"
+        id = $Id
+        method = $Method
+        params = $Params
+    } | ConvertTo-Json -Compress -Depth 10
+    
+    Write-Host "   Request: $request" -ForegroundColor Cyan
+    
+    try {
+        # Send request to MCP server and capture response
+        $response = $request | dotnet run --project ../UsefulApi.csproj -- --mcp 2>&1
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "   ✅ Response: $response" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "   ❌ Error (Exit code: $LASTEXITCODE): $response" -ForegroundColor Red
+            return $false
+        }
+    }
+    catch {
+        Write-Host "   ❌ Exception: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
 
-# Create the full MCP-framed request
-$request = "Content-Length: $contentLength`r`n`r`n$json"
+# Test cases
+$tests = @(
+    @{
+        Method = "initialize"
+        Params = @{
+            protocolVersion = "2025-06-18"
+            capabilities = @{
+                roots = @{ listChanged = $true }
+                sampling = @{
+                    enabled = $true
+                    interval = 5000
+                }
+                elicitation = @{
+                    enabled = $true
+                    params = @{
+                        maxDepth = 3
+                    }
+                }
+            }
+            clientInfo = @{
+                name = "Test Client"
+                version = "1.0.0"
+            }
+        }
+        Description = "MCP Initialize"
+    },
+    @{
+        Method = "tools/list"
+        Params = @{
+            includeUnavailable = $true
+        }
+        Description = "List All Tools (including unavailable ones)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "health_check"
+            params = @{
+                verbose = $true
+            }
+        }
+        Description = "Call Health Check Tool (verbose)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "get_time"
+            params = @{
+                utc = $true
+            }
+        }
+        Description = "Call Get Time Tool (UTC)"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "generate_guid"
+            params = @{
+                prefix = "test-"
+            }
+        }
+        Description = "Call Generate GUID Tool with prefix"
+    },
+    @{
+        Method = "tools/call"
+        Params = @{
+            name = "unknown_tool"
+        }
+        Description = "Call Unknown Tool (should fail)"
+    },
+    @{
+        Method = "unknown/method"
+        Params = @{
+            someParam = "value"
+        }
+        Description = "Unknown Method with param (should fail)"
+    }
+)
 
-# Show the request for debug
-Write-Host "`n🔁 Sending 'initialize' request:"
-Write-Host $request
-Write-Host ""
+# Execute tests
+$passed = 0
+$total = $tests.Count
 
-# Pipe it into the Docker container running your MCP server
-$request | docker run --rm -i useful-api:1.0 --mcp
+foreach ($test in $tests) {
+    $result = Test-McpMethod -Method $test.Method -Params $test.Params -Description $test.Description
+    if ($result) { $passed++ }
+    Start-Sleep -Milliseconds 500  # Brief pause between tests
+}
+
+# Summary
+Write-Host "`n📊 Test Summary" -ForegroundColor Green
+Write-Host "===============" -ForegroundColor Green
+Write-Host "Passed: $passed/$total" -ForegroundColor $(if ($passed -eq $total) { "Green" } else { "Yellow" })
+
+if ($passed -eq $total) {
+    Write-Host "🎉 All tests passed! MCP server is working correctly." -ForegroundColor Green
+    exit 0
+} else {
+    Write-Host "⚠️  Some tests failed. Check the output above for details." -ForegroundColor Yellow
+    exit 1
+}
