@@ -36,5 +36,10 @@ public class UsernameDataParameter : DataParameter<UsernameDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public UsernameDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

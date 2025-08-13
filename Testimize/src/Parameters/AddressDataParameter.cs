@@ -36,5 +36,10 @@ public class AddressDataParameter : DataParameter<AddressDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public AddressDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

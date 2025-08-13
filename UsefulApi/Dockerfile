@@ -1,8 +1,15 @@
 # Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copy the entire solution
 COPY . .
-RUN dotnet publish -c Release -o /app
+
+# Restore dependencies for the specific project
+RUN dotnet restore UsefulApi/UsefulApi.csproj
+
+# Build and publish the UsefulApi project with package generation disabled
+RUN dotnet publish UsefulApi/UsefulApi.csproj -c Release -o /app --no-restore -p:GeneratePackageOnBuild=false
 
 # Run
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

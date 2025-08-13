@@ -36,5 +36,10 @@ public class PasswordDataParameter : DataParameter<PasswordDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public PasswordDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

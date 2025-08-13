@@ -36,5 +36,10 @@ public class DateDataParameter : DataParameter<DateDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public DateDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

@@ -36,5 +36,10 @@ public class WeekDataParameter : DataParameter<WeekDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public WeekDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

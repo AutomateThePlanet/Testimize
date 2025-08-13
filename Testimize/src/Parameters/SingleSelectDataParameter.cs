@@ -45,5 +45,10 @@ public class SingleSelectDataParameter : DataParameter<SingleSelectDataProviderS
     {
     }
 
+    // Parameterless constructor for factory creation
+    public SingleSelectDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

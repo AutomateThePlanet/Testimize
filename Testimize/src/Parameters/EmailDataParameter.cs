@@ -36,5 +36,10 @@ public class EmailDataParameter : DataParameter<EmailDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public EmailDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

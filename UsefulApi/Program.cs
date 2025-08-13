@@ -35,8 +35,10 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.ConfigureHttpJsonOptions(o =>
 {
+    o.SerializerOptions.PropertyNameCaseInsensitive = true;
     o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     o.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 var app = builder.Build();
@@ -159,59 +161,79 @@ app.MapPost("/echo", (JsonElement body) => Results.Json(new { received = body })
 .WithDescription("Echos the posted JSON payload.")
 .WithOpenApi();
 
-app.MapPost("/generate-test-cases", async (HttpContext context, IUtilityService service) =>
+app.MapPost("/generate-test-cases", (JsonDocument body, IUtilityService service) =>
 {
-    using var reader = new StreamReader(context.Request.Body);
-    var body = await reader.ReadToEndAsync();
-    var json = JsonSerializer.Deserialize<JsonElement>(body);
-
-    if (!json.TryGetProperty("parameters", out var parametersElement) || !json.TryGetProperty("settings", out var settingsElement))
+    try
     {
-        return Results.BadRequest(new { error = "Invalid request body" });
-    }
-
-    var parameters = new List<IInputParameter>();
-    foreach (var parameterElement in parametersElement.EnumerateArray())
-    {
-        var type = parameterElement.GetProperty("Type").GetString();
-        var values = parameterElement.GetProperty("Values").GetRawText();
-
-        var parameter = type switch
+        var root = body.RootElement;
+        
+        if (!root.TryGetProperty("parameters", out var parametersElement) || 
+            !root.TryGetProperty("settings", out var settingsElement))
         {
-            "Testimize.Parameters.TextDataParameter" => JsonSerializer.Deserialize<TextDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.IntegerDataParameter" => JsonSerializer.Deserialize<IntegerDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.CurrencyDataParameter" => JsonSerializer.Deserialize<CurrencyDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.UsernameDataParameter" => JsonSerializer.Deserialize<UsernameDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.EmailDataParameter" => JsonSerializer.Deserialize<EmailDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.BooleanDataParameter" => JsonSerializer.Deserialize<BooleanDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.DateTimeDataParameter" => JsonSerializer.Deserialize<DateTimeDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.AddressDataParameter" => JsonSerializer.Deserialize<AddressDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.ColorDataParameter" => JsonSerializer.Deserialize<ColorDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.DateDataParameter" => JsonSerializer.Deserialize<DateDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.MonthDataParameter" => JsonSerializer.Deserialize<MonthDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.MultiSelectDataParameter" => JsonSerializer.Deserialize<MultiSelectDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.PasswordDataParameter" => JsonSerializer.Deserialize<PasswordDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.PercentageDataParameter" => JsonSerializer.Deserialize<PercentageDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.PhoneDataParameter" => JsonSerializer.Deserialize<PhoneDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.SingleSelectDataParameter" => JsonSerializer.Deserialize<SingleSelectDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.TimeDataParameter" => JsonSerializer.Deserialize<TimeDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.UrlDataParameter" => JsonSerializer.Deserialize<UrlDataParameter>(values) as IInputParameter,
-            "Testimize.Parameters.WeekDataParameter" => JsonSerializer.Deserialize<WeekDataParameter>(values) as IInputParameter,
-            _ => throw new ArgumentException($"Unknown parameter type: {type}")
+            return Results.BadRequest(new { error = "Request must contain 'parameters' and 'settings' properties" });
+        }
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new JsonStringEnumConverter() }
         };
 
-        parameters.Add(parameter);
+        var parameters = new List<IInputParameter>();
+        for (int i = 0; i < parametersElement.GetArrayLength(); i++)
+        {
+            try
+            {
+                var parameterElement = parametersElement[i];
+                var rawJson = parameterElement.GetRawText();
+                
+                Console.WriteLine($"DEBUG: Processing parameter {i}: {rawJson}");
+                
+                var universalParameter = JsonSerializer.Deserialize<UniversalDataParameter>(rawJson, jsonOptions);
+                if (universalParameter != null)
+                {
+                    Console.WriteLine($"DEBUG: ParameterType = '{universalParameter.ParameterType ?? "NULL"}'");
+                    
+                    if (string.IsNullOrWhiteSpace(universalParameter.ParameterType))
+                    {
+                        return Results.BadRequest(new { error = $"Parameter {i} has empty or null ParameterType" });
+                    }
+                    
+                    var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
+                    parameters.Add(parameter);
+                    
+                    Console.WriteLine($"DEBUG: Successfully created parameter of type {parameter.GetType().Name}");
+                }
+                else
+                {
+                    return Results.BadRequest(new { error = $"Parameter {i} could not be deserialized" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DEBUG: Error processing parameter {i}: {ex.Message}");
+                return Results.BadRequest(new { error = $"Failed to process parameter {i}: {ex.Message}" });
+            }
+        }
+
+        var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText(), jsonOptions);
+
+        if (settings == null)
+        {
+            return Results.BadRequest(new { error = "Failed to deserialize settings" });
+        }
+
+        var testCases = service.Generate(parameters, settings);
+        return Results.Json(new { testCases });
     }
-
-    var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText());
-
-    if (settings == null)
+    catch (Exception ex)
     {
-        return Results.BadRequest(new { error = "Failed to deserialize settings" });
+        Console.WriteLine($"DEBUG: Outer exception: {ex.Message}");
+        Console.WriteLine($"DEBUG: Stack trace: {ex.StackTrace}");
+        return Results.BadRequest(new { error = ex.Message });
     }
-
-    var testCases = service.Generate(parameters, settings);
-    return Results.Json(new { testCases });
 })
 .WithName("GenerateTestCases")
 .WithSummary("Generate Test Cases")

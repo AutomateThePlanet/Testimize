@@ -36,5 +36,10 @@ public class TextDataParameter : DataParameter<TextDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public TextDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

@@ -12,11 +12,19 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using System.Text.Json.Serialization;
+
 namespace Testimize.Parameters.Core;
 
 // Represents a single test value with a category (Boundary, Normal, Invalid)
 public class TestValue
 {
+    // Parameterless constructor for JSON deserialization
+    public TestValue()
+    {
+    }
+
+    [JsonConstructor]
     public TestValue(object value, TestValueCategory category)
     {
         Value = value;
@@ -29,9 +37,9 @@ public class TestValue
         ExpectedInvalidMessage = expectedInvalidMessage;
     }
 
-    public object Value { get; }
-    public string ExpectedInvalidMessage { get; }
-    public TestValueCategory Category { get; }
+    public object Value { get; set; }
+    public string ExpectedInvalidMessage { get; set; }
+    public TestValueCategory Category { get; set; }
 
     public override bool Equals(object obj)
     {

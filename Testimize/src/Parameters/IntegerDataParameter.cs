@@ -36,5 +36,10 @@ public class IntegerDataParameter : DataParameter<IntegerDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public IntegerDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

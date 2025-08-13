@@ -36,5 +36,10 @@ public class TimeDataParameter : DataParameter<TimeDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public TimeDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

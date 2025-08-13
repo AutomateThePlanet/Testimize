@@ -36,5 +36,10 @@ public class PhoneDataParameter : DataParameter<PhoneDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public PhoneDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

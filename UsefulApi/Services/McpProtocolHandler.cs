@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Testimize.Parameters;
 using Testimize.Parameters.Core;
 using Testimize.Contracts;
@@ -10,6 +11,15 @@ using Testimize.Usage;
 public class McpProtocolHandler : IMcpProtocolHandler
 {
     private readonly IUtilityService _utilityService;
+
+    // Shared JsonSerializerOptions for consistent deserialization
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public McpProtocolHandler(IUtilityService utilityService)
     {
@@ -73,6 +83,29 @@ public class McpProtocolHandler : IMcpProtocolHandler
                         properties = new { },
                         required = new string[] { }
                     }
+                },
+                new
+                {
+                    name = "generate_test_cases",
+                    description = "Generate test cases using Testimize engine",
+                    inputSchema = new
+                    {
+                        type = "object",
+                        properties = new
+                        {
+                            parameters = new
+                            {
+                                type = "array",
+                                description = "Array of parameter definitions"
+                            },
+                            settings = new
+                            {
+                                type = "object",
+                                description = "Test generation settings"
+                            }
+                        },
+                        required = new[] { "parameters", "settings" }
+                    }
                 }
             }
         };
@@ -107,6 +140,7 @@ public class McpProtocolHandler : IMcpProtocolHandler
             "health_check" => _utilityService.GetHealth(),
             "get_time" => _utilityService.GetTime(),
             "generate_guid" => _utilityService.GenerateGuid(),
+            "generate_test_cases" => GenerateTestCases(@params),
             _ => throw new Exception($"Unknown tool: {name}")
         };
 
@@ -125,52 +159,71 @@ public class McpProtocolHandler : IMcpProtocolHandler
 
     public object GenerateTestCases(object @params)
     {
-        if (@params is not JsonElement jsonElement || !jsonElement.TryGetProperty("parameters", out var parametersElement) || !jsonElement.TryGetProperty("settings", out var settingsElement))
+        if (@params is not JsonElement jsonElement)
         {
-            throw new ArgumentException("Invalid parameters for GenerateTestCases");
+            throw new ArgumentException("Invalid parameters for GenerateTestCases - not a JsonElement");
+        }
+
+        // Extract arguments from the MCP call structure
+        if (!jsonElement.TryGetProperty("arguments", out var argumentsElement))
+        {
+            throw new ArgumentException("Missing 'arguments' property in GenerateTestCases call");
+        }
+
+        if (!argumentsElement.TryGetProperty("parameters", out var parametersElement) || 
+            !argumentsElement.TryGetProperty("settings", out var settingsElement))
+        {
+            throw new ArgumentException("Missing 'parameters' or 'settings' in arguments");
         }
 
         var parameters = new List<IInputParameter>();
-        foreach (var parameterElement in parametersElement.EnumerateArray())
+        for (int i = 0; i < parametersElement.GetArrayLength(); i++)
         {
-            var type = parameterElement.GetProperty("Type").GetString();
-            var values = parameterElement.GetProperty("Values").GetRawText();
-
-            var parameter = type switch
+            try
             {
-                "Testimize.Parameters.TextDataParameter" => JsonSerializer.Deserialize<TextDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.IntegerDataParameter" => JsonSerializer.Deserialize<IntegerDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.CurrencyDataParameter" => JsonSerializer.Deserialize<CurrencyDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.UsernameDataParameter" => JsonSerializer.Deserialize<UsernameDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.EmailDataParameter" => JsonSerializer.Deserialize<EmailDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.BooleanDataParameter" => JsonSerializer.Deserialize<BooleanDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.DateTimeDataParameter" => JsonSerializer.Deserialize<DateTimeDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.AddressDataParameter" => JsonSerializer.Deserialize<AddressDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.ColorDataParameter" => JsonSerializer.Deserialize<ColorDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.DateDataParameter" => JsonSerializer.Deserialize<DateDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.MonthDataParameter" => JsonSerializer.Deserialize<MonthDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.MultiSelectDataParameter" => JsonSerializer.Deserialize<MultiSelectDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.PasswordDataParameter" => JsonSerializer.Deserialize<PasswordDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.PercentageDataParameter" => JsonSerializer.Deserialize<PercentageDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.PhoneDataParameter" => JsonSerializer.Deserialize<PhoneDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.SingleSelectDataParameter" => JsonSerializer.Deserialize<SingleSelectDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.TimeDataParameter" => JsonSerializer.Deserialize<TimeDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.UrlDataParameter" => JsonSerializer.Deserialize<UrlDataParameter>(values) as IInputParameter,
-                "Testimize.Parameters.WeekDataParameter" => JsonSerializer.Deserialize<WeekDataParameter>(values) as IInputParameter,
-                _ => throw new ArgumentException($"Unknown parameter type: {type}")
-            };
-
-            parameters.Add(parameter);
+                var parameterElement = parametersElement[i];
+                var rawJson = parameterElement.GetRawText();
+                
+                Console.WriteLine($"MCP DEBUG: Processing parameter {i}: {rawJson}");
+                
+                var universalParameter = JsonSerializer.Deserialize<UniversalDataParameter>(rawJson, JsonOptions);
+                if (universalParameter != null)
+                {
+                    Console.WriteLine($"MCP DEBUG: ParameterType = '{universalParameter.ParameterType ?? "NULL"}'");
+                    
+                    if (string.IsNullOrWhiteSpace(universalParameter.ParameterType))
+                    {
+                        throw new ArgumentException($"Parameter {i} has empty or null ParameterType");
+                    }
+                    
+                    var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
+                    parameters.Add(parameter);
+                    
+                    Console.WriteLine($"MCP DEBUG: Successfully created parameter of type {parameter.GetType().Name}");
+                }
+                else
+                {
+                    throw new ArgumentException($"Parameter {i} could not be deserialized");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MCP DEBUG: Error processing parameter {i}: {ex.Message}");
+                throw new ArgumentException($"Failed to process parameter {i}: {ex.Message}", ex);
+            }
         }
 
-        var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText());
+        var settings = JsonSerializer.Deserialize<PreciseTestEngineSettings>(settingsElement.GetRawText(), JsonOptions);
 
         if (settings == null)
         {
             throw new ArgumentException("Failed to deserialize settings");
         }
 
+        Console.WriteLine($"MCP DEBUG: Successfully processed {parameters.Count} parameters");
         var testCases = _utilityService.Generate(parameters, settings);
+        Console.WriteLine($"MCP DEBUG: Generated {testCases?.Count() ?? 0} test cases");
+        
         return new { testCases };
     }
 }

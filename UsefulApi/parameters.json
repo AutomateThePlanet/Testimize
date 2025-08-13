@@ -1,0 +1,152 @@
+[
+  {
+    "Type": "Testimize.Parameters.TextDataParameter",
+    "Values": [
+      {
+        "Value": "Test1",
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      },
+      {
+        "Value": "BoundaryMin",
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": "BoundaryMax",
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": "TooShort",
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": "",
+        "ExpectedInvalidMessage": null,
+        "Category": 3
+      }
+    ]
+  },
+  {
+    "Type": "Testimize.Parameters.IntegerDataParameter",
+    "Values": [
+      {
+        "Value": 10,
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      },
+      {
+        "Value": 1,
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": 100,
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": 0,
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": 101,
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": -5,
+        "ExpectedInvalidMessage": null,
+        "Category": 3
+      }
+    ]
+  },
+  {
+    "Type": "Testimize.Parameters.BooleanDataParameter",
+    "Values": [
+      {
+        "Value": true,
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      },
+      {
+        "Value": false,
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      }
+    ]
+  },
+  {
+    "Type": "Testimize.Parameters.EmailDataParameter",
+    "Values": [
+      {
+        "Value": "test@example.com",
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      },
+      {
+        "Value": "a@b.co",
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": "verylongemailaddress@domain.com",
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": "a@b",
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": "invalid-email",
+        "ExpectedInvalidMessage": null,
+        "Category": 3
+      },
+      {
+        "Value": "",
+        "ExpectedInvalidMessage": null,
+        "Category": 3
+      }
+    ]
+  },
+  {
+    "Type": "Testimize.Parameters.CurrencyDataParameter",
+    "Values": [
+      {
+        "Value": 100.50,
+        "ExpectedInvalidMessage": null,
+        "Category": 2
+      },
+      {
+        "Value": 0.01,
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": 9999.99,
+        "ExpectedInvalidMessage": null,
+        "Category": 0
+      },
+      {
+        "Value": 0.00,
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": 10000.00,
+        "ExpectedInvalidMessage": null,
+        "Category": 1
+      },
+      {
+        "Value": -5.00,
+        "ExpectedInvalidMessage": null,
+        "Category": 3
+      }
+    ]
+  }
+]

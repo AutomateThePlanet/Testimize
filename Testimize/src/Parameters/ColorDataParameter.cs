@@ -36,5 +36,10 @@ public class ColorDataParameter : DataParameter<ColorDataProviderStrategy>
     {
     }
 
+    // Parameterless constructor for factory creation
+    public ColorDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

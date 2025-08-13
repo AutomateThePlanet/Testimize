@@ -36,5 +36,10 @@ public class GeoCoordinateDataParameter : DataParameter<GeoCoordinateDataProvide
     {
     }
 
+    // Parameterless constructor for factory creation
+    public GeoCoordinateDataParameter() : base()
+    {
+    }
+
     public override string ParameteryType => this.GetType().FullName;
 }

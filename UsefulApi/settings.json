@@ -1,0 +1,20 @@
+{
+  "Mode": 4,
+  "TestCaseCategory": 2,
+  "MethodName": "GeneratedTestMethod",
+  "ABCSettings": {
+    "TotalPopulationGenerations": 50,
+    "MutationRate": 0.4,
+    "FinalPopulationSelectionRatio": 0.5,
+    "EliteSelectionRatio": 0.3,
+    "OnlookerSelectionRatio": 0.1,
+    "ScoutSelectionRatio": 0.3,
+    "EnableOnlookerSelection": true,
+    "EnableScoutPhase": true,
+    "EnforceMutationUniqueness": true,
+    "StagnationThresholdPercentage": 0.75,
+    "CoolingRate": 0.95,
+    "AllowMultipleInvalidInputs": false,
+    "Seed": 42
+  }
+}

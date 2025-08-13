@@ -31,20 +31,6 @@ public class TestSuiteBuilder
 
     public List<TestCase> Generate()
     {
-        // save JSON deserialization of _settings and _parameters
-        var settingsJson = System.Text.Json.JsonSerializer.Serialize(_settings, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-
-        // Serialize parameters with their types
-        var parametersWithTypes = _parameters.Select(p => new
-        {
-            Type = p.GetType().FullName,
-            Values = p.TestValues
-        });
-        var parametersJson = System.Text.Json.JsonSerializer.Serialize(parametersWithTypes, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-
-        // Save to files (example paths, adjust as needed)
-        File.WriteAllText("settings.json", settingsJson);
-        File.WriteAllText("parameters.json", parametersJson);
         return _settings.Mode switch
         {
             TestGenerationMode.HybridArtificialBeeColony => GenerateUsingArtificialBeeColony(_settings.MethodName, _settings.TestCaseCategory),
