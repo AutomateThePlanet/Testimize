@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -73,31 +73,52 @@ public class McpProtocolHandler : IMcpProtocolHandler
             additionalProperties = false,
             properties = new
             {
-                ParameterType = new { type = "string", description = "Text | Email | Integer | Currency | Boolean | MultiSelect | ..." },
-                PreciseMode = new { type = "boolean" },
+                ParameterType = new { 
+                    type = "string", 
+                    @enum = new[] { "Text", "Email", "Phone", "Password", "Integer", "Date", "Url", "Boolean", "SingleSelect", "MultiSelect", "Currency", "Username", "Address" },
+                    description = "🚨 CRITICAL: Use 'Phone' for phone, 'Url' for URLs (case-sensitive)" 
+                },
+                PreciseMode = new { 
+                    type = "boolean", 
+                    description = "🚨 CRITICAL: false for Text/Email/Phone/Password/Integer/Date/Url/Boolean, true ONLY for SingleSelect/MultiSelect" 
+                },
 
-                MinBoundary = new { },     // any
-                MaxBoundary = new { },     // any
+                // Exploratory mode properties (required when PreciseMode: false)
+                MinBoundary = new { description = "Required for exploratory mode (PreciseMode: false)" },
+                MaxBoundary = new { description = "Required for exploratory mode (PreciseMode: false)" },
+                IncludeBoundaryValues = new { 
+                    type = "boolean", 
+                    description = "🚨 MUST be true for exploratory mode" 
+                },
+                AllowValidEquivalenceClasses = new { 
+                    type = "boolean", 
+                    description = "🚨 MUST be true for comprehensive testing in exploratory mode, false for SingleSelect/MultiSelect" 
+                },
+                AllowInvalidEquivalenceClasses = new { 
+                    type = "boolean", 
+                    description = "🚨 MUST be true for comprehensive testing in exploratory mode, false for SingleSelect/MultiSelect" 
+                },
 
-                IncludeBoundaryValues = new { type = "boolean" },
-                AllowValidEquivalenceClasses = new { type = "boolean" },
-                AllowInvalidEquivalenceClasses = new { type = "boolean" },
-
+                // Precise mode properties (required when PreciseMode: true)
                 PreciseTestValues = new
                 {
                     type = "array",
-                    minItems = 1,
-                    items = preciseValueItemSchema
+                    items = preciseValueItemSchema,
+                    description = "🚨 REQUIRED for SingleSelect/MultiSelect with Valid category values. NO Options property!"
                 },
 
+                // DEPRECATED - will be converted internally
                 Options = new
                 {
                     type = "array",
-                    minItems = 1,
-                    items = new { type = "string" }
+                    items = new { type = "string" },
+                    description = "⚠️ DEPRECATED: Use PreciseTestValues instead. This will be auto-converted."
                 },
 
-                Multiple = new { type = "boolean" }
+                Multiple = new { 
+                    type = "boolean",
+                    description = "Set to true for MultiSelect parameters"
+                }
             },
             required = new[] { "ParameterType", "PreciseMode" }
         };
@@ -139,12 +160,49 @@ public class McpProtocolHandler : IMcpProtocolHandler
             additionalProperties = false,
             properties = new
             {
-                Mode = new { type = "integer", description = "0..4", minimum = 0, maximum = 4 },
-                TestCaseCategory = new { type = "integer", description = "0..3", minimum = 0, maximum = 3 },
-                MethodName = new { type = "string", minLength = 1 },
+                Mode = new { 
+                    type = "integer", 
+                    @enum = new[] { 0, 1, 2, 3, 4 },
+                    @default = 4,
+                    description = "🚨 CRITICAL: MUST be 4 for HybridArtificialBeeColony. Other values: 0=Pairwise, 1=OptimizedPairwise, 2=Combinatorial, 3=OptimizedCombinatorial" 
+                },
+                TestCaseCategory = new { 
+                    type = "integer", 
+                    @enum = new[] { 0, 1, 2 },
+                    @default = 0,
+                    description = "🚨 CRITICAL: MUST be 0 for comprehensive testing (All). Other values: 1=Valid only, 2=Validation only" 
+                },
+                MethodName = new { 
+                    type = "string", 
+                    minLength = 1,
+                    @default = "FormValidation",
+                    description = "Name for the generated test method" 
+                },
                 ABCSettings = abcSettingsSchema
             },
-            required = new[] { "Mode", "TestCaseCategory", "MethodName" }
+            required = new[] { "Mode", "TestCaseCategory", "MethodName", "ABCSettings" },
+            @default = new
+            {
+                Mode = 4,
+                TestCaseCategory = 0,
+                MethodName = "FormValidation",
+                ABCSettings = new
+                {
+                    TotalPopulationGenerations = 50,
+                    MutationRate = 0.3,
+                    FinalPopulationSelectionRatio = 0.5,
+                    EliteSelectionRatio = 0.5,
+                    OnlookerSelectionRatio = 0.1,
+                    ScoutSelectionRatio = 0.3,
+                    EnableOnlookerSelection = true,
+                    EnableScoutPhase = true,
+                    EnforceMutationUniqueness = true,
+                    StagnationThresholdPercentage = 0.75,
+                    CoolingRate = 0.95,
+                    AllowMultipleInvalidInputs = false,
+                    Seed = 42
+                }
+            }
         };
 
         var generateTestCasesInputSchema = new
@@ -153,10 +211,20 @@ public class McpProtocolHandler : IMcpProtocolHandler
             additionalProperties = false,
             properties = new
             {
-                parameters = parametersArraySchema, // Optional (allowed empty)
+                parameters = parametersArraySchema,
                 settings = settingsSchema
             },
-            required = new[] { "settings" } // Only settings are required
+            required = new[] { "parameters", "settings" },
+            @default = new
+            {
+                parameters = new object[] { },
+                settings = new
+                {
+                    Mode = 4,
+                    TestCaseCategory = 0,
+                    MethodName = "FormValidation"
+                }
+            }
         };
 
         Console.WriteLine("DEBUG: Generating schema for generate_test_cases tool...");
@@ -165,10 +233,48 @@ public class McpProtocolHandler : IMcpProtocolHandler
 
         var tools = new object[]
         {
-            new { name = "health_check",  description = "Get API health info",       inputSchema = baseNoArgSchema },
-            new { name = "get_time",      description = "Get current UTC time",       inputSchema = baseNoArgSchema },
-            new { name = "generate_guid", description = "Generate a random GUID",     inputSchema = baseNoArgSchema },
-            new { name = "generate_test_cases", description = "Generate test cases using Testimize engine", inputSchema = generateTestCasesInputSchema }
+            new { name = "health_check", description = "Get API health info", inputSchema = baseNoArgSchema },
+            new { name = "get_time", description = "Get current UTC time", inputSchema = baseNoArgSchema },
+            new { name = "generate_guid", description = "Generate a random GUID", inputSchema = baseNoArgSchema },
+            new { 
+                name = "generate_test_cases", 
+                description = @"🚨 CRITICAL: ASSISTANT MUST FOLLOW EXACT FORMAT RULES 🚨
+
+❌ DETECTED ERRORS IN RECENT REQUESTS:
+1. Using PreciseMode: true with MinBoundary/MaxBoundary - WRONG!
+2. Missing IncludeBoundaryValues, AllowValidEquivalenceClasses, AllowInvalidEquivalenceClasses - WRONG!
+3. Using Options instead of PreciseTestValues for SingleSelect/MultiSelect - WRONG!
+4. Using Mode: 2 instead of Mode: 4 - WRONG!
+5. Using TestCaseCategory: 2 instead of TestCaseCategory: 0 - WRONG!
+6. Missing ABCSettings - WRONG!
+
+✅ MANDATORY RULES - NO EXCEPTIONS:
+1. Text/Email/Phone/Password/Integer/Date/Url/Boolean parameters MUST use:
+   - PreciseMode: false
+   - IncludeBoundaryValues: true
+   - AllowValidEquivalenceClasses: true  
+   - AllowInvalidEquivalenceClasses: true
+   - MinBoundary and MaxBoundary (appropriate for type)
+
+2. SingleSelect/MultiSelect parameters MUST use:
+   - PreciseMode: true
+   - PreciseTestValues array with Valid category values
+   - NO Options property
+   - AllowValidEquivalenceClasses: false
+   - AllowInvalidEquivalenceClasses: false
+
+3. Settings MUST include:
+   - Mode: 4 (HybridArtificialBeeColony)
+   - TestCaseCategory: 0 (All)
+   - MethodName: string
+   - ABCSettings: complete object with all properties
+
+✅ CORRECT PHONE PARAMETER TYPE: Use 'Phone' NOT 'Text'
+✅ CORRECT URL PARAMETER TYPE: Use 'Url' NOT 'URL' or 'UrlDataParameter'
+
+🔥 ASSISTANT: If you generate ANY request that violates these rules, it WILL FAIL!", 
+                inputSchema = generateTestCasesInputSchema 
+            }
         };
 
         Console.WriteLine($"DEBUG: Tools list: {JsonSerializer.Serialize(tools)}");
@@ -237,17 +343,90 @@ public class McpProtocolHandler : IMcpProtocolHandler
             {
                 var parameterElement = parametersElement[i];
                 var rawJson = parameterElement.GetRawText();
-                
+
                 Console.WriteLine($"MCP DEBUG: Processing parameter {i}: {rawJson}");
-                
+
                 var universalParameter = JsonSerializer.Deserialize<UniversalDataParameter>(rawJson, JsonOptions);
                 if (universalParameter != null)
                 {
                     Console.WriteLine($"MCP DEBUG: ParameterType = '{universalParameter.ParameterType ?? "NULL"}'");
-                    
+
                     if (string.IsNullOrWhiteSpace(universalParameter.ParameterType))
                     {
                         throw new ArgumentException($"Parameter {i} has empty or null ParameterType");
+                    }
+
+                    // 🚨 CRITICAL ERROR DETECTION AND CORRECTION
+                    var paramType = universalParameter.ParameterType;
+                    var isSelectType = paramType == "SingleSelect" || paramType == "MultiSelect";
+                    var isRegularType = !isSelectType;
+
+                    // ERROR DETECTION #1: Wrong PreciseMode usage
+                    if (isRegularType && universalParameter.PreciseMode)
+                    {
+                        Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} ({paramType}) has PreciseMode: true but should be false. CORRECTING...");
+                        universalParameter.PreciseMode = false;
+                    }
+                    if (isSelectType && !universalParameter.PreciseMode)
+                    {
+                        Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} ({paramType}) has PreciseMode: false but should be true. CORRECTING...");
+                        universalParameter.PreciseMode = true;
+                    }
+
+                    // ERROR DETECTION #2: Missing required exploratory flags
+                    if (isRegularType && universalParameter.PreciseMode == false)
+                    {
+                        if (universalParameter.IncludeBoundaryValues != true)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} missing IncludeBoundaryValues: true. CORRECTING...");
+                            universalParameter.IncludeBoundaryValues = true;
+                        }
+                        if (universalParameter.AllowValidEquivalenceClasses != true)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} missing AllowValidEquivalenceClasses: true. CORRECTING...");
+                            universalParameter.AllowValidEquivalenceClasses = true;
+                        }
+                        if (universalParameter.AllowInvalidEquivalenceClasses != true)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} missing AllowInvalidEquivalenceClasses: true. CORRECTING...");
+                            universalParameter.AllowInvalidEquivalenceClasses = true;
+                        }
+                    }
+
+                    // ERROR DETECTION #3: Select types using precise mode but wrong flags
+                    if (isSelectType && universalParameter.PreciseMode == true)
+                    {
+                        if (universalParameter.AllowValidEquivalenceClasses != false)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} ({paramType}) should have AllowValidEquivalenceClasses: false. CORRECTING...");
+                            universalParameter.AllowValidEquivalenceClasses = false;
+                        }
+                        if (universalParameter.AllowInvalidEquivalenceClasses != false)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} ({paramType}) should have AllowInvalidEquivalenceClasses: false. CORRECTING...");
+                            universalParameter.AllowInvalidEquivalenceClasses = false;
+                        }
+                    }
+
+                    // Handle SingleSelect and MultiSelect options -> PreciseTestValues conversion
+                    if (isSelectType)
+                    {
+                        if (universalParameter.Options != null && universalParameter.Options.Length > 0)
+                        {
+                            Console.WriteLine($"🚨 ERROR DETECTED: Parameter {i} ({paramType}) using deprecated Options. Converting to PreciseTestValues...");
+                            universalParameter.PreciseTestValues = universalParameter.Options.Select(option => new TestValue
+                            {
+                                Value = option,
+                                Category = TestValueCategory.Valid
+                            }).ToArray();
+                            
+                            // Clear Options since we've converted them
+                            universalParameter.Options = null;
+                        }
+                        else if (universalParameter.PreciseTestValues == null || universalParameter.PreciseTestValues.Length == 0)
+                        {
+                            throw new ArgumentException($"Parameter {i} of type {universalParameter.ParameterType} must have Options or PreciseTestValues");
+                        }
                     }
 
                     var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
@@ -274,24 +453,46 @@ public class McpProtocolHandler : IMcpProtocolHandler
             throw new ArgumentException("Failed to deserialize settings");
         }
 
-        Console.WriteLine($"MCP DEBUG: Successfully processed {parameters.Count} parameters");
-        Console.WriteLine("DEBUG: Validating settings and parameters before generating test cases...");
-        Console.WriteLine($"DEBUG: Settings: {JsonSerializer.Serialize(settings, JsonOptions)}");
-        Console.WriteLine($"DEBUG: Parameters: {JsonSerializer.Serialize(parameters, JsonOptions)}");
+        // 🚨 CRITICAL ERROR DETECTION AND CORRECTION FOR SETTINGS
+        bool settingsChanged = false;
 
-        if (settings == null)
+        // ERROR DETECTION #6: Missing or wrong MethodName
+        if (string.IsNullOrWhiteSpace(settings.MethodName) || settings.MethodName == "TestMethodName")
         {
-            throw new ArgumentException("Settings object is null");
+            Console.WriteLine($"🚨 ERROR DETECTED: MethodName is '{settings.MethodName}' but should be meaningful. CORRECTING...");
+            settings.MethodName = "FormValidation";
+            settingsChanged = true;
         }
 
-        if (parameters == null || parameters.Count == 0)
+        // ERROR DETECTION #7: Missing ABCSettings
+        if (settings.ABCSettings == null)
         {
-            throw new ArgumentException("Parameters list is null or empty");
+            settings.ABCSettings = new Testimize.ABCGenerationSettings();
+            settingsChanged = true;
+        }
+
+        if (settingsChanged)
+        {
+            Console.WriteLine($"🚨 ASSISTANT ERROR SUMMARY: Multiple errors were detected and corrected automatically. Please update your request format!");
+        }
+        
+        if (string.IsNullOrWhiteSpace(settings.MethodName) || settings.MethodName == "TestMethodName")
+        {
+            settings.MethodName = "FormValidation";
+        }
+
+        Console.WriteLine($"MCP DEBUG: Successfully processed {parameters.Count} parameters");
+        Console.WriteLine($"MCP DEBUG: Final Settings - Mode: {settings.Mode}, TestCaseCategory: {settings.TestCaseCategory}, MethodName: {settings.MethodName}");
+        Console.WriteLine($"MCP DEBUG: ABCSettings - Generations: {settings.ABCSettings.TotalPopulationGenerations}, MutationRate: {settings.ABCSettings.MutationRate}");
+
+        if (parameters.Count == 0)
+        {
+            throw new ArgumentException("No valid parameters were processed");
         }
 
         var testCases = _utilityService.Generate(parameters, settings);
-        Console.WriteLine($"DEBUG: Generated {testCases?.Count() ?? 0} test cases");
-        
+        Console.WriteLine($"MCP DEBUG: Generated {testCases?.Count() ?? 0} test cases");
+
         return new { testCases };
     }
 }

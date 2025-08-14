@@ -7,27 +7,55 @@
 The assistant has been making these **CRITICAL ERRORS** that cause complete failures:
 
 ### ❌ ERROR #1: Missing Required Exploratory Properties
-**WRONG REQUEST FROM ASSISTANT:**{"ParameterType":"Text","PreciseMode":false,"MinBoundary":3,"MaxBoundary":20}
-**✅ CORRECT REQUEST (MUST INCLUDE ALL THREE FLAGS):**{
-  "ParameterType":"Text",
-  "PreciseMode":false,
-  "MinBoundary":3,
-  "MaxBoundary":20,
-  "IncludeBoundaryValues":true,
-  "AllowValidEquivalenceClasses":true,
-  "AllowInvalidEquivalenceClasses":true
+**WRONG REQUEST FROM ASSISTANT:**{
+  "ParameterType": "Text",
+  "PreciseMode": true,
+  "MinBoundary": 3,
+  "MaxBoundary": 20
 }
-### ❌ ERROR #2: Wrong Parameter Type Name
-**WRONG:** `"ParameterType":"URL"`  
-**✅ CORRECT:** `"ParameterType":"Url"`
+**✅ CORRECT REQUEST (MUST INCLUDE ALL REQUIRED FLAGS):**{
+  "ParameterType": "Text",
+  "PreciseMode": false,
+  "MinBoundary": 3,
+  "MaxBoundary": 20,
+  "IncludeBoundaryValues": true,
+  "AllowValidEquivalenceClasses": true,
+  "AllowInvalidEquivalenceClasses": true
+}
+### ❌ ERROR #2: Wrong Parameter Type Usage
+**WRONG:** Using `"ParameterType": "Text"` for phone fields  
+**✅ CORRECT:** `"ParameterType": "Phone"` for phone fields
 
-### ❌ ERROR #3: Invalid Options Usage
-**WRONG:** Adding `"Options":["Uppercase","Number","Symbol"]` to Password parameters  
-**✅ CORRECT:** Only SingleSelect and MultiSelect need Options
+**WRONG:** `"ParameterType": "URL"`  
+**✅ CORRECT:** `"ParameterType": "Url"`
 
-### ❌ ERROR #4: Invalid Boolean Options
-**WRONG:** `"Options":["true"]` for Boolean parameters  
-**✅ CORRECT:** Boolean parameters don't use Options
+### ❌ ERROR #3: Wrong Mode Values
+**WRONG:** `"Mode": 2` for Hybrid ABC  
+**✅ CORRECT:** `"Mode": 4` (HybridArtificialBeeColony = 4)
+
+**Mode Reference:**
+- 0 = Pairwise
+- 1 = OptimizedPairwise  
+- 2 = Combinatorial
+- 3 = OptimizedCombinatorial
+- 4 = HybridArtificialBeeColony
+
+### ❌ ERROR #4: Wrong TestCaseCategory Values
+**WRONG:** `"TestCaseCategory": 2` for comprehensive testing  
+**✅ CORRECT:** `"TestCaseCategory": 0` (All = 0)
+
+**TestCaseCategory Reference:**
+- 0 = All (comprehensive testing)
+- 1 = Valid (only valid test cases)
+- 2 = Validation (only validation/invalid test cases)
+
+### ❌ ERROR #5: Missing Required ABCSettings for Mode 4
+**WRONG:** Using Mode 4 without ABCSettings  
+**✅ CORRECT:** Always include complete ABCSettings when using Mode 4
+
+### ❌ ERROR #6: Using PreciseMode: true without PreciseTestValues
+**WRONG:** `"PreciseMode": true` with MinBoundary/MaxBoundary  
+**✅ CORRECT:** Use `"PreciseMode": false` for exploratory mode with boundaries
 
 ---
 
@@ -38,24 +66,38 @@ The assistant has been making these **CRITICAL ERRORS** that cause complete fail
 1. **✅ EVERY exploratory parameter MUST have these 3 properties:**"IncludeBoundaryValues": true,
 "AllowValidEquivalenceClasses": true,
 "AllowInvalidEquivalenceClasses": true
-2. **✅ ALWAYS use Mode 4 and TestCaseCategory 0:**"settings": {
+2. **✅ ALWAYS use Mode 4 for Hybrid ABC and TestCaseCategory 0 for comprehensive testing:**"settings": {
   "Mode": 4,
   "TestCaseCategory": 0,
   "MethodName": "FormValidation"
 }
-3. **✅ Parameter type spelling (case-sensitive):**
+3. **✅ ALWAYS include complete ABCSettings for Mode 4:**"ABCSettings": {
+  "TotalPopulationGenerations": 50,
+  "MutationRate": 0.3,
+  "FinalPopulationSelectionRatio": 0.5,
+  "EliteSelectionRatio": 0.5,
+  "OnlookerSelectionRatio": 0.1,
+  "ScoutSelectionRatio": 0.3,
+  "EnableOnlookerSelection": true,
+  "EnableScoutPhase": true,
+  "EnforceMutationUniqueness": true,
+  "StagnationThresholdPercentage": 0.75,
+  "CoolingRate": 0.95,
+  "AllowMultipleInvalidInputs": false,
+  "Seed": 42
+}
+4. **✅ Parameter type spelling (case-sensitive):**
+   - Use `"Phone"` for phone numbers (NOT "Text")
    - Use `"Url"` NOT `"URL"`
    - Use `"SingleSelect"` and `"MultiSelect"`
 
-4. **✅ Options ONLY for selection parameters:**
-   - SingleSelect: `"Options": ["Option1", "Option2"]`
-   - MultiSelect: `"Options": ["Option1", "Option2"]`
-   - Text, Email, Phone, Password, Boolean, etc.: NO Options property
+5. **✅ Use PreciseMode: false for exploratory mode:**
+   - Use boundaries + flags for exploratory testing
+   - Only use `PreciseMode: true` with `PreciseTestValues` array
 
 ### 🚨 CORRECTED WORKING TEMPLATE:
 
-**Use this EXACT structure for EVERY request:**
-{
+**Use this EXACT structure for form validation requests:**{
   "parameters": [
     {
       "ParameterType": "Text",
@@ -67,7 +109,7 @@ The assistant has been making these **CRITICAL ERRORS** that cause complete fail
       "AllowInvalidEquivalenceClasses": true
     },
     {
-      "ParameterType": "Email",
+      "ParameterType": "Email", 
       "PreciseMode": false,
       "MinBoundary": 6,
       "MaxBoundary": 50,
@@ -127,19 +169,22 @@ The assistant has been making these **CRITICAL ERRORS** that cause complete fail
     },
     {
       "ParameterType": "SingleSelect",
-      "PreciseMode": false,
-      "Options": ["United States", "France", "Germany"],
-      "IncludeBoundaryValues": true,
-      "AllowValidEquivalenceClasses": true,
-      "AllowInvalidEquivalenceClasses": true
+      "PreciseMode": true,
+      "PreciseTestValues": [
+        { "Value": "United States", "Category": "Valid" },
+        { "Value": "France", "Category": "Valid" },
+        { "Value": "Germany", "Category": "Valid" }
+      ]
     },
     {
       "ParameterType": "MultiSelect",
-      "PreciseMode": false,
-      "Options": ["English", "French", "German"],
-      "IncludeBoundaryValues": true,
-      "AllowValidEquivalenceClasses": true,
-      "AllowInvalidEquivalenceClasses": true
+      "PreciseMode": true,
+      "PreciseTestValues": [
+        { "Value": "English", "Category": "Valid" },
+        { "Value": "French", "Category": "Valid" },
+        { "Value": "German", "Category": "Valid" }
+      ],
+      "Multiple": true
     }
   ],
   "settings": {
@@ -148,9 +193,9 @@ The assistant has been making these **CRITICAL ERRORS** that cause complete fail
     "MethodName": "FormValidation",
     "ABCSettings": {
       "TotalPopulationGenerations": 50,
-      "MutationRate": 0.4,
+      "MutationRate": 0.3,
       "FinalPopulationSelectionRatio": 0.5,
-      "EliteSelectionRatio": 0.3,
+      "EliteSelectionRatio": 0.5,
       "OnlookerSelectionRatio": 0.1,
       "ScoutSelectionRatio": 0.3,
       "EnableOnlookerSelection": true,
@@ -166,22 +211,17 @@ The assistant has been making these **CRITICAL ERRORS** that cause complete fail
 ### 🚨 VALIDATION CHECKLIST FOR EVERY REQUEST:
 
 Before sending ANY request, verify:
-- [ ] **Every parameter has `IncludeBoundaryValues: true`**
-- [ ] **Every parameter has `AllowValidEquivalenceClasses: true`**  
-- [ ] **Every parameter has `AllowInvalidEquivalenceClasses: true`**
-- [ ] **Every parameter has `IncludeBoundaryValues` (true for exploratory, omit for precise)**
-- [ ] **Every parameter has `AllowValidEquivalenceClasses` (true or false explicitly)**  
-- [ ] **Every parameter has `AllowInvalidEquivalenceClasses` (true or false explicitly)**
-- [ ] **Precise Mode**: Set equivalence flags to `false` for pure precise mode, `true` for hybrid
-- [ ] **Exploratory Mode**: Set equivalence flags to `true` for full mode, `false` for boundary-only
-- [ ] **Using `"Url"` not `"URL"`**
+- [ ] **Every parameter has `"PreciseMode": false` for exploratory mode (except SingleSelect/MultiSelect)**
+- [ ] **Every parameter has `"IncludeBoundaryValues": true`**
+- [ ] **Every parameter has `"AllowValidEquivalenceClasses": true`**  
+- [ ] **Every parameter has `"AllowInvalidEquivalenceClasses": true`**
+- [ ] **Using correct parameter types (Phone for phone, Url not URL)**
 - [ ] **No Options on Text/Email/Phone/Password/Boolean/Integer/Date**
-- [ ] **Options ONLY on SingleSelect/MultiSelect**
-- [ ] **Mode is 4**
-- [ ] **TestCaseCategory is 0**
-- [ ] **Mode is 4 (unless explicitly requested otherwise)**
-- [ ] **TestCaseCategory is 0 (unless explicitly requested otherwise)**
-- [ ] **Complete ABCSettings included**
+- [ ] **PreciseTestValues with Valid category for SingleSelect/MultiSelect**
+- [ ] **Mode is 4 for HybridArtificialBeeColony**
+- [ ] **TestCaseCategory is 0 for comprehensive testing**
+- [ ] **ABCSettings will use library defaults automatically**
+- [ ] **ABCSettings included with all required properties**
 
 ### 📋 FLAG COMBINATIONS QUICK REFERENCE:
 
@@ -193,19 +233,14 @@ Before sending ANY request, verify:
 | **Boundary Only** | `false` | `false` | `true` |
 | **Valid Only** | `true` | `false` | `true` or ❌ omit |
 | **Invalid Only** | `false` | `true` | `true` or ❌ omit |
+
 ### 📝 ASSISTANT INSTRUCTIONS:
 
-**WHEN GENERATING ANY TEST CASE REQUEST:**
 **When a user requests test case generation:**
 
-1. **START** with the exact template above
-2. **COPY** it exactly with all required properties
-3. **MODIFY** only the parameter types and boundaries as needed
-4. **VERIFY** against the checklist above
-5. **NEVER REMOVE** any of the three required exploratory flags
 1. **ALWAYS** use the exact template above as your starting point
 2. **ALWAYS** use Mode 4 (HybridArtificialBeeColony) with complete ABCSettings  
-3. **ALWAYS** use exploratory mode (`PreciseMode: false`) with all required flags
+3. **ALWAYS** use exploratory mode (`"PreciseMode": false`) with all required flags
 4. **ALWAYS** explicitly specify equivalence class flags:
    - For comprehensive testing: `"AllowValidEquivalenceClasses": true, "AllowInvalidEquivalenceClasses": true`
    - For boundary-only testing: `"AllowValidEquivalenceClasses": false, "AllowInvalidEquivalenceClasses": false`
@@ -213,15 +248,30 @@ Before sending ANY request, verify:
    - For valid-only testing: `"AllowValidEquivalenceClasses": true, "AllowInvalidEquivalenceClasses": false`
 5. **ALWAYS** include appropriate boundary values based on parameter type
 6. **ALWAYS** use TestCaseCategory 0 (All) unless user specifies otherwise
-7. **Adapt the parameters** based on user requirements but keep the structure
-8. **Use correct parameter types** (case-sensitive, use "Url" not "URL")
+7. **For SingleSelect/MultiSelect**: Use `PreciseMode: true` with `PreciseTestValues` array containing Valid category values
+8. **Adapt the parameters** based on user requirements but keep the structure
+9. **Use correct parameter types** (case-sensitive, use "Phone" for phone fields, "Url" not "URL")
+10. **ABCSettings**: Include complete ABCSettings object with all properties for Mode 4
+    - **ALWAYS specify default values for all properties:**
+      - `TotalPopulationGenerations`: 50
+      - `MutationRate`: 0.3
+      - `FinalPopulationSelectionRatio`: 0.5
+      - `EliteSelectionRatio`: 0.5
+      - `OnlookerSelectionRatio`: 0.1
+      - `ScoutSelectionRatio`: 0.3
+      - `EnableOnlookerSelection`: true
+      - `EnableScoutPhase`: true
+      - `EnforceMutationUniqueness`: true
+      - `StagnationThresholdPercentage`: 0.75
+      - `CoolingRate`: 0.95
+      - `AllowMultipleInvalidInputs`: false
+      - `Seed`: 42
 
-**IF YOU VIOLATE THESE RULES, THE REQUEST WILL FAIL!**
 **🔧 DEFAULT RECOMMENDATION:**
 Unless the user specifically requests otherwise, use:"AllowValidEquivalenceClasses": true,
 "AllowInvalidEquivalenceClasses": trueThis provides the most comprehensive test coverage.
 
-This ensures JSON output with Hybrid ABC mode by default, with explicit control over all test generation flags!
+**IF YOU VIOLATE THESE RULES, THE REQUEST WILL FAIL!**
 
 ---
 
@@ -241,7 +291,7 @@ This guide has been enhanced with detailed parameter specifications and limitati
 | **Input Definition** | Explicit `PreciseTestValues` array | `MinBoundary`, `MaxBoundary`, and flags |
 | **Test Values** | You provide all values | Library generates values |
 | **Use Case** | Known edge cases, validation scenarios | Discovery, boundary testing, exploration |
-| **Configuration** | `PreciseMode: true` + `PreciseTestValues` | `PreciseMode: false` + boundary settings |
+| **Configuration** | `"PreciseMode": true` + `PreciseTestValues` | `"PreciseMode": false` + boundary settings |
 
 ---
 
@@ -367,14 +417,14 @@ This guide has been enhanced with detailed parameter specifications and limitati
 - **Aliases**: `"SingleSelect"`, `"SingleSelectDataParameter"`
 - **Boundary Type**: None
 - **Has Equivalence Classes**: ✅ Yes
-- **Special Properties**: Requires `Options` array
+- **Special Properties**: Requires `PreciseTestValues` array with Valid category values
 - **MinBoundary/MaxBoundary**: Not used
 
 #### MultiSelectDataParameter
 - **Aliases**: `"MultiSelect"`, `"MultiSelectDataParameter"`
 - **Boundary Type**: None
 - **Has Equivalence Classes**: ✅ Yes
-- **Special Properties**: Requires `Options` array and `Multiple: true`
+- **Special Properties**: Requires `PreciseTestValues` array with Valid category values and `"Multiple": true`
 - **MinBoundary/MaxBoundary**: Not used
 
 ---
@@ -391,16 +441,6 @@ This guide has been enhanced with detailed parameter specifications and limitati
 
 ## ⚠️ Critical Limitations & Requirements
 
-### Parameters WITHOUT Equivalence Classes
-These parameters have **NO** equivalence classes defined in testimizeSettings.json and will fail if you try to use exploratory mode with equivalence classes:
-
-❌ **Missing Equivalence Classes**: None (all parameters have equivalence classes defined)
-
-### Parameters WITH Equivalence Classes
-✅ All parameter types have equivalence classes defined in testimizeSettings.json.
-
-**Note**: `SingleSelect` and `MultiSelect` parameters were previously missing from the settings configuration, causing dictionary key errors. This has been fixed by adding their equivalence class definitions to all testimizeSettings.json files.
-
 ### Boundary Requirements by Parameter Type
 
 | Parameter Type | MinBoundary Type | MaxBoundary Type | Example |
@@ -412,7 +452,7 @@ These parameters have **NO** equivalence classes defined in testimizeSettings.js
 | `Date`, `DateTime`, `Week`, `Month` | `string` (ISO) | `string` (ISO) | `"2020-01-01"`, `"2030-12-31"` |
 | `Time` | `string` (TimeSpan) | `string` (TimeSpan) | `"00:00:00"`, `"23:59:59"` |
 | `Boolean`, `Color` | Not used | Not used | N/A |
-| `SingleSelect`, `MultiSelect` | Not used | Not used | Use `Options` array |
+| `SingleSelect`, `MultiSelect` | Not used | Not used | Use `PreciseTestValues` array |
 
 ---
 
@@ -439,18 +479,22 @@ These parameters have **NO** equivalence classes defined in testimizeSettings.js
 }
 ### ✅ Selection Parameters{
   "ParameterType": "SingleSelect",
-  "PreciseMode": false,
-  "Options": ["United States", "France", "Germany"],
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
+  "PreciseMode": true,
+  "PreciseTestValues": [
+    { "Value": "United States", "Category": "Valid" },
+    { "Value": "France", "Category": "Valid" },
+    { "Value": "Germany", "Category": "Valid" }
+  ]
 }
 ### ✅ MultiSelect Parameters{
   "ParameterType": "MultiSelect",
-  "PreciseMode": false,
-  "Options": ["English", "French", "German"],
-  "Multiple": true,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
+  "PreciseMode": true,
+  "PreciseTestValues": [
+    { "Value": "English", "Category": "Valid" },
+    { "Value": "French", "Category": "Valid" },
+    { "Value": "German", "Category": "Valid" }
+  ],
+  "Multiple": true
 }
 ---
 
@@ -467,11 +511,13 @@ These parameters have **NO** equivalence classes defined in testimizeSettings.js
 - **AllowValidEquivalenceClasses**: `true`
 - **AllowInvalidEquivalenceClasses**: `true`
 
-### ABC Settings Defaults{
+### ABC Settings Defaults
+
+**Note**: ABCSettings are automatically applied from the Testimize library defaults. The system uses:{
   "TotalPopulationGenerations": 50,
-  "MutationRate": 0.4,
+  "MutationRate": 0.3,
   "FinalPopulationSelectionRatio": 0.5,
-  "EliteSelectionRatio": 0.3,
+  "EliteSelectionRatio": 0.5,
   "OnlookerSelectionRatio": 0.1,
   "ScoutSelectionRatio": 0.3,
   "EnableOnlookerSelection": true,
@@ -482,42 +528,34 @@ These parameters have **NO** equivalence classes defined in testimizeSettings.js
   "AllowMultipleInvalidInputs": false,
   "Seed": 42
 }
+
+**You don't need to specify ABCSettings unless you want to override specific values.**
+
 ---
 
 ## ❌ Common Mistakes to Avoid
 
-1. **Wrong Parameter Type**: Using `"URL"` instead of `"Url"`
-2. **Missing Required Properties**: 
-   - Precise mode without `PreciseTestValues`
-   - Exploratory mode without boundary flags
-   - Selection parameters without `Options`
-3. **Wrong Boundary Types**: Using string for integer boundaries
-4. **Invalid Properties**: Adding non-existent properties like `"Name"`
-5. **Mixed Modes**: Using both `PreciseTestValues` and exploratory settings
-6. **❗ CRITICAL**: **NEVER mix `PreciseTestValues` with `MinBoundary/MaxBoundary`** - they are mutually exclusive!
+1. **Wrong Parameter Type**: Using `"URL"` instead of `"Url"`, or `"Text"` instead of `"Phone"`
+2. **Wrong Mode Values**: Using `"Mode": 2` instead of `"Mode": 4` for Hybrid ABC
+3. **Wrong TestCaseCategory**: Using 2 instead of 0 for comprehensive testing  
+4. **Missing Required Properties**: 
+   - Using `PreciseMode: true` without `PreciseTestValues`
+   - Missing equivalence class flags in exploratory mode
+   - Missing ABCSettings for Mode 4
+5. **Wrong Boundary Types**: Using string for integer boundaries
+6. **Invalid Properties**: Adding non-existent properties
+7. **Mixed Modes**: Using both `PreciseTestValues` and `MinBoundary/MaxBoundary`
 
 ---
 
 ## 🚨 Mode Selection Rules (CRITICAL)
 
 ### ⚠️ Rule #1: Choose ONE Mode Per Parameter
-- **Precise Mode**: `PreciseMode: true` + `PreciseTestValues` (NO boundaries)
-- **Exploratory Mode**: `PreciseMode: false` + boundaries + flags (NO PreciseTestValues)
+- **Precise Mode**: `"PreciseMode": true` + `PreciseTestValues` (NO boundaries)
+- **Exploratory Mode**: `"PreciseMode": false` + boundaries + flags (NO PreciseTestValues)
 
 ### ⚠️ Rule #2: Required Properties by Mode
 
-#### Precise Mode Requirements:{
-  "ParameterType": "Text",
-### ✅ Precise Mode with Equivalence Classes{
-  "ParameterType": "Email",
-  "PreciseMode": true,
-  "PreciseTestValues": [
-    { "Value": "test", "Category": "Valid" }
-  ],
-  "AllowValidEquivalenceClasses": false,
-  "AllowInvalidEquivalenceClasses": false
-  // ❌ NO MinBoundary, MaxBoundary, or IncludeBoundaryValues
-}
 #### Exploratory Mode Requirements:{
   "ParameterType": "Text", 
   "PreciseMode": false,
@@ -528,57 +566,15 @@ These parameters have **NO** equivalence classes defined in testimizeSettings.js
   "AllowInvalidEquivalenceClasses": true
   // ❌ NO PreciseTestValues
 }
-#### Precise Mode with Equivalence Classes (Hybrid):{
+#### Precise Mode Requirements:{
   "ParameterType": "Text",
   "PreciseMode": true,
-  "AllowInvalidEquivalenceClasses": true,
   "PreciseTestValues": [
     { "Value": "test", "Category": "Valid" }
   ],
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-  // ❌ NO MinBoundary, MaxBoundary, or IncludeBoundaryValues
-    { "Value": "custom@example.com", "Category": "Valid" }
-  ]
-}
-#### Exploratory Mode without Equivalence Classes:{
-### ✅ Boundary-Only Exploratory Mode{
-  "ParameterType": "Text",
-  "PreciseMode": false,
-  "MinBoundary": 3,
-  "MaxBoundary": 20,
-  "MinBoundary": 6,
-  "MaxBoundary": 12,
-  "IncludeBoundaryValues": true,
   "AllowValidEquivalenceClasses": false,
   "AllowInvalidEquivalenceClasses": false
-  // ❌ NO PreciseTestValues
-}
-### ⚠️ Rule #3: Special Parameter Requirements
-
-#### Selection Parameters (Both Modes):{
-### ✅ Selection Parameters{
-  "ParameterType": "SingleSelect",
-  "PreciseMode": false, // or true
-  "Options": ["Option1", "Option2"], // ✅ ALWAYS required
-  "PreciseMode": false,
-  "Options": ["United States", "France", "Germany"],
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-  // + mode-specific properties
-}
-#### MultiSelect Parameters:{
-### ✅ MultiSelect Parameters{
-  "ParameterType": "MultiSelect",
-  "PreciseMode": false, // or true
-  "Options": ["Option1", "Option2"], // ✅ ALWAYS required
-  "Multiple": true, // ✅ ALWAYS required
-  "PreciseMode": false,
-  "Options": ["English", "French", "German"],
-  "Multiple": true,
-  "AllowValidEquivalenceClasses": true,
-  "AllowInvalidEquivalenceClasses": true
-  // + mode-specific properties  
+  // ❌ NO MinBoundary, MaxBoundary, or IncludeBoundaryValues
 }
 ### 🔧 EXPLICIT FLAG REQUIREMENTS:
 

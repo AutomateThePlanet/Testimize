@@ -166,7 +166,7 @@ app.MapPost("/generate-test-cases", (JsonDocument body, IUtilityService service)
     try
     {
         var root = body.RootElement;
-        
+
         if (!root.TryGetProperty("parameters", out var parametersElement) || 
             !root.TryGetProperty("settings", out var settingsElement))
         {
@@ -188,22 +188,45 @@ app.MapPost("/generate-test-cases", (JsonDocument body, IUtilityService service)
             {
                 var parameterElement = parametersElement[i];
                 var rawJson = parameterElement.GetRawText();
-                
+
                 Console.WriteLine($"DEBUG: Processing parameter {i}: {rawJson}");
-                
+
                 var universalParameter = JsonSerializer.Deserialize<UniversalDataParameter>(rawJson, jsonOptions);
                 if (universalParameter != null)
                 {
                     Console.WriteLine($"DEBUG: ParameterType = '{universalParameter.ParameterType ?? "NULL"}'");
-                    
+
                     if (string.IsNullOrWhiteSpace(universalParameter.ParameterType))
                     {
                         return Results.BadRequest(new { error = $"Parameter {i} has empty or null ParameterType" });
                     }
-                    
+
+                    // Handle SingleSelect and MultiSelect options
+                    if (universalParameter.ParameterType == "SingleSelect" || universalParameter.ParameterType == "MultiSelect")
+                    {
+                        if (universalParameter.Options == null || universalParameter.Options.Length == 0)
+                        {
+                            return Results.BadRequest(new { error = $"Parameter {i} of type {universalParameter.ParameterType} must have non-empty Options" });
+                        }
+
+                        universalParameter.PreciseTestValues = universalParameter.Options.Select(option => new TestValue
+                        {
+                            Value = option,
+                            Category = TestValueCategory.Valid
+                        }).ToArray();
+                    }
+
+                    // Ensure defaults for exploratory mode
+                    if (!universalParameter.PreciseMode)
+                    {
+                        universalParameter.IncludeBoundaryValues ??= true;
+                        universalParameter.AllowValidEquivalenceClasses ??= true;
+                        universalParameter.AllowInvalidEquivalenceClasses ??= true;
+                    }
+
                     var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
                     parameters.Add(parameter);
-                    
+
                     Console.WriteLine($"DEBUG: Successfully created parameter of type {parameter.GetType().Name}");
                 }
                 else
@@ -223,6 +246,23 @@ app.MapPost("/generate-test-cases", (JsonDocument body, IUtilityService service)
         if (settings == null)
         {
             return Results.BadRequest(new { error = "Failed to deserialize settings" });
+        }
+
+        // Only override specific critical settings - let library defaults handle the rest
+        if (settings.Mode == (TestGenerationMode)0) // Only override if default Pairwise was used
+        {
+            settings.Mode = (TestGenerationMode)4; // HybridArtificialBeeColony
+        }
+        
+        if (string.IsNullOrWhiteSpace(settings.MethodName) || settings.MethodName == "TestMethodName")
+        {
+            settings.MethodName = "FormValidation";
+        }
+
+        // Let ABCSettings use library defaults - no hardcoding
+        if (settings.ABCSettings == null)
+        {
+            settings.ABCSettings = new Testimize.ABCGenerationSettings();
         }
 
         var testCases = service.Generate(parameters, settings);
