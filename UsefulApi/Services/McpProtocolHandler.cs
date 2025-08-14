@@ -6,11 +6,22 @@ using Testimize.Parameters;
 using Testimize.Parameters.Core;
 using Testimize.Contracts;
 using Testimize.Usage;
+using Testimize.OutputGenerators;
+using Testimize;
 
 // MCP Protocol implementation (Dependency Inversion - depends on abstraction)
 public class McpProtocolHandler : IMcpProtocolHandler
 {
     private readonly IUtilityService _utilityService;
+
+    // In-memory settings that persist until restart
+    private static PreciseTestEngineSettings _defaultSettings = new()
+    {
+        Mode = TestGenerationMode.HybridArtificialBeeColony,
+        TestCaseCategory = TestCaseCategory.All,
+        MethodName = "GeneratedTest",
+        ABCSettings = new ABCGenerationSettings()
+    };
 
     // Shared JsonSerializerOptions for consistent deserialization
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -76,43 +87,35 @@ public class McpProtocolHandler : IMcpProtocolHandler
                 ParameterType = new { 
                     type = "string", 
                     @enum = new[] { "Text", "Email", "Phone", "Password", "Integer", "Date", "Url", "Boolean", "SingleSelect", "MultiSelect", "Currency", "Username", "Address" },
-                    description = "🚨 CRITICAL: Use 'Phone' for phone, 'Url' for URLs (case-sensitive)" 
+                    description = "Parameter type (case-sensitive)" 
                 },
                 PreciseMode = new { 
                     type = "boolean", 
-                    description = "🚨 CRITICAL: false for Text/Email/Phone/Password/Integer/Date/Url/Boolean, true ONLY for SingleSelect/MultiSelect" 
+                    description = "false for Text/Email/Phone/Password/Integer/Date/Url/Boolean, true for SingleSelect/MultiSelect" 
                 },
 
-                // Exploratory mode properties (required when PreciseMode: false)
+                // Exploratory mode properties
                 MinBoundary = new { description = "Required for exploratory mode (PreciseMode: false)" },
                 MaxBoundary = new { description = "Required for exploratory mode (PreciseMode: false)" },
                 IncludeBoundaryValues = new { 
                     type = "boolean", 
-                    description = "🚨 MUST be true for exploratory mode" 
+                    description = "Include boundary values (true for comprehensive testing)" 
                 },
                 AllowValidEquivalenceClasses = new { 
                     type = "boolean", 
-                    description = "🚨 MUST be true for comprehensive testing in exploratory mode, false for SingleSelect/MultiSelect" 
+                    description = "Generate valid equivalence classes (true for comprehensive, false for SingleSelect/MultiSelect)" 
                 },
                 AllowInvalidEquivalenceClasses = new { 
                     type = "boolean", 
-                    description = "🚨 MUST be true for comprehensive testing in exploratory mode, false for SingleSelect/MultiSelect" 
+                    description = "Generate invalid equivalence classes (true for comprehensive, false for SingleSelect/MultiSelect)" 
                 },
 
-                // Precise mode properties (required when PreciseMode: true)
+                // Precise mode properties
                 PreciseTestValues = new
                 {
                     type = "array",
                     items = preciseValueItemSchema,
-                    description = "🚨 REQUIRED for SingleSelect/MultiSelect with Valid category values. NO Options property!"
-                },
-
-                // DEPRECATED - will be converted internally
-                Options = new
-                {
-                    type = "array",
-                    items = new { type = "string" },
-                    description = "⚠️ DEPRECATED: Use PreciseTestValues instead. This will be auto-converted."
+                    description = "Required for SingleSelect/MultiSelect with Valid category values"
                 },
 
                 Multiple = new { 
@@ -123,166 +126,135 @@ public class McpProtocolHandler : IMcpProtocolHandler
             required = new[] { "ParameterType", "PreciseMode" }
         };
 
-        var parametersArraySchema = new
-        {
-            type = "array",
-            minItems = 0, // Allow empty arrays
-            items = parameterItemSchema,
-            // helpful default for clients that pre-fill arguments
-            @default = Array.Empty<object>()
-        };
-
-        var abcSettingsSchema = new
+        // Simplified schema for hybrid and pairwise tools (only parameters)
+        var simpleParametersSchema = new
         {
             type = "object",
             additionalProperties = false,
             properties = new
             {
-                TotalPopulationGenerations = new { type = "integer", minimum = 10, maximum = 200, @default = 50 },
-                MutationRate = new { type = "number", minimum = 0.1, maximum = 0.9, @default = 0.3 },
-                FinalPopulationSelectionRatio = new { type = "number", minimum = 0.1, maximum = 1.0, @default = 0.5 },
-                EliteSelectionRatio = new { type = "number", minimum = 0.1, maximum = 0.9, @default = 0.2 },
-                OnlookerSelectionRatio = new { type = "number", minimum = 0.05, maximum = 0.5, @default = 0.3 },
-                ScoutSelectionRatio = new { type = "number", minimum = 0.1, maximum = 0.5, @default = 0.1 },
-                EnableOnlookerSelection = new { type = "boolean", @default = true },
-                EnableScoutPhase = new { type = "boolean", @default = true },
-                EnforceMutationUniqueness = new { type = "boolean", @default = true },
-                StagnationThresholdPercentage = new { type = "number", minimum = 0.5, maximum = 1.0, @default = 0.8 },
-                CoolingRate = new { type = "number", minimum = 0.8, maximum = 0.99, @default = 0.95 },
-                AllowMultipleInvalidInputs = new { type = "boolean", @default = false },
-                Seed = new { type = "integer" }
-            }
-        };
-
-        var settingsSchema = new
-        {
-            type = "object",
-            additionalProperties = false,
-            properties = new
-            {
-                Mode = new { 
-                    type = "integer", 
-                    @enum = new[] { 0, 1, 2, 3, 4 },
-                    @default = 4,
-                    description = "🚨 CRITICAL: MUST be 4 for HybridArtificialBeeColony. Other values: 0=Pairwise, 1=OptimizedPairwise, 2=Combinatorial, 3=OptimizedCombinatorial" 
+                parameters = new
+                {
+                    type = "array",
+                    items = parameterItemSchema,
+                    description = "Array of test parameters"
                 },
+                methodName = new
+                {
+                    type = "string",
+                    @default = "GeneratedTest",
+                    description = "Optional test method name"
+                }
+            },
+            required = new[] { "parameters" }
+        };
+
+        // Settings configuration schema
+        var configureSettingsSchema = new
+        {
+            type = "object",
+            additionalProperties = false,
+            properties = new
+            {
                 TestCaseCategory = new { 
                     type = "integer", 
                     @enum = new[] { 0, 1, 2 },
-                    @default = 0,
-                    description = "🚨 CRITICAL: MUST be 0 for comprehensive testing (All). Other values: 1=Valid only, 2=Validation only" 
+                    description = "0=All (comprehensive), 1=Valid only, 2=Validation only" 
                 },
                 MethodName = new { 
                     type = "string", 
-                    minLength = 1,
-                    @default = "FormValidation",
-                    description = "Name for the generated test method" 
+                    description = "Default method name for generated tests" 
                 },
-                ABCSettings = abcSettingsSchema
-            },
-            required = new[] { "Mode", "TestCaseCategory", "MethodName", "ABCSettings" },
-            @default = new
-            {
-                Mode = 4,
-                TestCaseCategory = 0,
-                MethodName = "FormValidation",
                 ABCSettings = new
                 {
-                    TotalPopulationGenerations = 50,
-                    MutationRate = 0.3,
-                    FinalPopulationSelectionRatio = 0.5,
-                    EliteSelectionRatio = 0.5,
-                    OnlookerSelectionRatio = 0.1,
-                    ScoutSelectionRatio = 0.3,
-                    EnableOnlookerSelection = true,
-                    EnableScoutPhase = true,
-                    EnforceMutationUniqueness = true,
-                    StagnationThresholdPercentage = 0.75,
-                    CoolingRate = 0.95,
-                    AllowMultipleInvalidInputs = false,
-                    Seed = 42
+                    type = "object",
+                    properties = new
+                    {
+                        TotalPopulationGenerations = new { type = "integer", minimum = 10, maximum = 200 },
+                        MutationRate = new { type = "number", minimum = 0.1, maximum = 0.9 },
+                        FinalPopulationSelectionRatio = new { type = "number", minimum = 0.1, maximum = 1.0 },
+                        EliteSelectionRatio = new { type = "number", minimum = 0.1, maximum = 0.9 },
+                        OnlookerSelectionRatio = new { type = "number", minimum = 0.05, maximum = 0.5 },
+                        ScoutSelectionRatio = new { type = "number", minimum = 0.1, maximum = 0.5 },
+                        EnableOnlookerSelection = new { type = "boolean" },
+                        EnableScoutPhase = new { type = "boolean" },
+                        EnforceMutationUniqueness = new { type = "boolean" },
+                        StagnationThresholdPercentage = new { type = "number", minimum = 0.5, maximum = 1.0 },
+                        CoolingRate = new { type = "number", minimum = 0.8, maximum = 0.99 },
+                        AllowMultipleInvalidInputs = new { type = "boolean" },
+                        Seed = new { type = "integer" }
+                    }
                 }
             }
         };
-
-        var generateTestCasesInputSchema = new
-        {
-            type = "object",
-            additionalProperties = false,
-            properties = new
-            {
-                parameters = parametersArraySchema,
-                settings = settingsSchema
-            },
-            required = new[] { "parameters", "settings" },
-            @default = new
-            {
-                parameters = new object[] { },
-                settings = new
-                {
-                    Mode = 4,
-                    TestCaseCategory = 0,
-                    MethodName = "FormValidation"
-                }
-            }
-        };
-
-        Console.WriteLine("DEBUG: Generating schema for generate_test_cases tool...");
-        Console.WriteLine($"DEBUG: parametersArraySchema: {JsonSerializer.Serialize(parametersArraySchema)}");
-        Console.WriteLine($"DEBUG: generateTestCasesInputSchema: {JsonSerializer.Serialize(generateTestCasesInputSchema)}");
 
         var tools = new object[]
         {
             new { name = "health_check", description = "Get API health info", inputSchema = baseNoArgSchema },
             new { name = "get_time", description = "Get current UTC time", inputSchema = baseNoArgSchema },
             new { name = "generate_guid", description = "Generate a random GUID", inputSchema = baseNoArgSchema },
+            
+            // 🚀 NEW: Simplified Hybrid ABC tool
             new { 
-                name = "generate_test_cases", 
-                description = @"🚨 CRITICAL: ASSISTANT MUST FOLLOW EXACT FORMAT RULES 🚨
+                name = "generate_hybrid_test_cases", 
+                description = @"🚀 SIMPLIFIED: Generate test cases using Hybrid Artificial Bee Colony algorithm with optimized defaults.
 
-❌ DETECTED ERRORS IN RECENT REQUESTS:
-1. Using PreciseMode: true with MinBoundary/MaxBoundary - WRONG!
-2. Missing IncludeBoundaryValues, AllowValidEquivalenceClasses, AllowInvalidEquivalenceClasses - WRONG!
-3. Using Options instead of PreciseTestValues for SingleSelect/MultiSelect - WRONG!
-4. Using Mode: 2 instead of Mode: 4 - WRONG!
-5. Using TestCaseCategory: 2 instead of TestCaseCategory: 0 - WRONG!
-6. Missing ABCSettings - WRONG!
+✅ AUTOMATIC SETTINGS APPLIED:
+- Mode: HybridArtificialBeeColony (most effective)
+- TestCaseCategory: All (comprehensive testing)
+- ABCSettings: Optimized defaults (can be overridden via configure_testimize_settings)
 
-✅ MANDATORY RULES - NO EXCEPTIONS:
-1. Text/Email/Phone/Password/Integer/Date/Url/Boolean parameters MUST use:
+📝 USAGE RULES:
+1. Text/Email/Phone/Password/Integer/Date/Url/Boolean parameters:
    - PreciseMode: false
    - IncludeBoundaryValues: true
    - AllowValidEquivalenceClasses: true  
    - AllowInvalidEquivalenceClasses: true
-   - MinBoundary and MaxBoundary (appropriate for type)
+   - MinBoundary and MaxBoundary required
 
-2. SingleSelect/MultiSelect parameters MUST use:
+2. SingleSelect/MultiSelect parameters:
    - PreciseMode: true
-   - PreciseTestValues array with Valid category values
-   - NO Options property
+   - PreciseTestValues: array with Valid category values
    - AllowValidEquivalenceClasses: false
    - AllowInvalidEquivalenceClasses: false
 
-3. Settings MUST include:
-   - Mode: 4 (HybridArtificialBeeColony)
-   - TestCaseCategory: 0 (All)
-   - MethodName: string
-   - ABCSettings: complete object with all properties
+🎯 PERFECT FOR: Maximum fault detection, form validation, comprehensive API testing", 
+                inputSchema = simpleParametersSchema 
+            },
+            
+            // 🚀 NEW: Simplified Pairwise tool  
+            new { 
+                name = "generate_pairwise_test_cases", 
+                description = @"⚡ SIMPLIFIED: Generate test cases using Pairwise algorithm for fast, efficient testing.
 
-✅ CORRECT PHONE PARAMETER TYPE: Use 'Phone' NOT 'Text'
-✅ CORRECT URL PARAMETER TYPE: Use 'Url' NOT 'URL' or 'UrlDataParameter'
+✅ AUTOMATIC SETTINGS APPLIED:
+- Mode: Pairwise (fast and efficient)
+- TestCaseCategory: All (comprehensive testing)
+- Minimal test suite covering all parameter interactions
 
-🔥 ASSISTANT: If you generate ANY request that violates these rules, it WILL FAIL!", 
-                inputSchema = generateTestCasesInputSchema 
+📝 USAGE RULES: Same as hybrid tool but optimized for speed.
+
+🎯 PERFECT FOR: Fast exploration, CI/CD pipelines, smoke testing, initial coverage", 
+                inputSchema = simpleParametersSchema 
+            },
+
+            // 🚀 NEW: Settings configuration tool
+            new { 
+                name = "configure_testimize_settings", 
+                description = @"⚙️ CONFIGURE: Update default settings for Testimize test generation.
+
+🔧 CONFIGURABLE OPTIONS:
+- TestCaseCategory: Filter generated test types (All/Valid/Validation)
+- MethodName: Default name for generated test methods
+- ABCSettings: Fine-tune Hybrid ABC algorithm parameters
+
+💾 PERSISTENCE: Settings persist in-memory until server restart.
+🎯 AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.", 
+                inputSchema = configureSettingsSchema 
             }
         };
 
-        Console.WriteLine($"DEBUG: Tools list: {JsonSerializer.Serialize(tools)}");
-
-        return new
-        {
-            tools
-        };
+        return new { tools };
     }
 
     public object ToolsCall(object @params)
@@ -310,6 +282,9 @@ public class McpProtocolHandler : IMcpProtocolHandler
             "get_time" => _utilityService.GetTime(),
             "generate_guid" => _utilityService.GenerateGuid(),
             "generate_test_cases" => GenerateTestCases(args ?? throw new ArgumentException("Missing 'arguments' for generate_test_cases")),
+            "generate_hybrid_test_cases" => GenerateHybridTestCases(args ?? throw new ArgumentException("Missing 'arguments' for generate_hybrid_test_cases")),
+            "generate_pairwise_test_cases" => GeneratePairwiseTestCases(args ?? throw new ArgumentException("Missing 'arguments' for generate_pairwise_test_cases")),
+            "configure_testimize_settings" => ConfigureTestimizeSettings(args ?? throw new ArgumentException("Missing 'arguments' for configure_testimize_settings")),
             _ => throw new Exception($"Unknown tool: {name}")
         };
 
@@ -494,5 +469,225 @@ public class McpProtocolHandler : IMcpProtocolHandler
         Console.WriteLine($"MCP DEBUG: Generated {testCases?.Count() ?? 0} test cases");
 
         return new { testCases };
+    }
+
+    // 🚀 NEW: Simplified Hybrid ABC Test Case Generation
+    public object GenerateHybridTestCases(object @params)
+    {
+        Console.WriteLine("🚀 HYBRID ABC: Starting simplified hybrid test case generation...");
+        
+        var parametersAndSettings = ProcessSimplifiedParameters(@params, TestGenerationMode.HybridArtificialBeeColony);
+        var testCases = _utilityService.Generate(parametersAndSettings.parameters, parametersAndSettings.settings);
+        
+        Console.WriteLine($"🚀 HYBRID ABC: Generated {testCases?.Count() ?? 0} test cases using advanced optimization");
+        return new { testCases, mode = "HybridArtificialBeeColony", settings = parametersAndSettings.settings };
+    }
+
+    // ⚡ NEW: Simplified Pairwise Test Case Generation  
+    public object GeneratePairwiseTestCases(object @params)
+    {
+        Console.WriteLine("⚡ PAIRWISE: Starting simplified pairwise test case generation...");
+        
+        var parametersAndSettings = ProcessSimplifiedParameters(@params, TestGenerationMode.Pairwise);
+        var testCases = _utilityService.Generate(parametersAndSettings.parameters, parametersAndSettings.settings);
+        
+        Console.WriteLine($"⚡ PAIRWISE: Generated {testCases?.Count() ?? 0} test cases using efficient pairwise algorithm");
+        return new { testCases, mode = "Pairwise", settings = parametersAndSettings.settings };
+    }
+
+    // ⚙️ NEW: Configure Default Testimize Settings
+    public object ConfigureTestimizeSettings(object @params)
+    {
+        Console.WriteLine("⚙️ CONFIG: Updating Testimize default settings...");
+        
+        if (@params is not JsonElement argumentsElement)
+        {
+            throw new ArgumentException("Invalid parameters for ConfigureTestimizeSettings - not a JsonElement");
+        }
+
+        // Update TestCaseCategory if provided
+        if (argumentsElement.TryGetProperty("testCaseCategory", out var categoryElement))
+        {
+            var category = categoryElement.GetInt32();
+            _defaultSettings.TestCaseCategory = (TestCaseCategory)category;
+            Console.WriteLine($"⚙️ CONFIG: Updated TestCaseCategory to {_defaultSettings.TestCaseCategory}");
+        }
+
+        // Update MethodName if provided
+        if (argumentsElement.TryGetProperty("methodName", out var methodNameElement))
+        {
+            var methodName = methodNameElement.GetString();
+            if (!string.IsNullOrWhiteSpace(methodName))
+            {
+                _defaultSettings.MethodName = methodName;
+                Console.WriteLine($"⚙️ CONFIG: Updated default MethodName to '{_defaultSettings.MethodName}'");
+            }
+        }
+
+        // Update ABCSettings if provided
+        if (argumentsElement.TryGetProperty("abcSettings", out var abcElement))
+        {
+            var abcSettings = JsonSerializer.Deserialize<ABCGenerationSettings>(abcElement.GetRawText(), JsonOptions);
+            if (abcSettings != null)
+            {
+                _defaultSettings.ABCSettings = abcSettings;
+                Console.WriteLine($"⚙️ CONFIG: Updated ABCSettings - Generations: {abcSettings.TotalPopulationGenerations}, MutationRate: {abcSettings.MutationRate}");
+            }
+        }
+
+        return new 
+        { 
+            message = "Settings updated successfully", 
+            currentSettings = new
+            {
+                TestCaseCategory = _defaultSettings.TestCaseCategory,
+                MethodName = _defaultSettings.MethodName,
+                ABCSettings = new
+                {
+                    _defaultSettings.ABCSettings.TotalPopulationGenerations,
+                    _defaultSettings.ABCSettings.MutationRate,
+                    _defaultSettings.ABCSettings.FinalPopulationSelectionRatio,
+                    _defaultSettings.ABCSettings.EliteSelectionRatio,
+                    _defaultSettings.ABCSettings.OnlookerSelectionRatio,
+                    _defaultSettings.ABCSettings.ScoutSelectionRatio,
+                    _defaultSettings.ABCSettings.EnableOnlookerSelection,
+                    _defaultSettings.ABCSettings.EnableScoutPhase,
+                    _defaultSettings.ABCSettings.EnforceMutationUniqueness,
+                    _defaultSettings.ABCSettings.StagnationThresholdPercentage,
+                    _defaultSettings.ABCSettings.CoolingRate,
+                    _defaultSettings.ABCSettings.AllowMultipleInvalidInputs,
+                    _defaultSettings.ABCSettings.Seed
+                }
+            }
+        };
+    }
+
+    // 🔧 HELPER: Process simplified parameters for hybrid and pairwise tools
+    private (List<IInputParameter> parameters, PreciseTestEngineSettings settings) ProcessSimplifiedParameters(object @params, TestGenerationMode mode)
+    {
+        if (@params is not JsonElement argumentsElement)
+        {
+            throw new ArgumentException("Invalid parameters - not a JsonElement");
+        }
+
+        if (!argumentsElement.TryGetProperty("parameters", out var parametersElement))
+        {
+            throw new ArgumentException("Missing 'parameters' in arguments");
+        }
+
+        // Process parameters with automatic error correction
+        var parameters = new List<IInputParameter>();
+        for (int i = 0; i < parametersElement.GetArrayLength(); i++)
+        {
+            var parameterElement = parametersElement[i];
+            var rawJson = parameterElement.GetRawText();
+            
+            Console.WriteLine($"SIMPLIFIED DEBUG: Processing parameter {i}: {rawJson}");
+            
+            var universalParameter = JsonSerializer.Deserialize<UniversalDataParameter>(rawJson, JsonOptions);
+            if (universalParameter == null)
+            {
+                throw new ArgumentException($"Parameter {i} could not be deserialized");
+            }
+
+            // Apply automatic error correction
+            ApplyParameterCorrections(universalParameter, i);
+            
+            var parameter = DataParameterFactory.CreateFromUniversal(universalParameter);
+            parameters.Add(parameter);
+            
+            Console.WriteLine($"SIMPLIFIED DEBUG: Successfully created parameter of type {parameter.GetType().Name}");
+        }
+
+        // Create settings based on current defaults and specified mode
+        var settings = new PreciseTestEngineSettings
+        {
+            Mode = mode,
+            TestCaseCategory = _defaultSettings.TestCaseCategory,
+            MethodName = _defaultSettings.MethodName,
+            ABCSettings = mode == TestGenerationMode.HybridArtificialBeeColony ? 
+                (ABCGenerationSettings)_defaultSettings.ABCSettings.Clone() : 
+                null
+        };
+
+        // Override method name if provided
+        if (argumentsElement.TryGetProperty("methodName", out var methodNameElement))
+        {
+            var methodName = methodNameElement.GetString();
+            if (!string.IsNullOrWhiteSpace(methodName))
+            {
+                settings.MethodName = methodName;
+            }
+        }
+
+        Console.WriteLine($"SIMPLIFIED DEBUG: Using mode {mode} with {parameters.Count} parameters");
+        return (parameters, settings);
+    }
+
+    // 🔧 HELPER: Apply automatic error corrections to parameters
+    private void ApplyParameterCorrections(UniversalDataParameter universalParameter, int parameterIndex)
+    {
+        var paramType = universalParameter.ParameterType;
+        var isSelectType = paramType == "SingleSelect" || paramType == "MultiSelect";
+        var isRegularType = !isSelectType;
+
+        // Auto-correct PreciseMode
+        if (isRegularType && universalParameter.PreciseMode)
+        {
+            Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} ({paramType}) PreciseMode: true → false");
+            universalParameter.PreciseMode = false;
+        }
+        if (isSelectType && !universalParameter.PreciseMode)
+        {
+            Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} ({paramType}) PreciseMode: false → true");
+            universalParameter.PreciseMode = true;
+        }
+
+        // Auto-correct exploratory mode flags
+        if (isRegularType && !universalParameter.PreciseMode)
+        {
+            if (universalParameter.IncludeBoundaryValues != true)
+            {
+                Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} IncludeBoundaryValues → true");
+                universalParameter.IncludeBoundaryValues = true;
+            }
+            if (universalParameter.AllowValidEquivalenceClasses != true)
+            {
+                Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} AllowValidEquivalenceClasses → true");
+                universalParameter.AllowValidEquivalenceClasses = true;
+            }
+            if (universalParameter.AllowInvalidEquivalenceClasses != true)
+            {
+                Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} AllowInvalidEquivalenceClasses → true");
+                universalParameter.AllowInvalidEquivalenceClasses = true;
+            }
+        }
+
+        // Auto-correct select type flags
+        if (isSelectType && universalParameter.PreciseMode)
+        {
+            if (universalParameter.AllowValidEquivalenceClasses != false)
+            {
+                Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} ({paramType}) AllowValidEquivalenceClasses → false");
+                universalParameter.AllowValidEquivalenceClasses = false;
+            }
+            if (universalParameter.AllowInvalidEquivalenceClasses != false)
+            {
+                Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} ({paramType}) AllowInvalidEquivalenceClasses → false");
+                universalParameter.AllowInvalidEquivalenceClasses = false;
+            }
+        }
+
+        // Handle Options to PreciseTestValues conversion for select types
+        if (isSelectType && universalParameter.Options != null && universalParameter.Options.Length > 0)
+        {
+            Console.WriteLine($"🔧 AUTO-CORRECT: Parameter {parameterIndex} ({paramType}) converting Options to PreciseTestValues");
+            universalParameter.PreciseTestValues = universalParameter.Options.Select(option => new TestValue
+            {
+                Value = option,
+                Category = TestValueCategory.Valid
+            }).ToArray();
+            universalParameter.Options = null;
+        }
     }
 }

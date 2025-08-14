@@ -8,4 +8,7 @@ public interface IMcpProtocolHandler
     object ToolsList();
     object ToolsCall(object @params);
     object GenerateTestCases(object @params);
+    object GenerateHybridTestCases(object @params);
+    object GeneratePairwiseTestCases(object @params);
+    object ConfigureTestimizeSettings(object @params);
 }
