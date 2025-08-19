@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Register services following Dependency Inversion Principle
 builder.Services.AddSingleton<IUtilityService, UtilityService>();
 builder.Services.AddSingleton<IMcpProtocolHandler, McpProtocolHandler>();
-//builder.Services.AddSingleton<UsefulApiService>(); // Facade for backwards compatibility
+//builder.Services.AddSingleton<Testimize.MCP.ServerService>(); // Facade for backwards compatibility
 
 // Swagger services
 builder.Services.AddEndpointsApiExplorer();
@@ -21,9 +21,9 @@ builder.Services.AddSwaggerGen(c =>
     // Basic API info
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Useful API",
+        Title = "Testimize MCP Server API",
         Version = "v1",
-        Description = "Tiny utility API with MCP stdio mode."
+        Description = "Test generation utility API with MCP stdio mode."
     });
 
     // Include XML comments (if enabled in .csproj)

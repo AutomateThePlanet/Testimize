@@ -4,7 +4,7 @@
     "useful-api-dotnet": {
       "type": "stdio",
       "command": "dotnet",
-      "args": ["run", "--project", "C:/SourceCode/Testimize/UsefulApi", "--", "--mcp"],
+      "args": ["run", "--project", "C:/SourceCode/Testimize/Testimize.MCP.Server", "--", "--mcp"],
       "description": "Useful API MCP Server (.NET development mode)"
     },
     "useful-api-docker": {

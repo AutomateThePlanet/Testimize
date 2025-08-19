@@ -33,7 +33,7 @@ function Test-McpStdio {
         # Start the MCP server process
         $psi = New-Object System.Diagnostics.ProcessStartInfo
         $psi.FileName = "dotnet"
-        $psi.Arguments = "run --project ../UsefulApi.csproj -- --mcp"
+        $psi.Arguments = "run --project ../Testimize.MCP.Server.csproj -- --mcp"
         $psi.UseShellExecute = $false
         $psi.RedirectStandardInput = $true
         $psi.RedirectStandardOutput = $true
@@ -101,7 +101,7 @@ function Test-HttpApi {
     Write-Host "`n?? Testing HTTP API (alternative to MCP)..." -ForegroundColor Yellow
     
     # Start the HTTP API in the background
-    $apiProcess = Start-Process -FilePath "dotnet" -ArgumentList "run", "--project", "../UsefulApi.csproj" -PassThru -NoNewWindow -WorkingDirectory "../"
+    $apiProcess = Start-Process -FilePath "dotnet" -ArgumentList "run", "--project", "../Testimize.MCP.Server.csproj" -PassThru -NoNewWindow -WorkingDirectory "../"
     
     # Wait for API to start
     Write-Host "   Waiting for API to start..." -ForegroundColor Cyan
@@ -185,5 +185,5 @@ Write-Host "   - HTTP API: Available at http://localhost:5000 when running norma
 Write-Host "   - Both modes use the same underlying services and schema" -ForegroundColor Cyan
 Write-Host "`n   To test with VS Code:" -ForegroundColor Yellow
 Write-Host "   1. Configure MCP in VS Code settings" -ForegroundColor Yellow
-Write-Host "   2. Start server with: dotnet run --project UsefulApi -- --mcp" -ForegroundColor Yellow
+Write-Host "   2. Start server with: dotnet run --project Testimize.MCP.Server -- --mcp" -ForegroundColor Yellow
 Write-Host "   3. Use GitHub Copilot Chat to call the generate_test_cases tool" -ForegroundColor Yellow

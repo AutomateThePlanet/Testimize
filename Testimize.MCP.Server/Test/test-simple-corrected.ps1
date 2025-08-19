@@ -71,7 +71,7 @@ Write-Host "Testing with corrected format using full parameter names..."
 Write-Host $request
 
 try {
-    $response = $request | dotnet run --project ../UsefulApi.csproj -- --mcp 2>&1
+    $response = $request | dotnet run --project ../Testimize.MCP.Server.csproj -- --mcp 2>&1
     Write-Host "? Response: $response" -ForegroundColor Green
 } catch {
     Write-Host "? Error: $($_.Exception.Message)" -ForegroundColor Red

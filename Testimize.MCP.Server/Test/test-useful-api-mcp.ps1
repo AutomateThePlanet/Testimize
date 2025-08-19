@@ -27,7 +27,7 @@ function Test-McpMethod {
     
     try {
         # Send request to MCP server and capture response
-        $response = $request | dotnet run --project ../UsefulApi.csproj -- --mcp 2>&1
+        $response = $request | dotnet run --project ../Testimize.MCP.Server.csproj -- --mcp 2>&1
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "   ✅ Response: $response" -ForegroundColor Green

@@ -1,4 +1,4 @@
-﻿# Useful API + MCP (stdio)
+﻿# Testimize MCP Server
 
 A .NET 8 Web API with HTTP endpoints and MCP stdio server for GitHub Copilot integration.
 
@@ -21,46 +21,78 @@ A .NET 8 Web API with HTTP endpoints and MCP stdio server for GitHub Copilot int
 
 ## Development Usage
 
-### HTTP Mode (Development)dotnet run --project UsefulApi
+### HTTP Mode (Development)
+```bash
+dotnet run --project Testimize.MCP.Server
 # API available at: http://localhost:5000
 # Swagger UI at: http://localhost:5000/swagger
-### MCP Mode (Development)dotnet run --project UsefulApi -- --mcp
+```
+
+### MCP Mode (Development)
+```bash
+dotnet run --project Testimize.MCP.Server -- --mcp
 # Starts MCP server on stdio for VS Code integration
+```
+
 ## Docker Usage
 
-### Build Docker Imagedocker build -t useful-api:1.0 .
-### HTTP Mode (Docker)# Run HTTP API in container
-docker run --rm -p 8088:8088 useful-api:1.0
+### Build Docker Image
+```bash
+docker build -t testimize-mcp-server:1.0 .
+```
+
+### HTTP Mode (Docker)
+```bash
+# Run HTTP API in container
+docker run --rm -p 8088:8088 testimize-mcp-server:1.0
 
 # Test HTTP API
 curl http://localhost:8088/health
-### MCP Mode (Docker)# Run MCP server in container (for VS Code)
-docker run --rm -i useful-api:1.0 --mcp
+```
+
+### MCP Mode (Docker)
+```bash
+# Run MCP server in container (for VS Code)
+docker run --rm -i testimize-mcp-server:1.0 --mcp
+```
+
 ## VS Code GitHub Copilot Configuration
 
 Add this to your VS Code `settings.json` or MCP configuration:
 
-### Option 1: Direct .NET execution (Recommended for development){
-  "useful-api": {
+### Option 1: Direct .NET execution (Recommended for development)
+```json
+{
+  "testimize-mcp-server": {
     "type": "stdio",
     "command": "dotnet",
-    "args": ["run", "--project", "path/to/UsefulApi", "--", "--mcp"]
+    "args": ["run", "--project", "path/to/Testimize.MCP.Server", "--", "--mcp"]
   }
 }
-### Option 2: Docker execution{
-  "useful-api": {
+```
+
+### Option 2: Docker execution
+```json
+{
+  "testimize-mcp-server": {
     "type": "stdio", 
     "command": "docker",
-    "args": ["run", "--rm", "-i", "useful-api:1.0", "--mcp"]
+    "args": ["run", "--rm", "-i", "testimize-mcp-server:1.0", "--mcp"]
   }
 }
-### Option 3: Local binary (after publish){
-  "useful-api": {
+```
+
+### Option 3: Local binary (after publish)
+```json
+{
+  "testimize-mcp-server": {
     "type": "stdio",
-    "command": "path/to/UsefulApi.exe", 
+    "command": "path/to/Testimize.MCP.Server.exe", 
     "args": ["--mcp"]
   }
 }
+```
+
 ## Architecture
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   HTTP Client   │    │   VS Code MCP    │    │  Business Logic │
@@ -112,7 +144,7 @@ new {
 ## Troubleshooting
 
 ### MCP Connection Issues
-- Ensure Docker image is built: `docker build -t useful-api:1.0 .`
+- Ensure Docker image is built: `docker build -t testimize-mcp-server:1.0 .`
 - Check VS Code MCP configuration syntax
 - Verify paths in MCP configuration are correct
 - Check VS Code developer console for MCP errors

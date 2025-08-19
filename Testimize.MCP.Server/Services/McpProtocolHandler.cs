@@ -44,7 +44,7 @@ public class McpProtocolHandler : IMcpProtocolHandler
             protocolVersion = "2024-11-05",
             serverInfo = new
             {
-                name = "useful-api",
+                name = "testimize-mcp-server",
                 version = "1.0.0"
             },
             capabilities = new
