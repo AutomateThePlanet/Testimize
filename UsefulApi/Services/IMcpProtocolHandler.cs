@@ -11,4 +11,5 @@ public interface IMcpProtocolHandler
     object GenerateHybridTestCases(object @params);
     object GeneratePairwiseTestCases(object @params);
     object ConfigureTestimizeSettings(object @params);
+    object GetTestimizeSettings();
 }

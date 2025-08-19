@@ -187,7 +187,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9. deployment", "9. deploym
 		DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt = DiagramsEN\9. Deployment Diagrams\deployment_diagram1.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsefulApi", "UsefulApi\UsefulApi.csproj", "{3C080A27-6B42-47B4-B81D-C37130D48A5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testimize.MCP.Server", "UsefulApi\Testimize.MCP.Server.csproj", "{3C080A27-6B42-47B4-B81D-C37130D48A5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

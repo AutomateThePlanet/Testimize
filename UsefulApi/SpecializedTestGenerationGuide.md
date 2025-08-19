@@ -99,6 +99,34 @@ The Testimize API now provides **three specialized MCP tools** for different tes
 - **Persist settings** until server restart
 
 ### ?? **Configuration Options**
+
+#### ??? **Plain Text Instructions (NEW!)**
+You can now use natural language to describe what you want to change:
+
+```json
+{
+  "instruction": "Set mutation rate to 0.5"
+}
+```
+
+**Supported Plain Text Patterns:**
+- `"Set mutation rate to 0.4"` ? Updates MutationRate
+- `"Change method name to UserRegistrationTest"` ? Updates MethodName  
+- `"Set total generations to 100"` ? Updates TotalPopulationGenerations
+- `"Enable scout phase"` / `"Disable scout phase"` ? Updates EnableScoutPhase
+- `"Set seed to 12345"` ? Updates Seed for reproducible results
+- `"Set category to all"` / `"Set category to valid only"` ? Updates TestCaseCategory
+
+#### ?? **Individual Property Updates**
+Update just one setting without affecting others:
+
+```json
+{
+  "TotalPopulationGenerations": 100
+}
+```
+
+#### ?? **Complete Configuration**
 ```json
 {
   "TestCaseCategory": 0,  // 0=All, 1=Valid only, 2=Validation only
@@ -120,6 +148,26 @@ The Testimize API now provides **three specialized MCP tools** for different tes
   }
 }
 ```
+
+---
+
+## ?? Tool #4: `get_testimize_settings` (NEW!)
+
+### ?? **Purpose**
+- **View current configuration** state
+- **Understand what each setting does**
+- **Check values before making changes**
+
+### ?? **Usage**
+```json
+{}  // No parameters needed
+```
+
+**Returns:**
+- Current TestCaseCategory setting with explanation
+- Current default MethodName
+- Complete ABCSettings configuration with descriptions
+- Detailed explanations of what each setting controls
 
 ---
 
@@ -179,23 +227,78 @@ All tools automatically fix common mistakes:
 ## ?? **Workflow Example**
 
 ```bash
-# 1. Configure optimal settings for your project
+# 1. Check current settings
+get_testimize_settings()
+
+# 2. Configure optimal settings for your project (plain text!)
 configure_testimize_settings({
-  "MethodName": "MyAppTests",
-  "ABCSettings": { "Seed": 42, "TotalPopulationGenerations": 75 }
+  "instruction": "Set method name to MyAppTests and mutation rate to 0.5"
 })
 
-# 2. Quick smoke test with pairwise
+# 3. Or configure individual properties
+configure_testimize_settings({
+  "TotalPopulationGenerations": 75,
+  "Seed": 42
+})
+
+# 4. Quick smoke test with pairwise
 generate_pairwise_test_cases({
   "parameters": [...],
   "methodName": "SmokeTest"
 })
 
-# 3. Comprehensive testing with hybrid ABC
+# 5. Comprehensive testing with hybrid ABC
 generate_hybrid_test_cases({
   "parameters": [...],
   "methodName": "ComprehensiveTest"
 })
 ```
+
+---
+
+## ?? **Conversational Example with Assistant**
+
+Here's how you can naturally interact with the assistant:
+
+### **?? User:** 
+*"I want to generate test cases for a user registration form. It has name (3-50 chars), email (6-100 chars), password (8-20 chars), age (18-120), and country selection from US, UK, Canada, France."*
+
+### **?? Assistant:**
+*"I'll generate comprehensive test cases for your registration form using the hybrid algorithm for maximum coverage. Let me set that up:"*
+
+### **?? User:**
+*"Actually, first show me the current settings."*
+
+### **?? Assistant:**
+*"I'll check the current Testimize configuration for you."*
+`get_testimize_settings()`
+
+### **?? User:**
+*"Can you set the method name to UserRegistrationTest and increase the optimization to 100 generations?"*
+
+### **?? Assistant:**
+*"I'll update those settings using plain text instructions:"*
+`configure_testimize_settings({ "instruction": "Set method name to UserRegistrationTest and total generations to 100" })`
+
+### **?? User:**
+*"Perfect! Now generate the test cases."*
+
+### **?? Assistant:**
+*"I'll generate comprehensive test cases for your registration form using the Hybrid ABC algorithm:"*
+`generate_hybrid_test_cases({...})`
+
+### **?? User:**
+*"Great! Can you also make a quick pairwise version for smoke testing?"*
+
+### **?? Assistant:**
+*"I'll create a fast pairwise version for smoke testing:"*
+`generate_pairwise_test_cases({...})`
+
+### **?? User:**
+*"One more thing - can you set the seed to 12345 so the tests are reproducible?"*
+
+### **?? Assistant:**
+*"I'll set a fixed seed for reproducible test generation:"*
+`configure_testimize_settings({ "Seed": 12345 })`
 
 This approach gives you both **speed** and **thoroughness** when you need them! ??

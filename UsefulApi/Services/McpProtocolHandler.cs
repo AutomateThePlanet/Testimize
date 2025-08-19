@@ -156,6 +156,11 @@ public class McpProtocolHandler : IMcpProtocolHandler
             additionalProperties = false,
             properties = new
             {
+                instruction = new
+                {
+                    type = "string",
+                    description = "Plain text instruction for what to change (e.g., 'set mutation rate to 0.5', 'change method name to UserTest')"
+                },
                 TestCaseCategory = new { 
                     type = "integer", 
                     @enum = new[] { 0, 1, 2 },
@@ -165,6 +170,14 @@ public class McpProtocolHandler : IMcpProtocolHandler
                     type = "string", 
                     description = "Default method name for generated tests" 
                 },
+                // Individual ABC property updates (for partial updates)
+                TotalPopulationGenerations = new { type = "integer", minimum = 10, maximum = 200 },
+                MutationRate = new { type = "number", minimum = 0.1, maximum = 0.9 },
+                FinalPopulationSelectionRatio = new { type = "number", minimum = 0.1, maximum = 1.0 },
+                Seed = new { type = "integer" },
+                EnableScoutPhase = new { type = "boolean" },
+                EnableOnlookerSelection = new { type = "boolean" },
+                // Complete ABC settings object (for full updates)
                 ABCSettings = new
                 {
                     type = "object",
@@ -248,9 +261,32 @@ public class McpProtocolHandler : IMcpProtocolHandler
 - MethodName: Default name for generated test methods
 - ABCSettings: Fine-tune Hybrid ABC algorithm parameters
 
+💬 PLAIN TEXT SUPPORT: You can describe what to change in natural language!
+Examples:
+- ""Set mutation rate to 0.5""
+- ""Change method name to UserRegistrationTest""
+- ""Set total generations to 100""
+- ""Enable scout phase""
+
 💾 PERSISTENCE: Settings persist in-memory until server restart.
 🎯 AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.", 
                 inputSchema = configureSettingsSchema 
+            },
+
+            // 📋 NEW: Get current settings tool
+            new { 
+                name = "get_testimize_settings", 
+                description = @"📋 VIEW: Get current Testimize settings configuration.
+
+🔍 RETURNS:
+- Current TestCaseCategory setting
+- Current default MethodName
+- Complete ABCSettings configuration
+- Information about what each setting does
+
+💡 USE BEFORE: Configuring to see current values
+🎯 PERFECT FOR: Understanding current configuration state", 
+                inputSchema = baseNoArgSchema 
             }
         };
 
@@ -285,6 +321,7 @@ public class McpProtocolHandler : IMcpProtocolHandler
             "generate_hybrid_test_cases" => GenerateHybridTestCases(args ?? throw new ArgumentException("Missing 'arguments' for generate_hybrid_test_cases")),
             "generate_pairwise_test_cases" => GeneratePairwiseTestCases(args ?? throw new ArgumentException("Missing 'arguments' for generate_pairwise_test_cases")),
             "configure_testimize_settings" => ConfigureTestimizeSettings(args ?? throw new ArgumentException("Missing 'arguments' for configure_testimize_settings")),
+            "get_testimize_settings" => GetTestimizeSettings(),
             _ => throw new Exception($"Unknown tool: {name}")
         };
 
@@ -495,7 +532,7 @@ public class McpProtocolHandler : IMcpProtocolHandler
         return new { testCases, mode = "Pairwise", settings = parametersAndSettings.settings };
     }
 
-    // ⚙️ NEW: Configure Default Testimize Settings
+    // ⚙️ ENHANCED: Configure Default Testimize Settings with Plain Text Support
     public object ConfigureTestimizeSettings(object @params)
     {
         Console.WriteLine("⚙️ CONFIG: Updating Testimize default settings...");
@@ -505,12 +542,35 @@ public class McpProtocolHandler : IMcpProtocolHandler
             throw new ArgumentException("Invalid parameters for ConfigureTestimizeSettings - not a JsonElement");
         }
 
+        var changesApplied = new List<string>();
+
+        // Support for plain text instructions
+        if (argumentsElement.TryGetProperty("instruction", out var instructionElement))
+        {
+            var instruction = instructionElement.GetString()?.ToLowerInvariant();
+            if (!string.IsNullOrWhiteSpace(instruction))
+            {
+                Console.WriteLine($"⚙️ CONFIG: Processing plain text instruction: '{instruction}'");
+                var changes = ProcessPlainTextInstruction(instruction);
+                changesApplied.AddRange(changes);
+            }
+        }
+
         // Update TestCaseCategory if provided
         if (argumentsElement.TryGetProperty("testCaseCategory", out var categoryElement))
         {
             var category = categoryElement.GetInt32();
             _defaultSettings.TestCaseCategory = (TestCaseCategory)category;
-            Console.WriteLine($"⚙️ CONFIG: Updated TestCaseCategory to {_defaultSettings.TestCaseCategory}");
+            var categoryName = category switch
+            {
+                0 => "All (comprehensive testing)",
+                1 => "Valid only",
+                2 => "Validation/Invalid only",
+                _ => category.ToString()
+            };
+            var change = $"Updated TestCaseCategory to {categoryName}";
+            Console.WriteLine($"⚙️ CONFIG: {change}");
+            changesApplied.Add(change);
         }
 
         // Update MethodName if provided
@@ -520,44 +580,279 @@ public class McpProtocolHandler : IMcpProtocolHandler
             if (!string.IsNullOrWhiteSpace(methodName))
             {
                 _defaultSettings.MethodName = methodName;
-                Console.WriteLine($"⚙️ CONFIG: Updated default MethodName to '{_defaultSettings.MethodName}'");
+                var change = $"Updated default MethodName to '{_defaultSettings.MethodName}'";
+                Console.WriteLine($"⚙️ CONFIG: {change}");
+                changesApplied.Add(change);
             }
         }
 
-        // Update ABCSettings if provided
+        // Update individual ABCSettings properties if provided
         if (argumentsElement.TryGetProperty("abcSettings", out var abcElement))
         {
-            var abcSettings = JsonSerializer.Deserialize<ABCGenerationSettings>(abcElement.GetRawText(), JsonOptions);
-            if (abcSettings != null)
-            {
-                _defaultSettings.ABCSettings = abcSettings;
-                Console.WriteLine($"⚙️ CONFIG: Updated ABCSettings - Generations: {abcSettings.TotalPopulationGenerations}, MutationRate: {abcSettings.MutationRate}");
-            }
+            var abcChanges = UpdateABCSettings(abcElement);
+            changesApplied.AddRange(abcChanges);
         }
+
+        // Support for individual ABC property updates
+        UpdateIndividualABCProperties(argumentsElement, changesApplied);
+
+        var message = changesApplied.Count > 0 
+            ? $"Settings updated successfully. Changes applied: {string.Join(", ", changesApplied)}"
+            : "No changes were applied. Current settings returned.";
 
         return new 
         { 
-            message = "Settings updated successfully", 
-            currentSettings = new
+            message,
+            changesApplied,
+            currentSettings = GetCurrentSettingsObject()
+        };
+    }
+
+    // 📋 NEW: Get Current Testimize Settings
+    public object GetTestimizeSettings()
+    {
+        Console.WriteLine("📋 VIEW: Retrieving current Testimize settings...");
+        
+        return new
+        {
+            message = "Current Testimize settings configuration",
+            settings = GetCurrentSettingsObject(),
+            explanation = new
             {
-                TestCaseCategory = _defaultSettings.TestCaseCategory,
-                MethodName = _defaultSettings.MethodName,
+                TestCaseCategory = new
+                {
+                    current = _defaultSettings.TestCaseCategory.ToString(),
+                    options = new
+                    {
+                        All = "0 - Generate comprehensive test cases (valid + invalid + boundary)",
+                        Valid = "1 - Generate only valid test cases",
+                        Validation = "2 - Generate only validation/invalid test cases"
+                    }
+                },
+                MethodName = new
+                {
+                    current = _defaultSettings.MethodName,
+                    description = "Default name used for generated test methods"
+                },
                 ABCSettings = new
                 {
-                    _defaultSettings.ABCSettings.TotalPopulationGenerations,
-                    _defaultSettings.ABCSettings.MutationRate,
-                    _defaultSettings.ABCSettings.FinalPopulationSelectionRatio,
-                    _defaultSettings.ABCSettings.EliteSelectionRatio,
-                    _defaultSettings.ABCSettings.OnlookerSelectionRatio,
-                    _defaultSettings.ABCSettings.ScoutSelectionRatio,
-                    _defaultSettings.ABCSettings.EnableOnlookerSelection,
-                    _defaultSettings.ABCSettings.EnableScoutPhase,
-                    _defaultSettings.ABCSettings.EnforceMutationUniqueness,
-                    _defaultSettings.ABCSettings.StagnationThresholdPercentage,
-                    _defaultSettings.ABCSettings.CoolingRate,
-                    _defaultSettings.ABCSettings.AllowMultipleInvalidInputs,
-                    _defaultSettings.ABCSettings.Seed
+                    description = "Hybrid Artificial Bee Colony algorithm parameters",
+                    TotalPopulationGenerations = "Number of optimization iterations (10-200, higher = better optimization)",
+                    MutationRate = "Exploration intensity (0.1-0.9, higher = more exploration)",
+                    FinalPopulationSelectionRatio = "Percentage of best test cases to keep (0.1-1.0)",
+                    EliteSelectionRatio = "Percentage of best solutions preserved unchanged (0.1-0.9)",
+                    OnlookerSelectionRatio = "Percentage used in onlooker phase (0.05-0.5)",
+                    ScoutSelectionRatio = "Percentage for random exploration when stagnant (0.1-0.5)",
+                    EnableOnlookerSelection = "Enable exploitation of better solution regions",
+                    EnableScoutPhase = "Enable random exploration when population stagnates",
+                    EnforceMutationUniqueness = "Ensure all mutations are unique (slower but more diverse)",
+                    StagnationThresholdPercentage = "When to trigger scout phase (0.5-1.0)",
+                    CoolingRate = "Rate of mutation intensity reduction (0.8-0.99)",
+                    AllowMultipleInvalidInputs = "Allow test cases with multiple invalid parameters",
+                    Seed = "Random seed for reproducible results"
                 }
+            }
+        };
+    }
+
+    // 🔧 HELPER: Process plain text instructions
+    private List<string> ProcessPlainTextInstruction(string instruction)
+    {
+        var changes = new List<string>();
+        
+        // Method name patterns
+        if (instruction.Contains("method name") || instruction.Contains("methodname"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(instruction, @"(?:method name|methodname).*?(?:to|=)\s*([a-zA-Z_][a-zA-Z0-9_]*)");
+            if (match.Success)
+            {
+                var newName = match.Groups[1].Value;
+                _defaultSettings.MethodName = newName;
+                var change = $"Updated MethodName to '{newName}' (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        // Mutation rate patterns
+        if (instruction.Contains("mutation rate"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(instruction, @"mutation rate.*?(?:to|=)\s*([\d.]+)");
+            if (match.Success && double.TryParse(match.Groups[1].Value, out var rate) && rate >= 0.1 && rate <= 0.9)
+            {
+                _defaultSettings.ABCSettings.MutationRate = rate;
+                var change = $"Updated MutationRate to {rate} (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        // Total generations patterns
+        if (instruction.Contains("total generations") || instruction.Contains("generations"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(instruction, @"(?:total )?generations.*?(?:to|=)\s*(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var generations) && generations >= 10 && generations <= 200)
+            {
+                _defaultSettings.ABCSettings.TotalPopulationGenerations = generations;
+                var change = $"Updated TotalPopulationGenerations to {generations} (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        // Scout phase patterns
+        if (instruction.Contains("scout phase"))
+        {
+            if (instruction.Contains("enable") || instruction.Contains("true"))
+            {
+                _defaultSettings.ABCSettings.EnableScoutPhase = true;
+                var change = "Enabled ScoutPhase (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+            else if (instruction.Contains("disable") || instruction.Contains("false"))
+            {
+                _defaultSettings.ABCSettings.EnableScoutPhase = false;
+                var change = "Disabled ScoutPhase (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        // Seed patterns
+        if (instruction.Contains("seed"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(instruction, @"seed.*?(?:to|=)\s*(\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var seed))
+            {
+                _defaultSettings.ABCSettings.Seed = seed;
+                var change = $"Updated Seed to {seed} (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        // Test case category patterns
+        if (instruction.Contains("test case category") || instruction.Contains("category"))
+        {
+            if (instruction.Contains("all") || instruction.Contains("comprehensive"))
+            {
+                _defaultSettings.TestCaseCategory = TestCaseCategory.All;
+                var change = "Updated TestCaseCategory to All (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+            else if (instruction.Contains("valid only") || instruction.Contains("valid"))
+            {
+                _defaultSettings.TestCaseCategory = TestCaseCategory.Valid;
+                var change = "Updated TestCaseCategory to Valid (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+            else if (instruction.Contains("validation") || instruction.Contains("invalid"))
+            {
+                _defaultSettings.TestCaseCategory = TestCaseCategory.Validation;
+                var change = "Updated TestCaseCategory to Validation (from instruction)";
+                Console.WriteLine($"⚙️ PLAIN TEXT: {change}");
+                changes.Add(change);
+            }
+        }
+
+        return changes;
+    }
+
+    // 🔧 HELPER: Update ABC Settings object
+    private List<string> UpdateABCSettings(JsonElement abcElement)
+    {
+        var changes = new List<string>();
+        var abcSettings = JsonSerializer.Deserialize<ABCGenerationSettings>(abcElement.GetRawText(), JsonOptions);
+        if (abcSettings != null)
+        {
+            _defaultSettings.ABCSettings = abcSettings;
+            var change = $"Updated complete ABCSettings - Generations: {abcSettings.TotalPopulationGenerations}, MutationRate: {abcSettings.MutationRate}";
+            Console.WriteLine($"⚙️ CONFIG: {change}");
+            changes.Add(change);
+        }
+        return changes;
+    }
+
+    // 🔧 HELPER: Update individual ABC properties
+    private void UpdateIndividualABCProperties(JsonElement argumentsElement, List<string> changesApplied)
+    {
+        var propertyMappings = new Dictionary<string, Action<JsonElement>>
+        {
+            ["totalPopulationGenerations"] = e => {
+                if (e.TryGetInt32(out var val) && val >= 10 && val <= 200) {
+                    _defaultSettings.ABCSettings.TotalPopulationGenerations = val;
+                    changesApplied.Add($"Updated TotalPopulationGenerations to {val}");
+                }
+            },
+            ["mutationRate"] = e => {
+                if (e.TryGetDouble(out var val) && val >= 0.1 && val <= 0.9) {
+                    _defaultSettings.ABCSettings.MutationRate = val;
+                    changesApplied.Add($"Updated MutationRate to {val}");
+                }
+            },
+            ["finalPopulationSelectionRatio"] = e => {
+                if (e.TryGetDouble(out var val) && val >= 0.1 && val <= 1.0) {
+                    _defaultSettings.ABCSettings.FinalPopulationSelectionRatio = val;
+                    changesApplied.Add($"Updated FinalPopulationSelectionRatio to {val}");
+                }
+            },
+            ["seed"] = e => {
+                if (e.TryGetInt32(out var val)) {
+                    _defaultSettings.ABCSettings.Seed = val;
+                    changesApplied.Add($"Updated Seed to {val}");
+                }
+            },
+            ["enableScoutPhase"] = e => {
+                if (e.ValueKind == JsonValueKind.True || e.ValueKind == JsonValueKind.False) {
+                    var val = e.GetBoolean();
+                    _defaultSettings.ABCSettings.EnableScoutPhase = val;
+                    changesApplied.Add($"Updated EnableScoutPhase to {val}");
+                }
+            },
+            ["enableOnlookerSelection"] = e => {
+                if (e.ValueKind == JsonValueKind.True || e.ValueKind == JsonValueKind.False) {
+                    var val = e.GetBoolean();
+                    _defaultSettings.ABCSettings.EnableOnlookerSelection = val;
+                    changesApplied.Add($"Updated EnableOnlookerSelection to {val}");
+                }
+            }
+        };
+
+        foreach (var mapping in propertyMappings)
+        {
+            if (argumentsElement.TryGetProperty(mapping.Key, out var element))
+            {
+                mapping.Value(element);
+                Console.WriteLine($"⚙️ CONFIG: Applied individual property update for {mapping.Key}");
+            }
+        }
+    }
+
+    // 🔧 HELPER: Get current settings object
+    private object GetCurrentSettingsObject()
+    {
+        return new
+        {
+            TestCaseCategory = _defaultSettings.TestCaseCategory,
+            MethodName = _defaultSettings.MethodName,
+            ABCSettings = new
+            {
+                _defaultSettings.ABCSettings.TotalPopulationGenerations,
+                _defaultSettings.ABCSettings.MutationRate,
+                _defaultSettings.ABCSettings.FinalPopulationSelectionRatio,
+                _defaultSettings.ABCSettings.EliteSelectionRatio,
+                _defaultSettings.ABCSettings.OnlookerSelectionRatio,
+                _defaultSettings.ABCSettings.ScoutSelectionRatio,
+                _defaultSettings.ABCSettings.EnableOnlookerSelection,
+                _defaultSettings.ABCSettings.EnableScoutPhase,
+                _defaultSettings.ABCSettings.EnforceMutationUniqueness,
+                _defaultSettings.ABCSettings.StagnationThresholdPercentage,
+                _defaultSettings.ABCSettings.CoolingRate,
+                _defaultSettings.ABCSettings.AllowMultipleInvalidInputs,
+                _defaultSettings.ABCSettings.Seed
             }
         };
     }
