@@ -1,8 +1,8 @@
 'https://editor.plantuml.com/
-'Sequence Diagram 3: Вътрешен ABC итеративен цикъл
+'Sequence Diagram 3: Internal ABC Iterative Loop
 
 @startuml
-' === Класически UML стил със силно визуално присъствие ===
+' === Classic UML style with strong visual presence ===
 skinparam style strictuml
 skinparam roundcorner 0
 skinparam ArrowColor Black
@@ -14,43 +14,43 @@ participant evaluator as "evaluator : ITestCaseEvaluator"
 participant randomizer as "randomizer : Random"
 
 note over generator
-Фаза 1: Стартиране на RunABCAlgorithm()
+Phase 1: Start RunABCAlgorithm()
 end note
 
 generator -> generator : CreateInitialPopulation()
 generator -> evaluator : EvaluatePopulation(initialPopulation)
 
-loop за всяко поколение
+loop for each generation
 
     note over generator
-    Фаза 2: Мутация на популацията
+    Phase 2: Mutation of the population
     end note
 
-    generator -> randomizer : Избор на тест кейсове за мутация
-    generator -> generator : Прилагане на мутации
+    generator -> randomizer : Select test cases for mutation
+    generator -> generator : Apply mutations
 
     note over generator
-    Фаза 3: Оценка на новата популация
+    Phase 3: Evaluation of the new population
     end note
 
     generator -> evaluator : EvaluatePopulation(mutatedPopulation)
 
     note over generator
-    Фаза 4: Проверка за стагнация и подобрение
+    Phase 4: Check for stagnation and improvement
     end note
 
-    generator -> generator : Проверка на подобрение
+    generator -> generator : Check improvement
 
-    alt Ако няма подобрение
+    alt If no improvement
         generator -> generator : IncreaseStagnationCounter()
-    else Ако има подобрение
+    else If improvement exists
         generator -> generator : UpdateBestPopulation()
     end
 
 end
 
 note over generator
-Фаза 5: Финален избор
+Phase 5: Final selection
 end note
 
 generator -> generator : SelectFinalPopulation()
