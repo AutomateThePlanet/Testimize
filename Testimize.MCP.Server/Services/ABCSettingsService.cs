@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -36,13 +36,13 @@ namespace Testimize.MCP.Server.Services
         /// </summary>
         public object ConfigureTestimizeSettings(JsonElement argumentsElement)
         {
-            Console.WriteLine("?? CONFIG: Updating Testimize default settings...");
+            Console.WriteLine("⚙️ CONFIG: Updating Testimize default settings...");
             
             var changesApplied = new List<string>();
             var errors = new List<string>();
             var warnings = new List<string>();
 
-            Console.WriteLine($"?? DEBUG: Raw input JSON: {argumentsElement.GetRawText()}");
+            Console.WriteLine($"🔍 DEBUG: Raw input JSON: {argumentsElement.GetRawText()}");
 
             // Support for plain text instructions
             if (argumentsElement.TryGetProperty("instruction", out var instructionElement))
@@ -50,7 +50,7 @@ namespace Testimize.MCP.Server.Services
                 var instruction = instructionElement.GetString()?.ToLowerInvariant();
                 if (!string.IsNullOrWhiteSpace(instruction))
                 {
-                    Console.WriteLine($"?? CONFIG: Processing plain text instruction: '{instruction}'");
+                    Console.WriteLine($"⚙️ CONFIG: Processing plain text instruction: '{instruction}'");
                     var changes = ProcessPlainTextInstruction(instruction);
                     changesApplied.AddRange(changes);
                 }
@@ -59,7 +59,7 @@ namespace Testimize.MCP.Server.Services
             // Update TestCaseCategory if provided
             if (argumentsElement.TryGetProperty("testCaseCategory", out var categoryElement))
             {
-                Console.WriteLine($"?? DEBUG: Processing TestCaseCategory - ValueKind: {categoryElement.ValueKind}, RawValue: '{categoryElement.GetRawText()}'");
+                Console.WriteLine($"🔍 DEBUG: Processing TestCaseCategory - ValueKind: {categoryElement.ValueKind}, RawValue: '{categoryElement.GetRawText()}'");
                 try
                 {
                     var category = categoryElement.GetInt32();
@@ -75,20 +75,20 @@ namespace Testimize.MCP.Server.Services
                             _ => category.ToString()
                         };
                         var change = $"Updated TestCaseCategory from {oldCategory} to {categoryName}";
-                        Console.WriteLine($"? SUCCESS: {change}");
+                        Console.WriteLine($"✅ SUCCESS: {change}");
                         changesApplied.Add(change);
                     }
                     else
                     {
                         var errorMsg = $"TestCaseCategory value {category} is invalid. Valid values: 0 (All), 1 (Valid), 2 (Validation)";
-                        Console.WriteLine($"? VALIDATION ERROR: {errorMsg}");
+                        Console.WriteLine($"❌ VALIDATION ERROR: {errorMsg}");
                         errors.Add(errorMsg);
                     }
                 }
                 catch (Exception ex)
                 {
                     var errorMsg = $"Failed to parse TestCaseCategory from '{categoryElement.GetRawText()}': {ex.Message}";
-                    Console.WriteLine($"? PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PARSE ERROR: {errorMsg}");
                     errors.Add(errorMsg);
                 }
             }
@@ -96,35 +96,35 @@ namespace Testimize.MCP.Server.Services
             // Update MethodName if provided
             if (argumentsElement.TryGetProperty("methodName", out var methodNameElement))
             {
-                Console.WriteLine($"?? DEBUG: Processing MethodName - ValueKind: {methodNameElement.ValueKind}, RawValue: '{methodNameElement.GetRawText()}'");
+                Console.WriteLine($"🔍 DEBUG: Processing MethodName - ValueKind: {methodNameElement.ValueKind}, RawValue: '{methodNameElement.GetRawText()}'");
                 var methodName = methodNameElement.GetString();
                 if (!string.IsNullOrWhiteSpace(methodName))
                 {
                     var oldMethodName = _defaultSettings.MethodName;
                     _defaultSettings.MethodName = methodName;
                     var change = $"Updated MethodName from '{oldMethodName}' to '{_defaultSettings.MethodName}'";
-                    Console.WriteLine($"? SUCCESS: {change}");
+                    Console.WriteLine($"✅ SUCCESS: {change}");
                     changesApplied.Add(change);
                 }
                 else
                 {
                     var warningMsg = "MethodName is empty or whitespace - ignoring";
-                    Console.WriteLine($"?? WARNING: {warningMsg}");
+                    Console.WriteLine($"⚠️ WARNING: {warningMsg}");
                     warnings.Add(warningMsg);
                 }
             }
 
             // Update individual ABCSettings properties if provided
-            if (argumentsElement.TryGetProperty("abcSettings", out var abcElement))
+            if (argumentsElement.TryGetProperty("ABCSettings", out var abcElement))
             {
-                Console.WriteLine($"?? DEBUG: Processing complete ABCSettings object");
+                Console.WriteLine($"🔍 DEBUG: Processing complete ABCSettings object");
                 var abcChanges = UpdateABCSettings(abcElement);
                 changesApplied.AddRange(abcChanges);
             }
 
             // Support for individual ABC property updates
-            Console.WriteLine($"?? DEBUG: Processing individual ABC properties...");
-            UpdateIndividualABCProperties(argumentsElement, changesApplied);
+            Console.WriteLine($"🔍 DEBUG: Processing individual ABC properties...");
+            //UpdateIndividualABCProperties(argumentsElement, changesApplied);
 
             // Separate successful changes from errors and warnings
             var successfulChanges = changesApplied.Where(c => !c.StartsWith("FAILED:") && !c.StartsWith("WARNING:")).ToList();
@@ -139,17 +139,17 @@ namespace Testimize.MCP.Server.Services
             
             if (successfulChanges.Count > 0)
             {
-                messageParts.Add($"? {successfulChanges.Count} setting(s) updated successfully");
+                messageParts.Add($"✅ {successfulChanges.Count} setting(s) updated successfully");
             }
             
             if (errors.Count > 0)
             {
-                messageParts.Add($"? {errors.Count} error(s) occurred");
+                messageParts.Add($"❌ {errors.Count} error(s) occurred");
             }
             
             if (warnings.Count > 0)
             {
-                messageParts.Add($"?? {warnings.Count} warning(s)");
+                messageParts.Add($"⚠️ {warnings.Count} warning(s)");
             }
 
             if (messageParts.Count == 0)
@@ -159,7 +159,7 @@ namespace Testimize.MCP.Server.Services
 
             var message = string.Join(", ", messageParts);
 
-            Console.WriteLine($"?? CONFIG SUMMARY: {message}");
+            Console.WriteLine($"⚙️ CONFIG SUMMARY: {message}");
 
             return new 
             { 
@@ -182,7 +182,7 @@ namespace Testimize.MCP.Server.Services
         /// </summary>
         public object GetTestimizeSettings()
         {
-            Console.WriteLine("?? VIEW: Retrieving current Testimize settings...");
+            Console.WriteLine("📋 VIEW: Retrieving current Testimize settings...");
             
             return new
             {
@@ -234,7 +234,7 @@ namespace Testimize.MCP.Server.Services
             {
                 _defaultSettings.ABCSettings = abcSettings;
                 var change = $"Updated complete ABCSettings - Generations: {abcSettings.TotalPopulationGenerations}, MutationRate: {abcSettings.MutationRate}";
-                Console.WriteLine($"?? CONFIG: {change}");
+                Console.WriteLine($"⚙️ CONFIG: {change}");
                 changes.Add(change);
             }
             else
@@ -244,11 +244,11 @@ namespace Testimize.MCP.Server.Services
             return changes;
         }
 
-        // ?? HELPER: Process plain text instructions
+        // 🔧 HELPER: Process plain text instructions
         private List<string> ProcessPlainTextInstruction(string instruction)
         {
             var changes = new List<string>();
-            Console.WriteLine($"?? DEBUG: Processing plain text instruction: '{instruction}'");
+            Console.WriteLine($"🔍 DEBUG: Processing plain text instruction: '{instruction}'");
             
             // Method name patterns
             if (instruction.Contains("method name") || instruction.Contains("methodname"))
@@ -260,13 +260,13 @@ namespace Testimize.MCP.Server.Services
                     var oldName = _defaultSettings.MethodName;
                     _defaultSettings.MethodName = newName;
                     var change = $"Updated MethodName from '{oldName}' to '{newName}' (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else
                 {
                     var errorMsg = "Could not parse method name from instruction. Expected format: 'method name to SomeName'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
@@ -277,26 +277,26 @@ namespace Testimize.MCP.Server.Services
                 var match = Regex.Match(instruction, @"mutation rate.*?(?:to|=)\s*([\d.]+)");
                 if (match.Success && double.TryParse(match.Groups[1].Value, out var rate))
                 {
-                    Console.WriteLine($"?? DEBUG: Parsed mutation rate: {rate}");
+                    Console.WriteLine($"🔍 DEBUG: Parsed mutation rate: {rate}");
                     if (rate >= 0.1 && rate <= 0.9)
                     {
                         var oldRate = _defaultSettings.ABCSettings.MutationRate;
                         _defaultSettings.ABCSettings.MutationRate = rate;
                         var change = $"Updated MutationRate from {oldRate:F3} to {rate:F3} (from instruction)";
-                        Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                        Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                         changes.Add(change);
                     }
                     else
                     {
                         var errorMsg = $"Mutation rate {rate} is out of range [0.1-0.9]. Value not updated.";
-                        Console.WriteLine($"? PLAIN TEXT VALIDATION ERROR: {errorMsg}");
+                        Console.WriteLine($"❌ PLAIN TEXT VALIDATION ERROR: {errorMsg}");
                         changes.Add($"FAILED: {errorMsg}");
                     }
                 }
                 else
                 {
                     var errorMsg = "Could not parse mutation rate from instruction. Expected format: 'mutation rate to 0.5'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
@@ -307,26 +307,26 @@ namespace Testimize.MCP.Server.Services
                 var match = Regex.Match(instruction, @"(?:elite selection|elite ratio).*?(?:to|=)\s*([\d.]+)");
                 if (match.Success && double.TryParse(match.Groups[1].Value, out var ratio))
                 {
-                    Console.WriteLine($"?? DEBUG: Parsed elite selection ratio: {ratio}");
+                    Console.WriteLine($"🔍 DEBUG: Parsed elite selection ratio: {ratio}");
                     if (ratio >= 0.1 && ratio <= 0.9)
                     {
                         var oldRatio = _defaultSettings.ABCSettings.EliteSelectionRatio;
                         _defaultSettings.ABCSettings.EliteSelectionRatio = ratio;
                         var change = $"Updated EliteSelectionRatio from {oldRatio:F3} to {ratio:F3} (from instruction)";
-                        Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                        Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                         changes.Add(change);
                     }
                     else
                     {
                         var errorMsg = $"Elite selection ratio {ratio} is out of range [0.1-0.9]. Value not updated.";
-                        Console.WriteLine($"? PLAIN TEXT VALIDATION ERROR: {errorMsg}");
+                        Console.WriteLine($"❌ PLAIN TEXT VALIDATION ERROR: {errorMsg}");
                         changes.Add($"FAILED: {errorMsg}");
                     }
                 }
                 else
                 {
                     var errorMsg = "Could not parse elite selection ratio from instruction. Expected format: 'elite selection ratio to 0.3'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
@@ -337,26 +337,26 @@ namespace Testimize.MCP.Server.Services
                 var match = Regex.Match(instruction, @"(?:total )?generations.*?(?:to|=)\s*(\d+)", RegexOptions.IgnoreCase);
                 if (match.Success && int.TryParse(match.Groups[1].Value, out var generations))
                 {
-                    Console.WriteLine($"?? DEBUG: Parsed total generations: {generations}");
+                    Console.WriteLine($"🔍 DEBUG: Parsed total generations: {generations}");
                     if (generations >= 10 && generations <= 200)
                     {
                         var oldGenerations = _defaultSettings.ABCSettings.TotalPopulationGenerations;
                         _defaultSettings.ABCSettings.TotalPopulationGenerations = generations;
                         var change = $"Updated TotalPopulationGenerations from {oldGenerations} to {generations} (from instruction)";
-                        Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                        Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                         changes.Add(change);
                     }
                     else
                     {
                         var errorMsg = $"Total generations {generations} is out of range [10-200]. Value not updated.";
-                        Console.WriteLine($"? PLAIN TEXT VALIDATION ERROR: {errorMsg}");
+                        Console.WriteLine($"❌ PLAIN TEXT VALIDATION ERROR: {errorMsg}");
                         changes.Add($"FAILED: {errorMsg}");
                     }
                 }
                 else
                 {
                     var errorMsg = "Could not parse total generations from instruction. Expected format: 'total generations to 100'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
@@ -369,7 +369,7 @@ namespace Testimize.MCP.Server.Services
                     var oldValue = _defaultSettings.ABCSettings.EnableScoutPhase;
                     _defaultSettings.ABCSettings.EnableScoutPhase = true;
                     var change = $"Updated EnableScoutPhase from {oldValue} to true (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else if (instruction.Contains("disable") || instruction.Contains("false"))
@@ -377,13 +377,13 @@ namespace Testimize.MCP.Server.Services
                     var oldValue = _defaultSettings.ABCSettings.EnableScoutPhase;
                     _defaultSettings.ABCSettings.EnableScoutPhase = false;
                     var change = $"Updated EnableScoutPhase from {oldValue} to false (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else
                 {
                     var errorMsg = "Could not determine scout phase action from instruction. Expected 'enable scout phase' or 'disable scout phase'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
@@ -396,7 +396,7 @@ namespace Testimize.MCP.Server.Services
                     var oldCategory = _defaultSettings.TestCaseCategory;
                     _defaultSettings.TestCaseCategory = TestCaseCategory.All;
                     var change = $"Updated TestCaseCategory from {oldCategory} to All (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else if (instruction.Contains("valid only") || instruction.Contains("valid"))
@@ -404,7 +404,7 @@ namespace Testimize.MCP.Server.Services
                     var oldCategory = _defaultSettings.TestCaseCategory;
                     _defaultSettings.TestCaseCategory = TestCaseCategory.Valid;
                     var change = $"Updated TestCaseCategory from {oldCategory} to Valid (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else if (instruction.Contains("validation") || instruction.Contains("invalid"))
@@ -412,22 +412,22 @@ namespace Testimize.MCP.Server.Services
                     var oldCategory = _defaultSettings.TestCaseCategory;
                     _defaultSettings.TestCaseCategory = TestCaseCategory.Validation;
                     var change = $"Updated TestCaseCategory from {oldCategory} to Validation (from instruction)";
-                    Console.WriteLine($"? PLAIN TEXT SUCCESS: {change}");
+                    Console.WriteLine($"✅ PLAIN TEXT SUCCESS: {change}");
                     changes.Add(change);
                 }
                 else
                 {
                     var errorMsg = "Could not determine test case category from instruction. Expected: 'category to all', 'category to valid', or 'category to validation'";
-                    Console.WriteLine($"? PLAIN TEXT PARSE ERROR: {errorMsg}");
+                    Console.WriteLine($"❌ PLAIN TEXT PARSE ERROR: {errorMsg}");
                     changes.Add($"FAILED: {errorMsg}");
                 }
             }
 
-            Console.WriteLine($"?? DEBUG: Plain text instruction processing completed. {changes.Count} changes processed");
+            Console.WriteLine($"🔍 DEBUG: Plain text instruction processing completed. {changes.Count} changes processed");
             return changes;
         }
 
-        // ?? HELPER: Update individual ABC properties
+        // 🔧 HELPER: Update individual ABC properties
         private void UpdateIndividualABCProperties(JsonElement argumentsElement, List<string> changesApplied)
         {
             var propertyMappings = new Dictionary<string, Action<JsonElement>>
@@ -499,7 +499,7 @@ namespace Testimize.MCP.Server.Services
             }
         }
 
-        // ?? HELPER: Get current settings object
+        // 🔧 HELPER: Get current settings object
         private object GetCurrentSettingsObject()
         {
             return new

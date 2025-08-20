@@ -257,23 +257,15 @@ public class McpProtocolHandler : IMcpProtocolHandler
             // 🚀 NEW: Settings configuration tool
             new { 
                 name = "configure_testimize_settings", 
-                description = @"⚙️ CONFIGURE: Update default settings for Testimize test generation.
+                description = @"CONFIGURE: Update default settings for Testimize test generation.
 
-🔧 CONFIGURABLE OPTIONS:
-- TestCaseCategory: Filter generated test types (All/Valid/Validation)
+CONFIGURABLE OPTIONS:
+- TestCaseCategory: Filter generated test types (0=All, 1=Valid, 2=Validation)
 - MethodName: Default name for generated test methods
 - ABCSettings: Fine-tune Hybrid ABC algorithm parameters
-
-💬 PLAIN TEXT SUPPORT: You can describe what to change in natural language!
-Examples:
-- ""Set mutation rate to 0.5""
-- ""Change method name to UserRegistrationTest""
-- ""Set total generations to 100""
-- ""Enable scout phase""
-
-💾 PERSISTENCE: Settings persist in-memory until server restart.
-🎯 AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.", 
-                inputSchema = configureSettingsSchema 
+PERSISTENCE: Settings persist in-memory until server restart.
+AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.", 
+                inputSchema = configureSettingsSchema
             },
 
             // 📋 NEW: Get current settings tool

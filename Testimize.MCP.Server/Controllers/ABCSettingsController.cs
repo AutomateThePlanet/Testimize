@@ -9,10 +9,12 @@ namespace Testimize.MCP.Server.Controllers;
 public class ABCSettingsController : ControllerBase
 {
     private readonly ABCSettingsService _abcSettingsService;
+    private readonly IMcpProtocolHandler _mcpProtocolHandler;
 
-    public ABCSettingsController(ABCSettingsService abcSettingsService)
+    public ABCSettingsController(ABCSettingsService abcSettingsService, IMcpProtocolHandler mcpProtocolHandler)
     {
         _abcSettingsService = abcSettingsService;
+        _mcpProtocolHandler = mcpProtocolHandler;
     }
 
     /// <summary>
@@ -101,5 +103,27 @@ public class ABCSettingsController : ControllerBase
     {
         var changes = _abcSettingsService.UpdateABCSettings(abcSettings);
         return Ok(new { changes });
+    }
+
+    /// <summary>
+    /// Test endpoint to call ConfigureTestimizeSettings via MCP Protocol Handler
+    /// </summary>
+    [HttpPost("mcp/configure-settings")]
+    public IActionResult TestConfigureTestimizeSettings([FromBody] JsonElement settingsRequest)
+    {
+        try
+        {
+            var result = _mcpProtocolHandler.ConfigureTestimizeSettings(settingsRequest);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                error = ex.Message,
+                message = "Failed to configure Testimize settings via MCP Protocol Handler",
+                timestamp = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff UTC")
+            });
+        }
     }
 }
