@@ -37,7 +37,7 @@ namespace Testimize.MCP.Server.Services
         public object ConfigureTestimizeSettings(JsonElement argumentsElement)
         {
             Console.WriteLine("⚙️ CONFIG: Updating Testimize default settings...");
-            
+
             var changesApplied = new List<string>();
             var errors = new List<string>();
             var warnings = new List<string>();
@@ -111,6 +111,36 @@ namespace Testimize.MCP.Server.Services
                     var warningMsg = "MethodName is empty or whitespace - ignoring";
                     Console.WriteLine($"⚠️ WARNING: {warningMsg}");
                     warnings.Add(warningMsg);
+                }
+            }
+
+            // Update TestGenerationMode if provided
+            if (argumentsElement.TryGetProperty("testGenerationMode", out var modeElement))
+            {
+                Console.WriteLine($"🔍 DEBUG: Processing TestGenerationMode - ValueKind: {modeElement.ValueKind}, RawValue: '{modeElement.GetRawText()}'");
+                try
+                {
+                    var mode = modeElement.GetString();
+                    if (Enum.TryParse<TestGenerationMode>(mode, true, out var parsedMode))
+                    {
+                        var oldMode = _defaultSettings.Mode;
+                        _defaultSettings.Mode = parsedMode;
+                        var change = $"Updated TestGenerationMode from {oldMode} to {parsedMode}";
+                        Console.WriteLine($"✅ SUCCESS: {change}");
+                        changesApplied.Add(change);
+                    }
+                    else
+                    {
+                        var errorMsg = $"TestGenerationMode value '{mode}' is invalid. Valid values: {string.Join(", ", Enum.GetNames(typeof(TestGenerationMode)))}";
+                        Console.WriteLine($"❌ VALIDATION ERROR: {errorMsg}");
+                        errors.Add(errorMsg);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var errorMsg = $"Failed to parse TestGenerationMode from '{modeElement.GetRawText()}': {ex.Message}";
+                    Console.WriteLine($"❌ PARSE ERROR: {errorMsg}");
+                    errors.Add(errorMsg);
                 }
             }
 
@@ -434,6 +464,7 @@ namespace Testimize.MCP.Server.Services
             {
                 TestCaseCategory = _defaultSettings.TestCaseCategory,
                 MethodName = _defaultSettings.MethodName,
+                TestGenerationMode = _defaultSettings.Mode,
                 ABCSettings = new
                 {
                     _defaultSettings.ABCSettings.TotalPopulationGenerations,
@@ -452,5 +483,7 @@ namespace Testimize.MCP.Server.Services
                 }
             };
         }
+
+        public PreciseTestEngineSettings DefaultSettings => _defaultSettings;
     }
 }

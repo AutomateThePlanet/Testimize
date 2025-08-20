@@ -14,6 +14,7 @@ using Testimize.MCP.Server.Services;
 public class McpProtocolHandler : IMcpProtocolHandler
 {
     private readonly IUtilityService _utilityService;
+    private readonly ABCSettingsService _abcSettingsService;
 
     // In-memory settings that persist until restart
     private static PreciseTestEngineSettings _defaultSettings = new()
@@ -35,9 +36,10 @@ public class McpProtocolHandler : IMcpProtocolHandler
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public McpProtocolHandler(IUtilityService utilityService)
+    public McpProtocolHandler(IUtilityService utilityService, ABCSettingsService abcSettingsService)
     {
         _utilityService = utilityService ?? throw new ArgumentNullException(nameof(utilityService));
+        _abcSettingsService = abcSettingsService ?? throw new ArgumentNullException(nameof(abcSettingsService));
     }
 
     public object Initialize(object @params)
@@ -537,11 +539,7 @@ AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.
             throw new ArgumentException("Invalid parameters for ConfigureTestimizeSettings - not a JsonElement");
         }
 
-        // Get the ABCSettingsService from the service provider or create a new instance
-        // Note: In a real application, this should be injected via constructor
-        var abcSettingsService = new ABCSettingsService(_defaultSettings);
-        
-        return abcSettingsService.ConfigureTestimizeSettings(argumentsElement);
+        return _abcSettingsService.ConfigureTestimizeSettings(argumentsElement);
     }
 
     // 📋 NEW: Get Current Testimize Settings
@@ -549,11 +547,7 @@ AFFECTS: Both generate_hybrid_test_cases and generate_pairwise_test_cases tools.
     {
         Console.WriteLine("📋 VIEW: Delegating to ABCSettingsService...");
         
-        // Get the ABCSettingsService from the service provider or create a new instance
-        // Note: In a real application, this should be injected via constructor
-        var abcSettingsService = new ABCSettingsService(_defaultSettings);
-        
-        return abcSettingsService.GetTestimizeSettings();
+        return _abcSettingsService.GetTestimizeSettings();
     }
 
     // 🔧 HELPER: Process simplified parameters for hybrid and pairwise tools
