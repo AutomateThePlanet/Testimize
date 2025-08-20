@@ -1,5 +1,5 @@
 'https://editor.plantuml.com/
-'Activity Diagram #2: Вътрешната логика на ABC алгоритъма.
+'Activity Diagram #2: Internal Logic of the ABC Algorithm.
 
 @startuml
 skinparam shadowing false
@@ -11,18 +11,18 @@ skinparam ranksep 50
 start
 
 :GenerateInitialPopulation(parameters);
-:Оценка чрез EvaluatePopulation(initialPopulation);
+:Evaluation via EvaluatePopulation(initialPopulation);
 
 repeat
     :EvaluatePopulation(currentPopulation);
 
     :SelectElitePopulation();
-    :Формира non-elite като evaluated - elite;
+    :Form non-elite as evaluated - elite;
 
     if (EnableOnlookerSelection?) then
         :nonElite = MaintainDiversePopulationOnlookerSelection(...);
     else
-        :nonElite остава непроменен;
+        :nonElite remains unchanged;
     endif
 
     :MutatePopulation(evaluated, nonElite, ...);
@@ -34,7 +34,7 @@ repeat
 repeat while (currentGeneration < totalGenerations)
 
 :LimitFinalPopulationBasedOnSelectionRatio();
-:Връщане на finalPopulation;
+:Return finalPopulation;
 
 stop
 @enduml
