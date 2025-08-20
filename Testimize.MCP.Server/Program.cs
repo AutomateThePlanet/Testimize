@@ -6,6 +6,7 @@ using Testimize.Parameters.Core;
 using Testimize.Parameters;
 using Testimize.Contracts;
 using Testimize.Usage;
+using Testimize.MCP.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IUtilityService, UtilityService>();
 builder.Services.AddSingleton<IMcpProtocolHandler, McpProtocolHandler>();
 //builder.Services.AddSingleton<Testimize.MCP.ServerService>(); // Facade for backwards compatibility
+
+// Register ABCSettingsService
+builder.Services.AddSingleton<ABCSettingsService>(sp => new ABCSettingsService(McpProtocolHandler.DefaultSettings));
+
+// Add controllers support
+builder.Services.AddControllers();
 
 // Swagger services
 builder.Services.AddEndpointsApiExplorer();
@@ -131,6 +138,10 @@ if (args.Contains("--mcp"))
 // Swagger middleware (enable UI in all envs; feel free to gate by IsDevelopment)
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Add routing for controllers
+app.UseRouting();
+app.MapControllers();
 
 // --- HTTP API using business logic service directly ---
 
