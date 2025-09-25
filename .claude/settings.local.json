@@ -4,7 +4,8 @@
       "Bash(mkdir:*)",
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []
