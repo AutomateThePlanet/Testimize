@@ -27,6 +27,7 @@
     <Description>Testimize is a smart and scalable test data generation engine for .NET. It supports boundary value analysis, pairwise testing, and heuristic optimization via the Artificial Bee Colony (ABC) algorithm. Designed for CI/CD, exploratory testing, and validation scenarios.</Description>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
     <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
