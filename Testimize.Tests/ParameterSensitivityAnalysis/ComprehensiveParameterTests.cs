@@ -18,7 +18,7 @@ namespace Testimize.Tests.ParameterSensitivityAnalysis;
 /// Tests all 8 numeric ABC parameters with full statistical validation
 /// </summary>
 [TestFixture]
-public class ComprehensiveParameterTests
+public partial class ComprehensiveParameterTests
 {
     private List<IInputParameter> _detailedFormScenario;
     private const int TRIALS_PER_CONFIG = 5;
@@ -545,10 +545,12 @@ public class ComprehensiveParameterTests
             Console.WriteLine($"   Recommended range: {minRecommended:F2} - {maxRecommended:F2}");
         }
 
-        // 95% Confidence Interval for optimal
+        // 95% Confidence Interval for optimal (using t-distribution for small samples)
         if (optimal.StdDev > 0)
         {
-            var ci95 = 1.96 * optimal.StdDev / Math.Sqrt(TRIALS_PER_CONFIG);
+            // For n=10, df=9, t-critical at 95% = 2.262
+            var tCritical = 2.262; // t(9, 0.025)
+            var ci95 = tCritical * optimal.StdDev / Math.Sqrt(TRIALS_PER_CONFIG);
             Console.WriteLine($"   95% CI for optimal: [{optimal.MeanScore - ci95:F1}, {optimal.MeanScore + ci95:F1}]");
         }
 
@@ -556,9 +558,13 @@ public class ComprehensiveParameterTests
         var median = results.OrderBy(r => r.Value).ElementAt(results.Count / 2);
         if (optimal.StdDev > 0 && median.StdDev > 0)
         {
-            var tStatistic = Math.Abs(optimal.MeanScore - median.MeanScore) /
-                           Math.Sqrt((optimal.StdDev * optimal.StdDev + median.StdDev * median.StdDev) / TRIALS_PER_CONFIG);
-            var pValue = tStatistic > 2.776 ? "p < 0.01" : tStatistic > 1.96 ? "p < 0.05" : "p > 0.05";
+            // Welch's t-test for unequal variances
+            var se = Math.Sqrt((optimal.StdDev * optimal.StdDev / TRIALS_PER_CONFIG) +
+                              (median.StdDev * median.StdDev / TRIALS_PER_CONFIG));
+            var tStatistic = se > 0 ? Math.Abs(optimal.MeanScore - median.MeanScore) / se : 0;
+
+            // For df=9, critical values: 2.262 (p<0.05), 3.250 (p<0.01)
+            var pValue = tStatistic > 3.250 ? "p < 0.01" : tStatistic > 2.262 ? "p < 0.05" : "p > 0.05";
             Console.WriteLine($"   Significance vs median: {pValue} (t = {tStatistic:F2})");
         }
 
@@ -573,64 +579,4 @@ public class ComprehensiveParameterTests
         if (cohensD >= 1.2) return "very large";
         return "large";
     }
-
-    // Data structures
-    private class TrialResult
-    {
-        public double TotalScore { get; set; }
-        public int TestCount { get; set; }
-        public double Coverage { get; set; }
-        public double Diversity { get; set; }
-    }
-
-    private class ParameterTestResult
-    {
-        public double Value { get; set; }
-        public double MeanScore { get; set; }
-        public double StdDev { get; set; }
-        public double MeanTestCount { get; set; }
-        public double MeanCoverage { get; set; }
-        public double MeanDiversity { get; set; }
-        public double ExecutionTime { get; set; }
-        public double AdditionalMetric { get; set; }
-    }
-
-    //[Test]
-    //public void GenerateFinalParameterRecommendations()
-    //{
-    //    var sb = new StringBuilder();
-    //    sb.AppendLine("\n" + new string('=', 120));
-    //    sb.AppendLine("FINAL ABC PARAMETER RECOMMENDATIONS");
-    //    sb.AppendLine("Based on Comprehensive Statistical Analysis with Detailed Form Validation Scenario");
-    //    sb.AppendLine("Scenario: 7 form fields with 51 test values (Name, Email, Phone, Password, Age, Terms, Country)");
-    //    sb.AppendLine(new string('=', 120));
-    //    sb.AppendLine();
-    //    sb.AppendLine("Parameter                      | Range      | Default | Optimal | Recommended  | Statistical Evidence");
-    //    sb.AppendLine(new string('-', 120));
-    //    sb.AppendLine("FinalPopulationSelectionRatio | [0.1-0.9]  | 0.5     | TBD     | 0.3-0.6      | Effect size, 95% CI");
-    //    sb.AppendLine("EliteSelectionRatio           | [0.0-0.8]  | 0.3     | TBD     | 0.2-0.5      | Effect size, 95% CI");
-    //    sb.AppendLine("TotalGenerations              | [5-150]    | 50      | TBD     | 20-50        | Convergence analysis");
-    //    sb.AppendLine("MutationRate                  | [0.0-1.0]  | 0.3     | TBD     | 0.2-0.5      | Effect size, 95% CI");
-    //    sb.AppendLine("CoolingRate*                  | [0.5-0.99] | 0.95    | TBD     | 0.85-0.95    | *Requires EnforceMutationUniqueness=false");
-    //    sb.AppendLine("OnlookerSelectionRatio        | [0.0-0.4]  | 0.1     | TBD     | 0.05-0.15    | Effect size, 95% CI");
-    //    sb.AppendLine("ScoutSelectionRatio           | [0.0-0.5]  | 0.3     | TBD     | 0.2-0.4      | Effect size, 95% CI");
-    //    sb.AppendLine("StagnationThresholdPercentage | [0.5-0.9]  | 0.75    | TBD     | 0.6-0.7      | Scout activation timing");
-    //    sb.AppendLine(new string('=', 120));
-    //    sb.AppendLine();
-    //    sb.AppendLine("Key Insights:");
-    //    sb.AppendLine("1. CoolingRate only affects algorithm when EnforceMutationUniqueness=false (Simulated Annealing mode)");
-    //    sb.AppendLine("2. Lower StagnationThresholdPercentage (0.6) allows more scout phase generations");
-    //    sb.AppendLine("3. Parameters interact strongly - test in combination, not isolation");
-    //    sb.AppendLine("4. Statistical validation: 5 trials per configuration, Cohen's d effect size, 95% confidence intervals");
-    //    sb.AppendLine();
-    //    sb.AppendLine("Testing Methodology:");
-    //    sb.AppendLine("- Trials per configuration: 5 with different random seeds");
-    //    sb.AppendLine("- Metrics: Score, Coverage, Diversity, Standard Deviation");
-    //    sb.AppendLine("- Statistical tests: t-test, Cohen's d effect size, 95% CI");
-    //    sb.AppendLine("- Recommended ranges: Values within 90% of optimal performance");
-
-    //    Console.WriteLine(sb.ToString());
-    //    System.IO.File.WriteAllText("final_parameter_recommendations.txt", sb.ToString());
-    //    Console.WriteLine("\n✅ Final recommendations saved to final_parameter_recommendations.txt");
-    //}
 }
