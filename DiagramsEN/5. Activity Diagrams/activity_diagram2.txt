@@ -1,40 +1,44 @@
-'https://editor.plantuml.com/
-'Activity Diagram #2: Вътрешната логика на ABC алгоритъма.
-
 @startuml
-skinparam shadowing false
-skinparam roundcorner 0
-skinparam linetype ortho
-skinparam nodesep 80
-skinparam ranksep 50
+skinparam ActivityShape rounded
+skinparam ActivityBorderColor #333333
+skinparam ActivityBackgroundColor #E0E0E0
+skinparam PartitionBorderColor #333333
+skinparam ArrowColor #333333
 
 start
 
-:GenerateInitialPopulation(parameters);
-:Оценка чрез EvaluatePopulation(initialPopulation);
+:Generate initial population using PairwiseTestCaseGenerator;
+
+:Evaluate population via fitness function;
 
 repeat
-    :EvaluatePopulation(currentPopulation);
-
-    :SelectElitePopulation();
-    :Формира non-elite като evaluated - elite;
-
-    if (EnableOnlookerSelection?) then
-        :nonElite = MaintainDiversePopulationOnlookerSelection(...);
-    else
-        :nonElite остава непроменен;
+    :Evaluate current population;
+    
+    :Select elite population;
+    
+    :Form non-elite population as evaluated - elite;
+    
+    if (EnableOnlookerSelection?) then (yes)
+        :Apply onlooker selection with RCL mechanism;
+        :Update non-elite based on probability selection;
+    else (no)
+        :Non-elite remains unchanged;
     endif
-
-    :MutatePopulation(evaluated, nonElite, ...);
-
-    if (EnableScoutPhase? && iteration > stagnationThreshold) then
-        :PerformScoutPhaseIfNeeded();
+    
+    :Apply mutation to non-elite population;
+    
+    if (EnableScoutPhase and stagnation detected?) then (yes)
+        :Execute scout phase;
+        :Replace stagnant solutions with new values;
+    else (no)
+        :Continue with current population;
     endif
+    
+repeat while (currentGeneration < TotalGenerations?)
 
-repeat while (currentGeneration < totalGenerations)
+:Apply FinalPopulationSelectionRatio;
 
-:LimitFinalPopulationBasedOnSelectionRatio();
-:Връщане на finalPopulation;
+:Return optimized test suite;
 
 stop
 @enduml

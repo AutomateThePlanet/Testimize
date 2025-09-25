@@ -23,7 +23,6 @@ using Testimize.Parameters.Core;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
-// 🔢 MathNet.Numerics for stats
 using MathNet.Numerics.Statistics;
 using MathNet.Numerics.Distributions;
 

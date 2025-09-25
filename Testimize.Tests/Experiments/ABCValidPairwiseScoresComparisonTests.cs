@@ -20,8 +20,8 @@ using Testimize.Parameters;
 using Testimize.TestCaseGenerators;
 using Testimize.Contracts;
 using Testimize.Parameters.Core;
-using MathNet.Numerics.Statistics;   // StdDev, Variance, Mean
-using MathNet.Numerics.Distributions; // StudentT
+using MathNet.Numerics.Statistics;
+using MathNet.Numerics.Distributions;
 
 namespace Testimize.Tests.Experiments;
 
