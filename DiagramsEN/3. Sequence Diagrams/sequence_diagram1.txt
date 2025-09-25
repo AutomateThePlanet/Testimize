@@ -1,8 +1,8 @@
 'https://editor.plantuml.com/
-'Sequence Diagram 1– Генериране на тест кейсове с ABC генератора
+'Sequence Diagram 1 - Test Case Generation with Hybrid ABC Algorithm
 
 @startuml
-' === Класически UML стил със силно визуално присъствие ===
+' === Classic UML style with strong visual presence ===
 skinparam style strictuml
 skinparam roundcorner 0
 skinparam ArrowColor Black
@@ -19,7 +19,7 @@ participant outputStrategy as "outputStrategy : ITestCaseOutputGenerator"
 client -> generator : GenerateTestCases(methodName, parameters, category)
 
 note right of generator
-Фаза 0: Извличане на стратегии от Settings
+Phase 0: Initialize strategies from Settings
 end note
 
 generator -> settings : get_TestCaseGenerator()
@@ -27,50 +27,60 @@ generator -> settings : get_TestCaseEvaluator()
 generator -> settings : get_OutputGenerator()
 
 note right of generator
-Фаза 1: Генериране на начална популация
+Phase 1: Generate initial population
 end note
 
 generator -> generatorStrategy : GenerateTestCases(parameters)
 generatorStrategy --> generator : HashSet<TestCase>
 
 note right of generator
-Фаза 2: Оценка на началната популация
+Phase 2: Evaluate initial population
 end note
 
 generator -> evaluatorStrategy : EvaluatePopulation(initialPopulation)
 
-loop за всяко поколение
+loop for each generation (1 to TotalGenerations)
 
     note right of generator
-    Фаза 3: Мутация и подобрение
+    Phase 3: Elite selection
     end note
 
-    generator -> generator : ApplyMutation()
+    generator -> generator : SelectElitePopulation(evaluatedPopulation, eliteCount)
 
     note right of generator
-    Фаза 4: Преоценка
+    Phase 4: Onlooker selection (if enabled)
     end note
 
-    generator -> evaluatorStrategy : EvaluatePopulation(mutatedPopulation)
+    generator -> generator : MaintainDiversePopulationOnlookerSelection(nonElite, evaluated, eliteCount)
 
     note right of generator
-    Фаза 5: Селекция (Elite, Onlooker, Scout)
+    Phase 5: Mutation with temperature control
     end note
 
-    generator -> generator : SelectEliteBees()
-    generator -> generator : SelectOnlookerBees()
-    generator -> generator : SelectScoutBees()
+    generator -> generator : MutatePopulation(evaluatedPopulation, nonElite, parameters, currentGen)
+
+    note right of generator
+    Phase 6: Scout phase (if currentGen >= threshold)
+    end note
+
+    generator -> generator : PerformScoutPhaseIfNeeded(parameters, evaluated, nonElite, currentGen)
+
+    note right of generator
+    Phase 7: Re-evaluate population
+    end note
+
+    generator -> evaluatorStrategy : EvaluatePopulation(evaluatedPopulation)
 
 end
 
 note right of generator
-Фаза 6: Финална селекция
+Phase 8: Apply final selection ratio
 end note
 
-generator -> generator : SelectFinalPopulation()
+generator -> generator : LimitFinalPopulationBasedOnSelectionRatio(evaluatedPopulation)
 
 note right of generator
-Фаза 7: Генериране на изход
+Phase 9: Generate output (if output generator provided)
 end note
 
 generator -> outputStrategy : GenerateOutput(methodName, finalTestCases, category)

@@ -191,6 +191,21 @@ public class ABCOptimizationBenchmarkTests
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.6,
+                EliteSelectionRatio = 0.6,
+                TotalPopulationGenerations = 150,
+                MutationRate = 0.8,
+                AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = true,
+                OnlookerSelectionRatio = 0.4,
+                EnableScoutPhase = true,
+                StagnationThresholdPercentage = 0.85,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.99,
+                EnforceMutationUniqueness = false
+            },
+            new ABCGenerationSettings
+            {
+                FinalPopulationSelectionRatio = 0.6,
                 EliteSelectionRatio = 0.3,
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.5,

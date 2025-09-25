@@ -21,7 +21,7 @@ namespace Testimize.Tests.ParameterSensitivityAnalysis;
 public partial class ComprehensiveParameterTests
 {
     private List<IInputParameter> _detailedFormScenario;
-    private const int TRIALS_PER_CONFIG = 5;
+    private const int TRIALS_PER_CONFIG = 10; // Minimum for reliable statistics
     private const int DEFAULT_GENERATIONS = 100; // Increased to see full parameter effects
 
     [SetUp]

@@ -1,58 +1,62 @@
 'https://editor.plantuml.com/
-'Sequence Diagram 3: Вътрешен ABC итеративен цикъл
+'Sequence Diagram 3: Simplified ABC Algorithm Internal Loop
 
 @startuml
-' === Класически UML стил със силно визуално присъствие ===
+' === Classic UML style with strong visual presence ===
 skinparam style strictuml
 skinparam roundcorner 0
 skinparam ArrowColor Black
 skinparam ArrowFontColor Black
 skinparam sequenceMessageAlignment center
 
-participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
-participant evaluator as "evaluator : ITestCaseEvaluator"
-participant randomizer as "randomizer : Random"
+participant generator as "ABC Generator"
+participant evaluator as "Fitness Evaluator"
+participant randomizer as "Random Selector"
 
 note over generator
-Фаза 1: Стартиране на RunABCAlgorithm()
+Phase 1: Initialize algorithm
 end note
 
-generator -> generator : CreateInitialPopulation()
-generator -> evaluator : EvaluatePopulation(initialPopulation)
+generator -> generator : Generate initial test population
+generator -> evaluator : Evaluate initial population fitness
 
-loop за всяко поколение
-
-    note over generator
-    Фаза 2: Мутация на популацията
-    end note
-
-    generator -> randomizer : Избор на тест кейсове за мутация
-    generator -> generator : Прилагане на мутации
+loop for each generation
 
     note over generator
-    Фаза 3: Оценка на новата популация
+    Phase 2: Preserve best solutions
     end note
 
-    generator -> evaluator : EvaluatePopulation(mutatedPopulation)
+    generator -> generator : Select elite population
 
     note over generator
-    Фаза 4: Проверка за стагнация и подобрение
+    Phase 3: Exploration phase
     end note
 
-    generator -> generator : Проверка на подобрение
+    generator -> randomizer : Select candidates for mutation
+    generator -> generator : Apply mutations to non-elite
 
-    alt Ако няма подобрение
-        generator -> generator : IncreaseStagnationCounter()
-    else Ако има подобрение
-        generator -> generator : UpdateBestPopulation()
+    note over generator
+    Phase 4: Fitness assessment
+    end note
+
+    generator -> evaluator : Evaluate mutated population
+
+    note over generator
+    Phase 5: Diversity maintenance
+    end note
+
+    alt Scout phase enabled and threshold reached
+        generator -> generator : Identify stagnant solutions
+        generator -> randomizer : Replace poor performers with new solutions
     end
 
 end
 
 note over generator
-Фаза 5: Финален избор
+Phase 6: Final optimization
 end note
 
-generator -> generator : SelectFinalPopulation()
+generator -> generator : Apply final selection ratio
+generator -> generator : Return optimized test suite
 
 @enduml

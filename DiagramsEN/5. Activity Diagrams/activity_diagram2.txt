@@ -18,25 +18,29 @@ repeat
     
     :Form non-elite population as evaluated - elite;
     
-    if (EnableOnlookerSelection?) then (yes)
-        :Apply onlooker selection with RCL mechanism;
-        :Update non-elite based on probability selection;
+    if (Onlooker selection enabled?) then (yes)
+        :Apply probabilistic onlooker selection;
+        :Update non-elite based on fitness scores;
     else (no)
         :Non-elite remains unchanged;
     endif
     
-    :Apply mutation to non-elite population;
+    :Apply mutations to non-elite population;
+note right
+  Temperature-controlled acceptance
+  when EnforceMutationUniqueness=false
+end note
     
-    if (EnableScoutPhase and stagnation detected?) then (yes)
+    if (Scout phase enabled and generation > threshold?) then (yes)
         :Execute scout phase;
-        :Replace stagnant solutions with new values;
+        :Replace poor performers with new solutions;
     else (no)
         :Continue with current population;
     endif
     
-repeat while (currentGeneration < TotalGenerations?)
+repeat while (More generations to process?)
 
-:Apply FinalPopulationSelectionRatio;
+:Apply final selection ratio to limit test suite size;
 
 :Return optimized test suite;
 

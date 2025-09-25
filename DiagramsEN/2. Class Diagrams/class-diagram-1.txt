@@ -1,5 +1,5 @@
 'https://editor.plantuml.com/
-'Клас Диаграма 1: Как работи HybridArtificialBeeColonyTestCaseGenerator
+'Class Diagram 1: How HybridArtificialBeeColonyTestCaseGenerator works
 
 @startuml
 ' === Визуален стил ===
