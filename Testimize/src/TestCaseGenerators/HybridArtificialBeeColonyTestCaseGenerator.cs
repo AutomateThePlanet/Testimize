@@ -96,16 +96,20 @@ public class HybridArtificialBeeColonyTestCaseGenerator
         var selectedPopulation = new HashSet<TestCase>(nonElitePopulation);
 
         // 🔹 Step 1: Select test cases probabilistically, favoring higher scores
+        var onlookerCount = Math.Max(1, (int)(evaluatedPopulation.Count * _config.OnlookerSelectionRatio));
         var probabilisticSelection = evaluatedPopulation
             .OrderByDescending(tc =>
                 tc.Score / totalScore + _random.NextDouble() * _config.OnlookerSelectionRatio) // Adds randomness for diversity
-            .Take(Math.Max(1, (int)(_config.FinalPopulationSelectionRatio * _config.OnlookerSelectionRatio))) // Ensures at least one selection
+            .Take(onlookerCount) // Fixed: Use actual population count
             .ToList();
+
+        Debug.WriteLine($"[Onlooker] Selected {onlookerCount} from {evaluatedPopulation.Count} (ratio={_config.OnlookerSelectionRatio})");
 
         // 🔹 Step 2: Add selected test cases to the new population, maintaining diversity
         foreach (var testCase in probabilisticSelection)
         {
-            if (selectedPopulation.Count < _config.FinalPopulationSelectionRatio)
+            // Fixed: Compare count with actual population size, not ratio
+            if (selectedPopulation.Count < evaluatedPopulation.Count)
             {
                 selectedPopulation.Add(testCase);
             }
@@ -114,7 +118,8 @@ public class HybridArtificialBeeColonyTestCaseGenerator
         // 🔹 Step 3: If the population is still too small, add more test cases from the evaluated set
         foreach (var testCase in evaluatedPopulation)
         {
-            if (selectedPopulation.Count >= _config.FinalPopulationSelectionRatio)
+            // Fixed: Compare count with actual population size, not ratio
+            if (selectedPopulation.Count >= evaluatedPopulation.Count)
             {
                 break;
             }
@@ -147,7 +152,15 @@ public class HybridArtificialBeeColonyTestCaseGenerator
     {
         var mutatedCases = new HashSet<TestCase>();
 
-        var temperature = Math.Max(0.1, Math.Pow(_config.CoolingRate, iteration));
+        // Fixed: Temperature should start high and decrease over iterations
+        var initialTemperature = 1.0;
+        var temperature = Math.Max(0.1, initialTemperature * Math.Pow(_config.CoolingRate, iteration));
+
+        // Debug: Log temperature decay
+        if (iteration == 0 || iteration == 10 || iteration == 50 || iteration == 99)
+        {
+            Debug.WriteLine($"[Mutation] Iteration {iteration}: Temperature = {temperature:F4} (CoolingRate={_config.CoolingRate})");
+        }
 
         foreach (var originalTestCase in nonElitePopulation)
         {
@@ -209,15 +222,23 @@ public class HybridArtificialBeeColonyTestCaseGenerator
 
     private void PerformScoutPhaseIfNeeded(List<IInputParameter> parameters, HashSet<TestCase> evaluatedPopulation, HashSet<TestCase> nonElitPopulation, int iteration)
     {
-        if (!_config.EnableScoutPhase || iteration <= _config.TotalPopulationGenerations * _config.StagnationThresholdPercentage)
+        // Fixed: Scout phase should activate AFTER stagnation threshold is reached (>= not <=)
+        var threshold = _config.TotalPopulationGenerations * _config.StagnationThresholdPercentage;
+        if (!_config.EnableScoutPhase || iteration < threshold)
         {
             return;
         }
 
+        Debug.WriteLine($"[Scout] Activated at iteration {iteration} (threshold={threshold:F0})");
+
+        // Fixed: Use actual population count instead of ratio multiplication
+        var scoutCount = Math.Max(1, (int)(evaluatedPopulation.Count * _config.ScoutSelectionRatio));
         var poorPerformingTestCases = evaluatedPopulation
             .OrderBy(x => x.Score)
-            .Take((int)(_config.FinalPopulationSelectionRatio * _config.ScoutSelectionRatio))
+            .Take(scoutCount)
             .ToList();
+
+        Debug.WriteLine($"[Scout] Selecting {scoutCount} scouts from {evaluatedPopulation.Count} (ratio={_config.ScoutSelectionRatio})");
 
         foreach (var testCase in poorPerformingTestCases)
         {

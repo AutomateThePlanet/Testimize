@@ -1,0 +1,67 @@
+@startuml
+skinparam style strictuml
+skinparam sequenceMessageAlignment center
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 5
+skinparam maxMessageSize 60
+
+actor Client
+participant ":TestSuiteBuilder" as TSB
+participant ":HybridABC\nGenerator" as Generator
+participant ":TestCase\nEvaluator" as Evaluator
+participant ":Parameter\nBuilder" as ParamBuilder
+
+Client -> TSB : Generate()
+activate TSB
+
+TSB -> Generator : GenerateTestCases(parameters, settings)
+activate Generator
+
+Generator -> ParamBuilder : GetTestParameters()
+activate ParamBuilder
+ParamBuilder --> Generator : parameters[]
+deactivate ParamBuilder
+
+Generator -> Generator : CreateInitialPopulation()
+note right : Uses PairwiseTestCaseGenerator
+
+Generator -> Evaluator : EvaluatePopulation(initialPopulation)
+activate Evaluator
+Evaluator --> Generator : fitness scores
+deactivate Evaluator
+
+loop for each generation (1 to TotalGenerations)
+    Generator -> Generator : SelectElitePopulation()
+    
+    Generator -> Generator : FormNonElitePopulation()
+    
+    alt EnableOnlookerSelection == true
+        Generator -> Generator : ApplyOnlookerSelection(RCL)
+    end
+    
+    Generator -> Generator : MutatePopulation(nonElite)
+    note right : Temperature-controlled\nmutation (SA-inspired)
+    
+    Generator -> Evaluator : EvaluatePopulation(mutated)
+    activate Evaluator
+    Evaluator --> Generator : updated fitness
+    deactivate Evaluator
+    
+    alt Stagnation detected && EnableScoutPhase
+        Generator -> Generator : ExecuteScoutPhase()
+        note right : Replace stagnant\nsolutions
+    end
+    
+    Generator -> Generator : UpdateBestSolution()
+end
+
+Generator -> Generator : ApplyFinalSelectionRatio()
+
+Generator --> TSB : optimizedTestCases[]
+deactivate Generator
+
+TSB --> Client : testSuite
+deactivate TSB
+
+@enduml
