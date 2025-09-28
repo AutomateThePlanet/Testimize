@@ -1,11 +1,21 @@
+// <copyright file="ComprehensiveParameterTests.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using MathNet.Numerics.Statistics;
-using NUnit.Framework;
-using Testimize;
 using Testimize.Contracts;
 using Testimize.Parameters;
 using Testimize.Parameters.Core;
@@ -266,7 +276,7 @@ public partial class ComprehensiveParameterTests
         Console.WriteLine("NOTE: Testing with EnforceMutationUniqueness=false to enable SA behavior");
         Console.WriteLine(new string('=', 100) + "\n");
 
-        var testValues = new[] { 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 0.99 };
+        var testValues = new[] { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 0.99 };
         var results = new List<ParameterTestResult>();
 
         foreach (var rate in testValues)
@@ -303,7 +313,7 @@ public partial class ComprehensiveParameterTests
         Console.WriteLine("Scenario: Complex Form Validation (7 parameters, 53 test values)");
         Console.WriteLine(new string('=', 100) + "\n");
 
-        var testValues = new[] { 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4 };
+        var testValues = new[] { 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95 };
         var results = new List<ParameterTestResult>();
 
         foreach (var ratio in testValues)
@@ -338,7 +348,7 @@ public partial class ComprehensiveParameterTests
         Console.WriteLine("Scenario: Complex Form Validation (7 parameters, 53 test values)");
         Console.WriteLine(new string('=', 100) + "\n");
 
-        var testValues = new[] { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5 };
+        var testValues = new[] { 0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95 };
         var results = new List<ParameterTestResult>();
 
         foreach (var ratio in testValues)
@@ -374,7 +384,7 @@ public partial class ComprehensiveParameterTests
         Console.WriteLine("Scenario: Complex Form Validation (7 parameters, 53 test values)");
         Console.WriteLine(new string('=', 100) + "\n");
 
-        var testValues = new[] { 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9 };
+        var testValues = new[] { 0.0, 0.1, 0.05, 0.2, 0.3, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95 };
         var results = new List<ParameterTestResult>();
         var totalGenerations = DEFAULT_GENERATIONS; // Use 100 generations
 

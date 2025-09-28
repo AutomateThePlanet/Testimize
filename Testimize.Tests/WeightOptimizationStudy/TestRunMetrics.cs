@@ -1,4 +1,4 @@
-// <copyright file="ParameterTestResult.cs" company="Automate The Planet Ltd.">
+// <copyright file="TestRunMetrics.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -11,16 +11,17 @@
 // </copyright>
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
-namespace Testimize.Tests.ParameterSensitivityAnalysis;
+namespace Testimize.Tests.WeightOptimizationStudy;
 
-public class ParameterTestResult
+/// <summary>
+/// Metrics collected for each test run
+/// </summary>
+public class TestRunMetrics
 {
-    public double Value { get; set; }
-    public double MeanScore { get; set; }
-    public double StdDev { get; set; }
-    public double MeanTestCount { get; set; }
-    public double MeanCoverage { get; set; }
-    public double MeanDiversity { get; set; }
-    public double ExecutionTime { get; set; }
-    public double AdditionalMetric { get; set; }
+    public int TestCaseCount { get; set; }
+    public double CoverageRatio { get; set; }  // Unique combinations / Total possible
+    public double DiversityScore { get; set; }  // Standard deviation of value distribution
+    public double BoundaryRatio { get; set; }  // Boundary values / Total values
+    public double OverallScore { get; set; }   // Composite metric
+    public long ExecutionTimeMs { get; set; }
 }

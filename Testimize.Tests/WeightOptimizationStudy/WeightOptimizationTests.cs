@@ -1,3 +1,16 @@
+// <copyright file="WeightOptimizationTests.cs" company="Automate The Planet Ltd.">
+// Copyright 2025 Automate The Planet Ltd.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+// <author>Anton Angelov</author>
+// <site>https://automatetheplanet.com/</site>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,13 +18,10 @@ using System.Linq;
 using System.Text;
 using MathNet.Numerics.Statistics;
 using MathNet.Numerics.Distributions;
-using NUnit.Framework;
-using Testimize;
 using Testimize.Contracts;
 using Testimize.Parameters;
 using Testimize.Parameters.Core;
 using Testimize.TestCaseGenerators;
-using Testimize.Usage;
 
 namespace Testimize.Tests.WeightOptimizationStudy;
 
@@ -20,39 +30,10 @@ namespace Testimize.Tests.WeightOptimizationStudy;
 /// using statistical analysis with t-tests and effect sizes.
 /// </summary>
 [TestFixture]
-public class WeightOptimizationTests
+public partial class WeightOptimizationTests
 {
     private const int RunsPerConfiguration = 30; // Number of runs for statistical validity
     private const double SignificanceLevel = 0.05; // p-value threshold
-
-    /// <summary>
-    /// Metrics collected for each test run
-    /// </summary>
-    private class TestRunMetrics
-    {
-        public int TestCaseCount { get; set; }
-        public double CoverageRatio { get; set; }  // Unique combinations / Total possible
-        public double DiversityScore { get; set; }  // Standard deviation of value distribution
-        public double BoundaryRatio { get; set; }  // Boundary values / Total values
-        public double OverallScore { get; set; }   // Composite metric
-        public long ExecutionTimeMs { get; set; }
-    }
-
-    /// <summary>
-    /// Statistical results for a weight configuration
-    /// </summary>
-    private class ConfigurationStats
-    {
-        public string Name { get; set; }
-        public double MeanScore { get; set; }
-        public double StandardDeviation { get; set; }
-        public double TTestPValue { get; set; }
-        public double EffectSize { get; set; }  // Cohen's d
-        public double MeanTestCases { get; set; }
-        public double MeanCoverage { get; set; }
-        public double MeanDiversity { get; set; }
-        public double MeanBoundary { get; set; }
-    }
 
     [Test]
     public void CompareWeightConfigurations_StatisticalAnalysis()
@@ -62,16 +43,16 @@ public class WeightOptimizationTests
         Console.WriteLine(new string('=', 80));
 
         // Step 1: Define weight configurations to test
-        var configurations = new List<EvaluatorWeights>
+        var configurations = new List<EvaluatorWeightsFactory>
         {
-            EvaluatorWeights.Default(),        // Current baseline
-            EvaluatorWeights.AllEqual(),       // All weights = 10
-            EvaluatorWeights.NoDiversity(),    // No first-time bonus
-            EvaluatorWeights.HighPenalty(),    // Higher invalid penalties
-            EvaluatorWeights.BoundaryFocused(), // Triple boundary weights
-            EvaluatorWeights.DiversityFocused(), // Double diversity bonus
-            EvaluatorWeights.Conservative(),    // Lower rewards, higher penalties
-            EvaluatorWeights.Aggressive()       // Higher rewards, lower penalties
+            EvaluatorWeightsFactory.Default(),        // Current baseline
+            EvaluatorWeightsFactory.AllEqual(),       // All weights = 10
+            EvaluatorWeightsFactory.NoDiversity(),    // No first-time bonus
+            EvaluatorWeightsFactory.HighPenalty(),    // Higher invalid penalties
+            EvaluatorWeightsFactory.BoundaryFocused(), // Triple boundary weights
+            EvaluatorWeightsFactory.DiversityFocused(), // Double diversity bonus
+            EvaluatorWeightsFactory.Conservative(),    // Lower rewards, higher penalties
+            EvaluatorWeightsFactory.Aggressive()       // Higher rewards, lower penalties
         };
 
         // Step 2: Define test scenarios (using existing patterns from the codebase)
@@ -79,7 +60,7 @@ public class WeightOptimizationTests
 
         // Step 3: Run experiments and collect metrics
         Console.WriteLine("\nRunning experiments...");
-        var results = new Dictionary<EvaluatorWeights, List<TestRunMetrics>>();
+        var results = new Dictionary<EvaluatorWeightsFactory, List<TestRunMetrics>>();
 
         foreach (var config in configurations)
         {
@@ -228,7 +209,7 @@ public class WeightOptimizationTests
     }
 
     private List<TestRunMetrics> RunExperiments(
-        EvaluatorWeights weights,
+        EvaluatorWeightsFactory weights,
         List<(string Name, List<IInputParameter> Parameters)> scenarios,
         int runsPerScenario)
     {
@@ -331,7 +312,7 @@ public class WeightOptimizationTests
     }
 
     private List<ConfigurationStats> PerformStatisticalAnalysis(
-        Dictionary<EvaluatorWeights, List<TestRunMetrics>> results)
+        Dictionary<EvaluatorWeightsFactory, List<TestRunMetrics>> results)
     {
         var statistics = new List<ConfigurationStats>();
 

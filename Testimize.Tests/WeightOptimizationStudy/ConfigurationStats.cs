@@ -1,4 +1,4 @@
-// <copyright file="ParameterTestResult.cs" company="Automate The Planet Ltd.">
+// <copyright file="ConfigurationStats.cs" company="Automate The Planet Ltd.">
 // Copyright 2025 Automate The Planet Ltd.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // You may not use this file except in compliance with the License.
@@ -11,16 +11,20 @@
 // </copyright>
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
-namespace Testimize.Tests.ParameterSensitivityAnalysis;
+namespace Testimize.Tests.WeightOptimizationStudy;
 
-public class ParameterTestResult
+/// <summary>
+/// Statistical results for a weight configuration
+/// </summary>
+public class ConfigurationStats
 {
-    public double Value { get; set; }
+    public string Name { get; set; }
     public double MeanScore { get; set; }
-    public double StdDev { get; set; }
-    public double MeanTestCount { get; set; }
+    public double StandardDeviation { get; set; }
+    public double TTestPValue { get; set; }
+    public double EffectSize { get; set; }  // Cohen's d
+    public double MeanTestCases { get; set; }
     public double MeanCoverage { get; set; }
     public double MeanDiversity { get; set; }
-    public double ExecutionTime { get; set; }
-    public double AdditionalMetric { get; set; }
+    public double MeanBoundary { get; set; }
 }
