@@ -5,7 +5,8 @@
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(del:*)"
     ],
     "deny": [],
     "ask": []

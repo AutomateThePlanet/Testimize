@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Testimize.Contracts;
 using Testimize.Parameters.Core;
+using System.Collections.Concurrent;
 
 namespace Testimize.Tests.WeightOptimizationStudy;
 
@@ -27,7 +28,8 @@ public class ParameterizedTestCaseEvaluator : ITestCaseEvaluator
 {
     private readonly EvaluatorWeightsFactory _weights;
     private readonly bool _allowMultipleInvalidInputs;
-    private readonly Dictionary<int, HashSet<object>> _globalSeenValuesPerParameter = new();
+    private readonly ConcurrentDictionary<int, object> _globalSeenValuesLocks = new();
+    private readonly ConcurrentDictionary<int, HashSet<object>> _globalSeenValuesPerParameter = new();
 
     public ParameterizedTestCaseEvaluator(EvaluatorWeightsFactory weights, bool allowMultipleInvalidInputs = false)
     {
@@ -81,24 +83,22 @@ public class ParameterizedTestCaseEvaluator : ITestCaseEvaluator
             }
 
             // Ensure global tracking per parameter is initialized
-            if (!_globalSeenValuesPerParameter.ContainsKey(i))
-            {
-                _globalSeenValuesPerParameter[i] = new HashSet<object>();
-            }
+            _globalSeenValuesLocks.GetOrAdd(i, _ => new object());
+            _globalSeenValuesPerParameter.GetOrAdd(i, _ => new HashSet<object>());
 
             // Apply configurable first-time value bonus
-            if (_globalSeenValuesPerParameter[i].Add(value.Value))
+            lock (_globalSeenValuesLocks[i])
             {
-                score += _weights.FirstTimeValueBonus;
+                if (_globalSeenValuesPerParameter[i].Add(value.Value))
+                {
+                    score += _weights.FirstTimeValueBonus;
+                }
             }
 
             // Track first-time values in the evaluated set
             if (!alreadyCoveredValues.ContainsKey(i) || !alreadyCoveredValues[i].Contains(value.Value))
             {
-                if (!alreadyCoveredValues.ContainsKey(i))
-                    alreadyCoveredValues[i] = new HashSet<object>();
-
-                alreadyCoveredValues[i].Add(value.Value);
+                alreadyCoveredValues.GetOrAdd(i, _ => new HashSet<object>()).Add(value.Value);
                 firstTimeValueCount++;
             }
         }
@@ -113,19 +113,15 @@ public class ParameterizedTestCaseEvaluator : ITestCaseEvaluator
         return score;
     }
 
-    private Dictionary<int, HashSet<object>> GetCoveredValuesPerParameter(HashSet<TestCase> evaluatedPopulation)
+    private ConcurrentDictionary<int, HashSet<object>> GetCoveredValuesPerParameter(HashSet<TestCase> evaluatedPopulation)
     {
-        var coveredValues = new Dictionary<int, HashSet<object>>();
+        var coveredValues = new ConcurrentDictionary<int, HashSet<object>>();
 
         foreach (var testCase in evaluatedPopulation)
         {
             for (var i = 0; i < testCase.Values.Count; i++)
             {
-                if (!coveredValues.ContainsKey(i))
-                {
-                    coveredValues[i] = new HashSet<object>();
-                }
-                coveredValues[i].Add(testCase.Values[i].Value);
+                coveredValues.GetOrAdd(i, _ => new HashSet<object>()).Add(testCase.Values[i].Value);
             }
         }
 

@@ -106,4 +106,149 @@ public static class StatisticalAnalysisHelper
         if (avgPw == 0) return double.NaN;
         return (avgAbc - avgPw) / avgPw * 100.0;
     }
+
+    /// <summary>
+    /// Performs a two-sample t-test (Welch's t-test) to compare two independent samples with unequal variances.
+    /// </summary>
+    /// <param name="sample1">The first sample of values.</param>
+    /// <param name="sample2">The second sample of values.</param>
+    /// <returns>
+    /// A tuple containing the t-statistic and two-tailed p-value.
+    /// Returns (NaN, NaN) if either sample is too small (less than 2 values).
+    /// </returns>
+    public static (double tStatistic, double pValue) PerformTTest(double[] sample1, double[] sample2)
+    {
+        if (sample1.Length < 2 || sample2.Length < 2)
+            return (double.NaN, double.NaN);
+
+        var n1 = sample1.Length;
+        var n2 = sample2.Length;
+        var mean1 = sample1.Mean();
+        var mean2 = sample2.Mean();
+        var var1 = sample1.Variance();
+        var var2 = sample2.Variance();
+
+        var statistic = (mean1 - mean2) / Math.Sqrt(var1 / n1 + var2 / n2);
+
+        // Calculate degrees of freedom for Welch's t-test
+        var df = Math.Pow(var1 / n1 + var2 / n2, 2) /
+                (Math.Pow(var1 / n1, 2) / (n1 - 1) + Math.Pow(var2 / n2, 2) / (n2 - 1));
+
+        // Calculate p-value using Student's t-distribution
+        var tDist = new StudentT(0, 1, df);
+        var pValue = 2 * (1 - tDist.CumulativeDistribution(Math.Abs(statistic)));
+
+        return (statistic, pValue);
+    }
+
+    /// <summary>
+    /// Calculates Cohen's d effect size for two independent samples.
+    /// </summary>
+    /// <param name="sample1">The first sample of values.</param>
+    /// <param name="sample2">The second sample of values.</param>
+    /// <returns>
+    /// Cohen's d effect size. Values: 0.2=small, 0.5=medium, 0.8=large.
+    /// Returns NaN if samples are too small.
+    /// </returns>
+    public static double CalculateCohenD(double[] sample1, double[] sample2)
+    {
+        if (sample1.Length < 2 || sample2.Length < 2)
+            return double.NaN;
+
+        var mean1 = sample1.Mean();
+        var mean2 = sample2.Mean();
+        var var1 = sample1.Variance();
+        var var2 = sample2.Variance();
+        var n1 = sample1.Length;
+        var n2 = sample2.Length;
+
+        // Pooled standard deviation
+        var pooledStd = Math.Sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2));
+
+        return Math.Abs(mean1 - mean2) / pooledStd;
+    }
+
+    /// <summary>
+    /// Formats a double value for statistical display with appropriate precision.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <param name="decimalPlaces">Number of decimal places (default: 2).</param>
+    /// <returns>Formatted string representation of the value.</returns>
+    public static string FormatStatValue(double value, int decimalPlaces = 2)
+    {
+        if (double.IsNaN(value)) return "N/A";
+        if (double.IsInfinity(value)) return value > 0 ? "∞" : "-∞";
+
+        string format = $"F{decimalPlaces}";
+        return value.ToString(format);
+    }
+
+    /// <summary>
+    /// Formats a p-value for display with appropriate precision and notation.
+    /// </summary>
+    /// <param name="pValue">The p-value to format.</param>
+    /// <returns>Formatted string representation of the p-value.</returns>
+    public static string FormatPValue(double pValue)
+    {
+        if (double.IsNaN(pValue)) return "N/A";
+        if (pValue < 0.001) return "<0.001";
+        if (pValue > 0.999) return ">0.999";
+        return pValue.ToString("F3");
+    }
+
+    /// <summary>
+    /// Formats a percentage value for display.
+    /// </summary>
+    /// <param name="percentage">The percentage value to format.</param>
+    /// <param name="decimalPlaces">Number of decimal places (default: 1).</param>
+    /// <param name="includeSign">Whether to include + sign for positive values (default: false).</param>
+    /// <returns>Formatted string representation of the percentage.</returns>
+    public static string FormatPercentage(double percentage, int decimalPlaces = 1, bool includeSign = false)
+    {
+        if (double.IsNaN(percentage)) return "N/A";
+
+        string format = includeSign && percentage > 0
+            ? $"+{{0:F{decimalPlaces}}}%"
+            : $"{{0:F{decimalPlaces}}}%";
+
+        return string.Format(format, percentage);
+    }
+
+    /// <summary>
+    /// Interprets Cohen's d effect size value.
+    /// </summary>
+    /// <param name="cohenD">Cohen's d value.</param>
+    /// <returns>String interpretation of the effect size.</returns>
+    public static string GetEffectSizeInterpretation(double cohenD)
+    {
+        var absD = Math.Abs(cohenD);
+        if (absD < 0.2) return "Negligible";
+        if (absD < 0.5) return "Small";
+        if (absD < 0.8) return "Medium";
+        return "Large";
+    }
+
+    /// <summary>
+    /// Formats statistical results with mean ± standard deviation notation.
+    /// </summary>
+    /// <param name="mean">The mean value.</param>
+    /// <param name="stdDev">The standard deviation.</param>
+    /// <param name="decimalPlaces">Number of decimal places (default: 2).</param>
+    /// <returns>Formatted string in "mean ± stdDev" format.</returns>
+    public static string FormatMeanWithStdDev(double mean, double stdDev, int decimalPlaces = 2)
+    {
+        return $"{FormatStatValue(mean, decimalPlaces)} ± {FormatStatValue(stdDev, decimalPlaces)}";
+    }
+
+    /// <summary>
+    /// Formats a confidence interval for display.
+    /// </summary>
+    /// <param name="lowerBound">The lower bound of the interval.</param>
+    /// <param name="upperBound">The upper bound of the interval.</param>
+    /// <param name="decimalPlaces">Number of decimal places (default: 2).</param>
+    /// <returns>Formatted string in "[lower, upper]" format.</returns>
+    public static string FormatConfidenceInterval(double lowerBound, double upperBound, int decimalPlaces = 2)
+    {
+        return $"[{FormatStatValue(lowerBound, decimalPlaces)}, {FormatStatValue(upperBound, decimalPlaces)}]";
+    }
 }

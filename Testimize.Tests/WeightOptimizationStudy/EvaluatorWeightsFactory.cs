@@ -14,9 +14,6 @@
 
 namespace Testimize.Tests.WeightOptimizationStudy;
 
-/// <summary>
-/// Configuration class for TestCaseEvaluator weights used in scientific optimization studies.
-/// </summary>
 public class EvaluatorWeightsFactory
 {
     public double BoundaryValidWeight { get; set; } = 20;

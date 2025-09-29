@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using MathNet.Numerics.Statistics;
+using Testimize.Tests.Experiments;
 using Testimize.Contracts;
 using Testimize.Parameters;
 using Testimize.Parameters.Core;
@@ -531,7 +532,7 @@ public partial class ComprehensiveParameterTests
 
         // Find optimal value
         var optimal = results.OrderByDescending(r => r.MeanScore).First();
-        Console.WriteLine($"   Optimal value: {optimal.Value:F2} (Score: {optimal.MeanScore:F1} ± {optimal.StdDev:F1})");
+        Console.WriteLine($"   Optimal value: {StatisticalAnalysisHelper.FormatStatValue(optimal.Value, 2)} (Score: {StatisticalAnalysisHelper.FormatMeanWithStdDev(optimal.MeanScore, optimal.StdDev, 1)})");
 
         // Calculate effect size between best and worst
         var worst = results.OrderBy(r => r.MeanScore).First();
@@ -541,7 +542,7 @@ public partial class ComprehensiveParameterTests
             if (pooledStdDev > 0)
             {
                 var cohensD = Math.Abs(optimal.MeanScore - worst.MeanScore) / pooledStdDev;
-                Console.WriteLine($"   Effect size (Cohen's d): {cohensD:F2} ({GetEffectSizeInterpretation(cohensD)})");
+                Console.WriteLine($"   Effect size (Cohen's d): {StatisticalAnalysisHelper.FormatStatValue(cohensD, 2)} ({StatisticalAnalysisHelper.GetEffectSizeInterpretation(cohensD).ToLower()})");
             }
         }
 
@@ -552,7 +553,7 @@ public partial class ComprehensiveParameterTests
         {
             var minRecommended = recommendedRange.Min(r => r.Value);
             var maxRecommended = recommendedRange.Max(r => r.Value);
-            Console.WriteLine($"   Recommended range: {minRecommended:F2} - {maxRecommended:F2}");
+            Console.WriteLine($"   Recommended range: {StatisticalAnalysisHelper.FormatStatValue(minRecommended, 2)} - {StatisticalAnalysisHelper.FormatStatValue(maxRecommended, 2)}");
         }
 
         // 95% Confidence Interval for optimal (using t-distribution for small samples)
@@ -561,7 +562,7 @@ public partial class ComprehensiveParameterTests
             // For n=10, df=9, t-critical at 95% = 2.262
             var tCritical = 2.262; // t(9, 0.025)
             var ci95 = tCritical * optimal.StdDev / Math.Sqrt(TRIALS_PER_CONFIG);
-            Console.WriteLine($"   95% CI for optimal: [{optimal.MeanScore - ci95:F1}, {optimal.MeanScore + ci95:F1}]");
+            Console.WriteLine($"   95% CI for optimal: {StatisticalAnalysisHelper.FormatConfidenceInterval(optimal.MeanScore - ci95, optimal.MeanScore + ci95, 1)}");
         }
 
         // Statistical significance test (simplified t-test comparison to median)
@@ -575,18 +576,10 @@ public partial class ComprehensiveParameterTests
 
             // For df=9, critical values: 2.262 (p<0.05), 3.250 (p<0.01)
             var pValue = tStatistic > 3.250 ? "p < 0.01" : tStatistic > 2.262 ? "p < 0.05" : "p > 0.05";
-            Console.WriteLine($"   Significance vs median: {pValue} (t = {tStatistic:F2})");
+            Console.WriteLine($"   Significance vs median: {pValue} (t = {StatisticalAnalysisHelper.FormatStatValue(tStatistic, 2)})");
         }
 
         Console.WriteLine();
     }
 
-    private string GetEffectSizeInterpretation(double cohensD)
-    {
-        if (cohensD < 0.2) return "negligible";
-        if (cohensD < 0.5) return "small";
-        if (cohensD < 0.8) return "medium";
-        if (cohensD >= 1.2) return "very large";
-        return "large";
-    }
 }
