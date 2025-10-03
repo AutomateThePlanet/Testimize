@@ -401,3 +401,7 @@ FodyWeavers.xsd
 
 # Claude Code configuration
 CLAUDE.md
+
+.claude
+.github
+/.claude
