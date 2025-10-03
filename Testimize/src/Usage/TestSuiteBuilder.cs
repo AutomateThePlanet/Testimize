@@ -23,7 +23,7 @@ public class TestSuiteBuilder
     private readonly List<IInputParameter> _parameters;
     private readonly PreciseTestEngineSettings _settings;
 
-    internal TestSuiteBuilder(List<IInputParameter> parameters, PreciseTestEngineSettings config)
+    public TestSuiteBuilder(List<IInputParameter> parameters, PreciseTestEngineSettings config)
     {
         _parameters = parameters;
         _settings = config;

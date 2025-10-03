@@ -35,4 +35,11 @@ public class UrlDataParameter : DataParameter<UrlDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public UrlDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

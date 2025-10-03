@@ -35,4 +35,11 @@ public class ColorDataParameter : DataParameter<ColorDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public ColorDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

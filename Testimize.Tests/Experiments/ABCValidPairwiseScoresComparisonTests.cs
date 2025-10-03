@@ -20,17 +20,32 @@ using Testimize.Parameters;
 using Testimize.TestCaseGenerators;
 using Testimize.Contracts;
 using Testimize.Parameters.Core;
+using MathNet.Numerics.Statistics;
+using MathNet.Numerics.Distributions;
 
 namespace Testimize.Tests.Experiments;
 
+/// <summary>
+/// Comprehensive benchmark test class that compares the performance of ABC (Artificial Bee Colony) 
+/// algorithm against traditional pairwise test case generation. This class implements rigorous 
+/// statistical analysis using t-tests and confidence intervals to validate performance improvements.
+/// 
+/// The class performs the following statistical analyses:
+/// 1. Descriptive statistics (mean, standard deviation)
+/// 2. 95% confidence intervals using t-distribution
+/// 3. Paired t-tests for significance testing
+/// 4. Variance analysis across different random seeds
+/// </summary>
 [TestFixture]
 public class ABCValidPairwiseScoresComparisonTests
 {
     private const int Iterations = 10;
+    private static readonly int[] Seeds = Enumerable.Range(0, 10).ToArray(); // 0..9
+
     private List<IInputParameter> _parameters;
     private List<ABCGenerationSettings> _parameterSets;
-    private Dictionary<ABCGenerationSettings, List<double>> _abcScores = new();
-    private Dictionary<ABCGenerationSettings, List<double>> _pairwiseScores = new();
+    private readonly Dictionary<ABCGenerationSettings, List<double>> _abcScores = new();
+    private readonly Dictionary<ABCGenerationSettings, List<double>> _pairwiseScores = new();
     private HashSet<TestCase> _sortedPairwiseScores = new();
 
     [SetUp]
@@ -57,10 +72,60 @@ public class ABCValidPairwiseScoresComparisonTests
         PrintBestPairwisePerformance();
     }
 
-    // 🔹 Initialize input parameters for testing different fields
+    [Test]
+    [Category(Categories.CI)]
+    public void RunOptimizationBenchmark_VarianceBySeed()
+    {
+        Console.WriteLine("\n========== Running ABC Variance by Seed (additional reproducibility check) ==========");
+
+        foreach (var paramSet in _parameterSets)
+        {
+            var abc = new List<double>();
+            var pw = new List<double>();
+
+            // Pairwise is deterministic; we calculate it once for paramSet (topCount depends on FinalPopulationSelectionRatio)
+            var topCount = (int)(_sortedPairwiseScores.Count * paramSet.FinalPopulationSelectionRatio);
+            var pairwiseTotalScore = _sortedPairwiseScores.Take(topCount).Sum(p => p.Score);
+
+            foreach (var seed in Seeds)
+            {
+                var clone = (ABCGenerationSettings)paramSet.Clone();
+                clone.Seed = seed;
+
+                var abcGenerator = new HybridArtificialBeeColonyTestCaseGenerator(clone);
+                var abcTestCases = abcGenerator.RunABCAlgorithm(_parameters);
+
+                var evaluator = new TestCaseEvaluator();
+                double abcTotal = evaluator.EvaluatePopulationToDictionary(abcTestCases).Values.Sum();
+
+                abc.Add(abcTotal);
+                pw.Add(pairwiseTotalScore); // same baseline value for every seed
+            }
+
+            // Statistical analysis using StatisticalAnalysisHelper
+            var (avgAbc, sdAbc, seAbc) = StatisticalAnalysisHelper.CalculateDescriptiveStatistics(abc);
+            var (loAbc, hiAbc) = StatisticalAnalysisHelper.ConfidenceInterval95T(avgAbc, seAbc, df: abc.Count - 1);
+
+            var (avgPw, sdPw, sePw) = StatisticalAnalysisHelper.CalculateDescriptiveStatistics(pw);
+            var (loPw, hiPw) = StatisticalAnalysisHelper.ConfidenceInterval95T(avgPw, sePw, df: pw.Count - 1);
+
+            var improvement = StatisticalAnalysisHelper.CalculateImprovement(avgAbc, avgPw);
+
+            // Paired t-test on differences by seed
+            var diffs = abc.Zip(pw, (a, b) => a - b).ToArray();
+            var tRes = StatisticalAnalysisHelper.PairedTTest(diffs);
+
+            Console.WriteLine($"\n========== Variance by Seed for: {paramSet} ==========");
+            Console.WriteLine($"ABC Mean ± SD: {StatisticalAnalysisHelper.FormatMeanWithStdDev(avgAbc, sdAbc, 2)}  (95% CI: {StatisticalAnalysisHelper.FormatConfidenceInterval(loAbc, hiAbc, 2)})");
+            Console.WriteLine($"PW  Mean ± SD: {StatisticalAnalysisHelper.FormatMeanWithStdDev(avgPw, sdPw, 2)}  (95% CI: {StatisticalAnalysisHelper.FormatConfidenceInterval(loPw, hiPw, 2)})");
+            Console.WriteLine($"Δ Improvement (mean): {StatisticalAnalysisHelper.FormatPercentage(improvement, 1)}");
+            Console.WriteLine($"Paired t-test: t = {StatisticalAnalysisHelper.FormatStatValue(tRes.tStatistic, 3)}, df = {tRes.degreesOfFreedom}, p = {StatisticalAnalysisHelper.FormatPValue(tRes.pValueTwoTailed)}");
+        }
+    }
+
+    // 🔹 Initialize input parameters (valid-focused)
     private void InitializeParameters()
     {
-
         _parameters = new List<IInputParameter>
         {
             new TextDataParameter(preciseMode: true, preciseTestValues: new[]
@@ -94,7 +159,7 @@ public class ABCValidPairwiseScoresComparisonTests
     }
 
     // 🔹 Define different ABC parameter sets for benchmarking
-    private void InitializeParameterSets()
+    public void InitializeParameterSets()
     {
         _parameterSets = new List<ABCGenerationSettings>
         {
@@ -102,15 +167,72 @@ public class ABCValidPairwiseScoresComparisonTests
             {
                 FinalPopulationSelectionRatio = 0.6,
                 EliteSelectionRatio = 0.6,
+                TotalPopulationGenerations = 150,
+                MutationRate = 0.8,
+                AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = true,
+                OnlookerSelectionRatio = 0.4,
+                EnableScoutPhase = true,
+                StagnationThresholdPercentage = 0.85,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.99,
+                EnforceMutationUniqueness = false
+            },
+            new ABCGenerationSettings
+            {
+                FinalPopulationSelectionRatio = 0.6,
+                EliteSelectionRatio = 0.3,
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.5,
                 AllowMultipleInvalidInputs = false,
-                OnlookerSelectionRatio = 0.5,
-                ScoutSelectionRatio = 0.5,
-                CoolingRate = 0.85,
-                EnforceMutationUniqueness = false,
                 EnableOnlookerSelection = true,
+                OnlookerSelectionRatio = 0.4,
                 EnableScoutPhase = true,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.95,
+                EnforceMutationUniqueness = false
+            },
+            new ABCGenerationSettings
+            {
+                FinalPopulationSelectionRatio = 0.6,
+                EliteSelectionRatio = 0.3,
+                TotalPopulationGenerations = 100,
+                MutationRate = 0.5,
+                AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = true,
+                OnlookerSelectionRatio = 0.4,
+                EnableScoutPhase = false,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.95,
+                EnforceMutationUniqueness = false
+            },
+            new ABCGenerationSettings
+            {
+                FinalPopulationSelectionRatio = 0.6,
+                EliteSelectionRatio = 0.3,
+                TotalPopulationGenerations = 100,
+                MutationRate = 0.5,
+                AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = false,
+                OnlookerSelectionRatio = 0.4,
+                EnableScoutPhase = true,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.95,
+                EnforceMutationUniqueness = false
+            },
+             new ABCGenerationSettings
+            {
+                FinalPopulationSelectionRatio = 0.6,
+                EliteSelectionRatio = 0.3,
+                TotalPopulationGenerations = 100,
+                MutationRate = 0.5,
+                AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = false,
+                OnlookerSelectionRatio = 0.4,
+                EnableScoutPhase = false,
+                ScoutSelectionRatio = 0.3,
+                CoolingRate = 0.95,
+                EnforceMutationUniqueness = false
             },
             new ABCGenerationSettings
             {
@@ -119,34 +241,33 @@ public class ABCValidPairwiseScoresComparisonTests
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.5,
                 AllowMultipleInvalidInputs = false,
+                EnableOnlookerSelection = true,
                 OnlookerSelectionRatio = 0.5,
+                EnableScoutPhase = true,
                 ScoutSelectionRatio = 0.5,
                 CoolingRate = 0.85,
-                EnforceMutationUniqueness = false,
-                EnableOnlookerSelection = false,
-                EnableScoutPhase = false,
+                EnforceMutationUniqueness = false
             },
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
                 EliteSelectionRatio = 0.5,
                 TotalPopulationGenerations = 50,
-                MutationRate = 0.45, // Slightly higher mutation rate to check for improvements
-                AllowMultipleInvalidInputs = false,
+                MutationRate = 0.45,
+                AllowMultipleInvalidInputs = true,
                 EnableOnlookerSelection = true,
-                EnableScoutPhase = true,
+                EnableScoutPhase = true
             },
             new ABCGenerationSettings
             {
-                FinalPopulationSelectionRatio = 0.55,  // Slightly higher to retain more cases
-                EliteSelectionRatio = 0.45,  // Slightly lower to allow more diversity
+                FinalPopulationSelectionRatio = 0.55,
+                EliteSelectionRatio = 0.45,
                 TotalPopulationGenerations = 50,
-                MutationRate = 0.35,  // Fine-tuned mutation rate
-                AllowMultipleInvalidInputs = false,
+                MutationRate = 0.35,
+                AllowMultipleInvalidInputs = true,
                 EnableOnlookerSelection = true,
-                EnableScoutPhase = true,
+                EnableScoutPhase = true
             },
-            // 🔹 Best general configuration: Balanced selection & mutation
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
@@ -157,8 +278,6 @@ public class ABCValidPairwiseScoresComparisonTests
                 EnableOnlookerSelection = true,
                 EnableScoutPhase = true
             },
-
-            // 🔹 Stronger selection & refinement: Ideal when test cases must be stable
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
@@ -169,8 +288,6 @@ public class ABCValidPairwiseScoresComparisonTests
                 EnableOnlookerSelection = true,
                 EnableScoutPhase = true
             },
-
-            // 🔹 Higher mutation rate: Ensures wider test coverage
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
@@ -181,8 +298,6 @@ public class ABCValidPairwiseScoresComparisonTests
                 EnableOnlookerSelection = true,
                 EnableScoutPhase = true
             },
-
-            //// 🔹 Balanced exploitation & diversity: Great for complex test scenarios
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
@@ -190,11 +305,9 @@ public class ABCValidPairwiseScoresComparisonTests
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.7,
                 AllowMultipleInvalidInputs = false,
-                EnableOnlookerSelection = true,
-                EnableScoutPhase = true
+                EnableOnlookerSelection = false,
+                EnableScoutPhase = false
             },
-
-            // 🔹 More diverse test cases: Prevents overfitting to high-scoring cases
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.4,
@@ -202,11 +315,9 @@ public class ABCValidPairwiseScoresComparisonTests
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.8,
                 AllowMultipleInvalidInputs = false,
-                EnableOnlookerSelection = true,
-                EnableScoutPhase = true
+                EnableOnlookerSelection = false,
+                EnableScoutPhase = false
             },
-
-            // 🔹 Balanced mutation & selection: Useful when both exploration and exploitation are needed
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.5,
@@ -214,11 +325,9 @@ public class ABCValidPairwiseScoresComparisonTests
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.4,
                 AllowMultipleInvalidInputs = false,
-                EnableOnlookerSelection = true,
-                EnableScoutPhase = true
+                EnableOnlookerSelection = false,
+                EnableScoutPhase = false
             },
-
-            // 🔹 Maximum exploration: Ensures high diversity, best for finding edge cases
             new ABCGenerationSettings
             {
                 FinalPopulationSelectionRatio = 0.4,
@@ -226,8 +335,8 @@ public class ABCValidPairwiseScoresComparisonTests
                 TotalPopulationGenerations = 100,
                 MutationRate = 0.4,
                 AllowMultipleInvalidInputs = false,
-                EnableOnlookerSelection = true,
-                EnableScoutPhase = true
+                EnableOnlookerSelection = false,
+                EnableScoutPhase = false
             }
         };
     }
@@ -239,7 +348,6 @@ public class ABCValidPairwiseScoresComparisonTests
         var testCaseEvaluator = new TestCaseEvaluator();
         testCaseEvaluator.EvaluatePopulation(pairwiseTestCases);
 
-        // ✅ Ensure correct sorting before storing in `_sortedPairwiseScores`
         _sortedPairwiseScores = new HashSet<TestCase>(pairwiseTestCases.OrderByDescending(tc => tc.Score));
     }
 
@@ -263,10 +371,8 @@ public class ABCValidPairwiseScoresComparisonTests
     private double RunSingleIteration(ABCGenerationSettings config)
     {
         var abcGenerator = new HybridArtificialBeeColonyTestCaseGenerator(config);
-
         var abcTestCases = abcGenerator.RunABCAlgorithm(_parameters);
 
-        //abcGenerator.GenerateTestCases("ValidationParams", _parameters, TestCaseCategoty.Valid);
         var testCaseEvaluator = new TestCaseEvaluator();
         var abcScores = testCaseEvaluator.EvaluatePopulationToDictionary(abcTestCases);
         double abcTotalScore = abcScores.Values.Sum();
@@ -278,25 +384,34 @@ public class ABCValidPairwiseScoresComparisonTests
         return abcTotalScore;
     }
 
-    // 🔹 Print results for each ABC parameter set
+    // 🔹 Print results for each ABC parameter set (mean±SD, 95% CI, paired t-test)
     private void PrintResultsForParameterSet(ABCGenerationSettings paramSet)
     {
-        var avgAbcScore = _abcScores[paramSet].Average();
-        var avgPairwiseScore = _pairwiseScores[paramSet].Average();
-        var percentageImprovement = (avgAbcScore - avgPairwiseScore) / avgPairwiseScore * 100;
+        var abcList = _abcScores[paramSet];
+        var pwList = _pairwiseScores[paramSet];
+
+        var (avgAbc, sdAbc, seAbc) = StatisticalAnalysisHelper.CalculateDescriptiveStatistics(abcList);
+        var (avgPw, sdPw, sePw) = StatisticalAnalysisHelper.CalculateDescriptiveStatistics(pwList);
+        var improvement = StatisticalAnalysisHelper.CalculateImprovement(avgAbc, avgPw);
+
+        // t-distribution based 95% confidence intervals
+        var (loAbc, hiAbc) = StatisticalAnalysisHelper.ConfidenceInterval95T(avgAbc, seAbc, df: abcList.Count - 1);
+        var (loPw, hiPw) = StatisticalAnalysisHelper.ConfidenceInterval95T(avgPw, sePw, df: pwList.Count - 1);
+
+        // Paired t-test on per-iteration differences
+        var diffs = abcList.Zip(pwList, (a, b) => a - b).ToArray();
+        var tRes = StatisticalAnalysisHelper.PairedTTest(diffs);
 
         Console.WriteLine($"\n========== Summary for Parameters: {paramSet} ==========");
-        Console.WriteLine($"✅ ABC Avg Score: {Math.Abs(avgAbcScore)}");
-        Console.WriteLine($"✅ Pairwise Avg Score: {Math.Abs(avgPairwiseScore)}");
-        Console.WriteLine($"📈 Improvement Over Pairwise: {Math.Abs(percentageImprovement):F2}%");
-
-        Debug.WriteLine($"\n========== Summary for Parameters: {paramSet} ==========");
-        Debug.WriteLine($"✅ ABC Avg Score: {avgAbcScore}");
-        Debug.WriteLine($"✅ Pairwise Avg Score: {avgPairwiseScore}");
-        Debug.WriteLine($"📈 Improvement Over Pairwise: {percentageImprovement:F2}%");
+        Console.WriteLine($"✅ ABC Mean ± SD: {StatisticalAnalysisHelper.FormatMeanWithStdDev(avgAbc, sdAbc, 2)}  (95% CI: {StatisticalAnalysisHelper.FormatConfidenceInterval(loAbc, hiAbc, 2)})");
+        Console.WriteLine($"✅ Pairwise Mean ± SD: {StatisticalAnalysisHelper.FormatMeanWithStdDev(avgPw, sdPw, 2)}  (95% CI: {StatisticalAnalysisHelper.FormatConfidenceInterval(loPw, hiPw, 2)})");
+        Console.WriteLine($"📈 Improvement Over Pairwise (mean): {StatisticalAnalysisHelper.FormatPercentage(improvement, 1)}");
+        Console.WriteLine($"🧪 Paired t-test (ABC - Pairwise): t = {StatisticalAnalysisHelper.FormatStatValue(tRes.tStatistic, 3)}, df = {tRes.degreesOfFreedom}, p = {StatisticalAnalysisHelper.FormatPValue(tRes.pValueTwoTailed)}");
     }
 
-    // 🔹 Print the best ABC parameters
+
+    // === Summary Report Methods ===
+
     private void PrintBestABCParameters()
     {
         var bestABC = _abcScores.OrderByDescending(p => p.Value.Average()).First();
@@ -305,24 +420,13 @@ public class ABCValidPairwiseScoresComparisonTests
         Console.WriteLine($"Elite Selection Ratio: {bestABC.Key.EliteSelectionRatio}");
         Console.WriteLine($"Total Generations: {bestABC.Key.TotalPopulationGenerations}");
         Console.WriteLine($"Mutation Rate: {bestABC.Key.MutationRate}");
-        Console.WriteLine($"Achieved Avg Score: {bestABC.Value.Average()}");
-
-        Debug.WriteLine("\n========== Best ABC Parameters ==========");
-        Debug.WriteLine($"Final Population Ratio: {bestABC.Key.FinalPopulationSelectionRatio}");
-        Debug.WriteLine($"Elite Selection Ratio: {bestABC.Key.EliteSelectionRatio}");
-        Debug.WriteLine($"Total Generations: {bestABC.Key.TotalPopulationGenerations}");
-        Debug.WriteLine($"Mutation Rate: {bestABC.Key.MutationRate}");
-        Debug.WriteLine($"Achieved Avg Score: {bestABC.Value.Average()}");
+        Console.WriteLine($"Achieved Avg Score: {StatisticalAnalysisHelper.FormatStatValue(bestABC.Value.Average(), 2)}");
     }
 
-    // 🔹 Print the best pairwise score
     private void PrintBestPairwisePerformance()
     {
         var bestPairwise = _pairwiseScores.OrderByDescending(p => p.Value.Average()).First();
         Console.WriteLine("\n========== Best Pairwise Performance ==========");
-        Console.WriteLine($"Achieved Avg Score: {bestPairwise.Value.Average()} with ABC parameters: {bestPairwise.Key}");
-
-        Debug.WriteLine("\n========== Best Pairwise Performance ==========");
-        Debug.WriteLine($"Achieved Avg Score: {bestPairwise.Value.Average()} with ABC parameters: {bestPairwise.Key}");
+        Console.WriteLine($"Achieved Avg Score: {StatisticalAnalysisHelper.FormatStatValue(bestPairwise.Value.Average(), 2)} with ABC parameters: {bestPairwise.Key}");
     }
 }

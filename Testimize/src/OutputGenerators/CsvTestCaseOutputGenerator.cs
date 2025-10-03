@@ -45,7 +45,14 @@ public class CsvTestCaseOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine(output);
         Debug.WriteLine(output);
 
-        ClipboardService.SetText(output);
-        Console.WriteLine("✅ CSV output copied to clipboard.");
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ CSV output copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy CSV output to clipboard: {ex.Message}");
+        }
     }
 }

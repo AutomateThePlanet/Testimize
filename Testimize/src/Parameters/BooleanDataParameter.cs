@@ -35,4 +35,11 @@ public class BooleanDataParameter : DataParameter<BooleanDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public BooleanDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

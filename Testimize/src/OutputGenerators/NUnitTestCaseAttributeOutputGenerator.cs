@@ -56,9 +56,17 @@ public class NUnitTestCaseAttributeOutputGenerator : TestCaseOutputGenerator
         Console.WriteLine(output);
         Debug.WriteLine(output);
 
-        ClipboardService.SetText(output);
-        Console.WriteLine("✅ Attributes copied to clipboard.");
-        Debug.WriteLine("✅ Attributes copied to clipboard.");
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ Attributes copied to clipboard.");
+            Debug.WriteLine("✅ Attributes copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy attributes to clipboard: {ex.Message}");
+            Debug.WriteLine($"❌ Failed to copy attributes to clipboard: {ex.Message}");
+        }
     }
 
     private static string ToLiteral(object value)

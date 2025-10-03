@@ -38,8 +38,15 @@ public class MSTestTestMethodAttributeOutputGenerator : TestCaseOutputGenerator
 
         var output = sb.ToString();
         Console.WriteLine(output);
-        ClipboardService.SetText(output);
-        Console.WriteLine("✅ MSTest DataRow attributes copied to clipboard.");
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ MSTest DataRow attributes copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy MSTest DataRow attributes to clipboard: {ex.Message}");
+        }
     }
 
     private static string ToLiteral(object value)

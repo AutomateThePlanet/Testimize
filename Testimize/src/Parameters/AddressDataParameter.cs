@@ -35,4 +35,11 @@ public class AddressDataParameter : DataParameter<AddressDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public AddressDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

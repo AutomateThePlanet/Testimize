@@ -1,22 +1,21 @@
 @startuml
-' === Visual Style ===
-skinparam shadowing false
-skinparam roundcorner 0
-skinparam linetype ortho
-skinparam nodesep 80
-skinparam ranksep 50
+skinparam ActivityShape rounded
+skinparam ActivityBorderColor #333333
+skinparam ActivityBackgroundColor #E0E0E0
+skinparam PartitionBorderColor #333333
+skinparam ArrowColor #333333
 
 start
 
 :Client calls TestimizeEngine.Configure();
 
-partition "TestimizeEngine" {
+partition TestimizeEngine {
     :Creates TestimizeInputBuilder;
     :Creates PreciseTestEngineSettings;
     :Creates TestSuiteBuilder;
 }
 
-partition "TestimizeInputBuilder" {
+partition TestimizeInputBuilder {
     :AddText(...);
     :Creates ParameterBuilder<T>;
     :ParameterBuilder.Valid(...);
@@ -28,12 +27,16 @@ partition "TestimizeInputBuilder" {
 
 :Client calls TestSuiteBuilder.Generate();
 
-partition "TestSuiteBuilder" {
+partition TestSuiteBuilder {
     :Retrieves ABCGenerationSettings;
     :Calls HybridArtificialBeeColonyTestCaseGenerator.GenerateTestCases();
 }
 
-:The ABC algorithm is executed (see separate diagram);
+:The ABC algorithm is executed;
+note right
+  See Figure 2 for detailed 
+  ABC algorithm execution flow
+end note
 
 :The results are output through OutputGenerator;
 

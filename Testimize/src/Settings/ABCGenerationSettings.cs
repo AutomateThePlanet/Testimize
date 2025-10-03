@@ -12,6 +12,7 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using System.Text.Json.Serialization;
 using Testimize.Contracts;
 using Testimize.OutputGenerators;
 using Testimize.TestCaseGenerators;
@@ -23,7 +24,7 @@ public class ABCGenerationSettings : ICloneable
     {
         TestCaseGenerator = new PairwiseTestCaseGenerator();
         TestCaseEvaluator = new TestCaseEvaluator(AllowMultipleInvalidInputs);
-        OutputGenerator = new NUnitTestCaseAttributeOutputGenerator();
+        OutputGenerator = new JsonTestCaseOutputGenerator();
     }
 
     public int TotalPopulationGenerations { get; set; } = 50;
@@ -39,8 +40,14 @@ public class ABCGenerationSettings : ICloneable
     public double CoolingRate { get; set; } = 0.95;
     public bool AllowMultipleInvalidInputs { get; set; } = false;
     public int Seed { get; set; } = 42;
+    
+    [JsonIgnore]
     public ITestCaseGenerator TestCaseGenerator { get; set; }
+    
+    [JsonIgnore]
     public ITestCaseEvaluator TestCaseEvaluator { get; set; }
+    
+    [JsonIgnore]
     public ITestCaseOutputGenerator OutputGenerator { get; set; } 
 
     public override int GetHashCode()

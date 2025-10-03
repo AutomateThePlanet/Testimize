@@ -1,8 +1,8 @@
 'https://editor.plantuml.com/
-'Sequence Diagram 2 - Конфигуриране и изпълнение чрез TestimizeEngine
+'Sequence Diagram 2 - Configuration and execution through TestimizeEngine
 
 @startuml
-' === Класически UML стил със силно визуално присъствие ===
+' === Classic UML style with strong visual presence ===
 skinparam style strictuml
 skinparam roundcorner 0
 skinparam ArrowColor Black
@@ -20,7 +20,7 @@ participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator
 participant outputGenerator as "outputGenerator : NUnitTestCaseOutputGenerator"
 
 note over client, engine
-Фаза 1: Клиентът извиква конфигурация с делегати
+Phase 1: Client invokes configuration with delegates
 end note
 
 client -> engine : Configure(parametersLambda, settingsLambda)
@@ -30,7 +30,7 @@ engine -> inputBuilder : new TestimizeInputBuilder()
 activate inputBuilder
 
 note right of inputBuilder
-Извикване на AddText(...) чрез делегат
+Calling AddText(...) through delegate
 end note
 
 inputBuilder -> paramBuilder : new ParameterBuilder<Text>
@@ -38,7 +38,7 @@ paramBuilder -> valueBuilder : Valid("admin")
 valueBuilder -> paramBuilder : WithExpectedMessage("valid input")
 
 note right of inputBuilder
-Build() се извиква вътрешно в AddText()
+Build() is called internally in AddText()
 end note
 
 deactivate inputBuilder
@@ -48,7 +48,7 @@ engine -> builder : new TestSuiteBuilder(...)
 deactivate engine
 
 note over client, generator
-Фаза 2: Генериране чрез DI и ABC алгоритъм
+Phase 2: Generation through DI and ABC algorithm
 end note
 
 client -> builder : Generate()
@@ -62,7 +62,7 @@ generator -> generator : RunABCAlgorithm()
 generator -> outputGenerator : GenerateOutput(methodName, testCases, category)
 
 note right of outputGenerator
-Извежда към Console и Clipboard
+Outputs to Console and Clipboard
 end note
 
 generator --> builder : HashSet<TestCase>

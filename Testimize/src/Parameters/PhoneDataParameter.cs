@@ -35,4 +35,11 @@ public class PhoneDataParameter : DataParameter<PhoneDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public PhoneDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

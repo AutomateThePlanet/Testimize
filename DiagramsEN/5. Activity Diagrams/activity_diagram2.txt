@@ -1,40 +1,48 @@
-'https://editor.plantuml.com/
-'Activity Diagram #2: Internal Logic of the ABC Algorithm.
-
 @startuml
-skinparam shadowing false
-skinparam roundcorner 0
-skinparam linetype ortho
-skinparam nodesep 80
-skinparam ranksep 50
+skinparam ActivityShape rounded
+skinparam ActivityBorderColor #333333
+skinparam ActivityBackgroundColor #E0E0E0
+skinparam PartitionBorderColor #333333
+skinparam ArrowColor #333333
 
 start
 
-:GenerateInitialPopulation(parameters);
-:Evaluation via EvaluatePopulation(initialPopulation);
+:Generate initial population using PairwiseTestCaseGenerator;
+
+:Evaluate population via fitness function;
 
 repeat
-    :EvaluatePopulation(currentPopulation);
-
-    :SelectElitePopulation();
-    :Form non-elite as evaluated - elite;
-
-    if (EnableOnlookerSelection?) then
-        :nonElite = MaintainDiversePopulationOnlookerSelection(...);
-    else
-        :nonElite remains unchanged;
+    :Evaluate current population;
+    
+    :Select elite population;
+    
+    :Form non-elite population as evaluated - elite;
+    
+    if (Onlooker selection enabled?) then (yes)
+        :Apply probabilistic onlooker selection;
+        :Update non-elite based on fitness scores;
+    else (no)
+        :Non-elite remains unchanged;
     endif
-
-    :MutatePopulation(evaluated, nonElite, ...);
-
-    if (EnableScoutPhase? && iteration > stagnationThreshold) then
-        :PerformScoutPhaseIfNeeded();
+    
+    :Apply mutations to non-elite population;
+note right
+  Temperature-controlled acceptance
+  when EnforceMutationUniqueness=false
+end note
+    
+    if (Scout phase enabled and generation > threshold?) then (yes)
+        :Execute scout phase;
+        :Replace poor performers with new solutions;
+    else (no)
+        :Continue with current population;
     endif
+    
+repeat while (More generations to process?)
 
-repeat while (currentGeneration < totalGenerations)
+:Apply final selection ratio to limit test suite size;
 
-:LimitFinalPopulationBasedOnSelectionRatio();
-:Return finalPopulation;
+:Return optimized test suite;
 
 stop
 @enduml

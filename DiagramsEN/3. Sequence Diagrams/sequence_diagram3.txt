@@ -1,5 +1,5 @@
 'https://editor.plantuml.com/
-'Sequence Diagram 3: Internal ABC Iterative Loop
+'Sequence Diagram 3: Simplified ABC Algorithm Internal Loop
 
 @startuml
 ' === Classic UML style with strong visual presence ===
@@ -9,50 +9,54 @@ skinparam ArrowColor Black
 skinparam ArrowFontColor Black
 skinparam sequenceMessageAlignment center
 
-participant generator as "generator : HybridArtificialBeeColonyTestCaseGenerator"
-participant evaluator as "evaluator : ITestCaseEvaluator"
-participant randomizer as "randomizer : Random"
+participant generator as "ABC Generator"
+participant evaluator as "Fitness Evaluator"
+participant randomizer as "Random Selector"
 
 note over generator
-Phase 1: Start RunABCAlgorithm()
+Phase 1: Initialize algorithm
 end note
 
-generator -> generator : CreateInitialPopulation()
-generator -> evaluator : EvaluatePopulation(initialPopulation)
+generator -> generator : Generate initial test population
+generator -> evaluator : Evaluate initial population fitness
 
 loop for each generation
 
     note over generator
-    Phase 2: Mutation of the population
+    Phase 2: Preserve best solutions
     end note
 
-    generator -> randomizer : Select test cases for mutation
-    generator -> generator : Apply mutations
+    generator -> generator : Select elite population
 
     note over generator
-    Phase 3: Evaluation of the new population
+    Phase 3: Exploration phase
     end note
 
-    generator -> evaluator : EvaluatePopulation(mutatedPopulation)
+    generator -> randomizer : Select candidates for mutation
+    generator -> generator : Apply mutations to non-elite
 
     note over generator
-    Phase 4: Check for stagnation and improvement
+    Phase 4: Fitness assessment
     end note
 
-    generator -> generator : Check improvement
+    generator -> evaluator : Evaluate mutated population
 
-    alt If no improvement
-        generator -> generator : IncreaseStagnationCounter()
-    else If improvement exists
-        generator -> generator : UpdateBestPopulation()
+    note over generator
+    Phase 5: Diversity maintenance
+    end note
+
+    alt Scout phase enabled and threshold reached
+        generator -> generator : Identify stagnant solutions
+        generator -> randomizer : Replace poor performers with new solutions
     end
 
 end
 
 note over generator
-Phase 5: Final selection
+Phase 6: Final optimization
 end note
 
-generator -> generator : SelectFinalPopulation()
+generator -> generator : Apply final selection ratio
+generator -> generator : Return optimized test suite
 
 @enduml

@@ -12,6 +12,7 @@
 // <author>Anton Angelov</author>
 // <site>https://automatetheplanet.com/</site>
 
+using System.Text.Json.Serialization;
 using Testimize.OutputGenerators;
 
 namespace Testimize.Usage;
@@ -21,6 +22,8 @@ public class PreciseTestEngineSettings
     public TestGenerationMode Mode { get; set; } = TestGenerationMode.Pairwise;
     public TestCaseCategory TestCaseCategory { get; set; } = TestCaseCategory.All;
     public string MethodName { get; set; } = "TestMethodName";
+    
+    [JsonIgnore]
     public ITestCaseOutputGenerator OutputGenerator { get; set; } = new NUnitTestCaseSourceOutputGenerator();
 
     public ABCGenerationSettings ABCSettings { get; set; } = Settings.GetSection<TestimizeSettings>().ABCGenerationSettings;

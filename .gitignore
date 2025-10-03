@@ -398,3 +398,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Claude Code configuration
+CLAUDE.md
+
+.claude
+.github
+/.claude

@@ -35,4 +35,11 @@ public class MultiSelectDataParameter : DataParameter<MultiSelectDataProviderStr
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public MultiSelectDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

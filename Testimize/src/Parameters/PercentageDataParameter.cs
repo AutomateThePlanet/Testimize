@@ -35,4 +35,11 @@ public class PercentageDataParameter : DataParameter<PercentageDataProviderStrat
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public PercentageDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

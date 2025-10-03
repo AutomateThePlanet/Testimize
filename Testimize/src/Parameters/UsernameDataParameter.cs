@@ -35,4 +35,11 @@ public class UsernameDataParameter : DataParameter<UsernameDataProviderStrategy>
               preciseTestValues)
     {
     }
+
+    // Parameterless constructor for factory creation
+    public UsernameDataParameter() : base()
+    {
+    }
+
+    public override string ParameteryType => this.GetType().FullName;
 }

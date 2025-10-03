@@ -17,5 +17,6 @@ using Testimize.Parameters.Core;
 namespace Testimize.Contracts;
 public interface IInputParameter
 {
+    public string ParameteryType { get; }
     List<TestValue> TestValues { get; }
 }

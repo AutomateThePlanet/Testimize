@@ -39,8 +39,15 @@ public class XUnitInlineDataOutputGenerator : TestCaseOutputGenerator
 
         var output = sb.ToString();
         Console.WriteLine(output);
-        ClipboardService.SetText(output);
-        Console.WriteLine("✅ xUnit InlineData attributes copied to clipboard.");
+        try
+        {
+            ClipboardService.SetText(output);
+            Console.WriteLine("✅ xUnit InlineData attributes copied to clipboard.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Failed to copy xUnit InlineData attributes to clipboard: {ex.Message}");
+        }
     }
 
     private static string ToLiteral(object value)
