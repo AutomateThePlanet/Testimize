@@ -6,8 +6,38 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <NoWarn>$(NoWarn);1591;NU5100;NU5128</NoWarn>
   </PropertyGroup>
+
+  <!-- NuGet / .NET global tool packaging -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>testimize-mcp</ToolCommandName>
+    <PackageId>Testimize.MCP.Server</PackageId>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Authors>Anton Angelov</Authors>
+    <Company>Automate The Planet Ltd.</Company>
+    <Product>Testimize MCP Server</Product>
+    <Copyright>Copyright © Automate The Planet Ltd. 2025</Copyright>
+    <Description>Model Context Protocol (MCP) server exposing Testimize test-data generation to AI assistants (Claude Code, GitHub Copilot, Cursor). Also runs as a standalone REST API. Install as a .NET global tool: `dotnet tool install --global Testimize.MCP.Server`.</Description>
+    <PackageTags>testimize;mcp;model-context-protocol;ai;copilot;claude;test-data;dotnet-tool</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>testimize_nuget_icon.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/AutomateThePlanet/Testimize</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AutomateThePlanet/Testimize</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Initial release of the Testimize MCP Server as a .NET global tool.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="..\testimize_nuget_icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Remove="testimizeSettings.json" />

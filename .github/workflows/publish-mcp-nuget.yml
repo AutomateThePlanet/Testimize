@@ -1,15 +1,15 @@
-name: 📦 Publish Testimize NuGet Package
+name: 📦 Publish MCP Server NuGet Package
 
 on:
   push:
     tags:
-      - 'v*.*.*'  # Triggers on core version tags like v1.1.8
+      - 'mcp-v*.*.*'  # Triggers on MCP version tags like mcp-v1.0.0
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Override package version (optional, e.g. 1.1.9)'
+        description: 'Override package version (optional, e.g. 1.0.1)'
         required: false
 
 permissions:
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish Testimize to NuGet.org
+    name: Publish Testimize.MCP.Server to NuGet.org
     runs-on: ubuntu-latest
     environment: production
 
@@ -37,6 +37,8 @@ jobs:
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             echo "value=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == refs/tags/mcp-v* ]]; then
+            echo "value=${GITHUB_REF#refs/tags/mcp-v}" >> "$GITHUB_OUTPUT"
           elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             echo "value=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
           else
@@ -44,27 +46,27 @@ jobs:
           fi
 
       - name: Restore Dependencies
-        run: dotnet restore ./Testimize/Testimize.csproj
+        run: dotnet restore ./Testimize.MCP.Server/Testimize.MCP.Server.csproj
 
       - name: Build Project
-        run: dotnet build ./Testimize/Testimize.csproj --configuration Release --no-restore
+        run: dotnet build ./Testimize.MCP.Server/Testimize.MCP.Server.csproj --configuration Release --no-restore
 
       - name: Pack NuGet Package
         run: |
           if [ -n "${{ steps.version.outputs.value }}" ]; then
-            dotnet pack ./Testimize/Testimize.csproj \
+            dotnet pack ./Testimize.MCP.Server/Testimize.MCP.Server.csproj \
               --configuration Release --no-build \
               -p:Version=${{ steps.version.outputs.value }} \
               --output ./nupkg
           else
-            dotnet pack ./Testimize/Testimize.csproj \
+            dotnet pack ./Testimize.MCP.Server/Testimize.MCP.Server.csproj \
               --configuration Release --no-build \
               --output ./nupkg
           fi
 
       - name: Push to NuGet.org
         run: |
-          dotnet nuget push ./nupkg/Testimize.*.nupkg \
+          dotnet nuget push ./nupkg/Testimize.MCP.Server.*.nupkg \
             --api-key ${{ secrets.NUGETKEY }} \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
@@ -72,5 +74,5 @@ jobs:
       - name: Upload Package Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: testimize-nupkg
+          name: testimize-mcp-nupkg
           path: ./nupkg/*.nupkg
