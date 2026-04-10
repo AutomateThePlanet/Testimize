@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'mcp-v*.*.*'  # Triggers on MCP version tags like mcp-v1.0.0
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       version:
