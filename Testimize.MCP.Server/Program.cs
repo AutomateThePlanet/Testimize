@@ -85,12 +85,20 @@ if (args.Contains("--mcp"))
             var method = request.GetProperty("method").GetString();
             var id = request.TryGetProperty("id", out var idProp) ? idProp : (JsonElement?)null;
             var paramsElement = request.TryGetProperty("params", out var paramsProp) ? paramsProp : (JsonElement?)null;
-            
-            await Console.Error.WriteLineAsync($"[DEBUG] Method: {method}, ID: {id}");
-            
+
+            // JSON-RPC 2.0 §4.1: a Notification is a Request object without
+            // an "id" member. The Server MUST NOT reply to a Notification.
+            // Also: any method name starting with "notifications/" is a
+            // notification per the MCP spec (e.g. "notifications/initialized"),
+            // even if some clients buggily include an id. Detect both.
+            var isNotification = id is null
+                || (method?.StartsWith("notifications/", StringComparison.Ordinal) == true);
+
+            await Console.Error.WriteLineAsync($"[DEBUG] Method: {method}, ID: {id}, Notification: {isNotification}");
+
             object? result = null;
             object? error = null;
-            
+
             try
             {
                 // Handle MCP methods
@@ -99,11 +107,14 @@ if (args.Contains("--mcp"))
                     "initialize" => mcpHandler.Initialize(paramsElement?.Deserialize<object>()),
                     "tools/list" => mcpHandler.ToolsList(),
                     "tools/call" => mcpHandler.ToolsCall(paramsElement ?? new JsonElement()),
-                    "notifications/initialized" => new { }, // Handle initialization notification
-                    "prompts/list" => new { prompts = new object[] { } }, // Empty prompts list
+                    "notifications/initialized" => null, // no response for notifications
+                    "notifications/cancelled" => null,
+                    "prompts/list" => new { prompts = new object[] { } },
+                    "resources/list" => new { resources = new object[] { } },
+                    _ when isNotification => null, // any other notification: no-op
                     _ => throw new Exception($"Unknown method: {method}")
                 };
-                
+
                 await Console.Error.WriteLineAsync($"[DEBUG] Method executed successfully");
             }
             catch (Exception ex)
@@ -111,17 +122,34 @@ if (args.Contains("--mcp"))
                 error = new { code = -32000, message = ex.Message };
                 await Console.Error.WriteLineAsync($"[DEBUG] Method execution failed: {ex.Message}");
             }
-            
-            // Send response
-            var response = new
+
+            // Notifications never get a response (spec requirement).
+            if (isNotification)
             {
-                jsonrpc = "2.0",
-                id = id?.Deserialize<object>(),
-                result = error == null ? result : null,
-                error = error
-            };
-            
-            var responseJson = JsonSerializer.Serialize(response);
+                await Console.Error.WriteLineAsync("[DEBUG] Notification — not sending a response");
+                continue;
+            }
+
+            // Build a spec-compliant JSON-RPC 2.0 response: MUST contain
+            // either "result" OR "error", never both.
+            object response = error == null
+                ? new
+                {
+                    jsonrpc = "2.0",
+                    id = id?.Deserialize<object>(),
+                    result = result
+                }
+                : new
+                {
+                    jsonrpc = "2.0",
+                    id = id?.Deserialize<object>(),
+                    error = error
+                };
+
+            var responseJson = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
             await Console.Error.WriteLineAsync($"[DEBUG] Sending response: {responseJson}");
             await writer.WriteLineAsync(responseJson);
         }
